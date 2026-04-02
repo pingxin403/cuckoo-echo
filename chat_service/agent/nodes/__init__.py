@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import structlog
 
+from chat_service.agent.nodes.rag_engine import rag_engine_node
 from chat_service.agent.nodes.router import (
     detect_negative_sentiment,
     llm_classify_intent,
@@ -31,11 +32,6 @@ __all__ = [
 
 async def preprocess_node(state: AgentState) -> AgentState:
     log.debug("preprocess_node", thread_id=state.get("thread_id"))
-    return state
-
-
-async def rag_engine_node(state: AgentState) -> AgentState:
-    log.debug("rag_engine_node")
     return state
 
 

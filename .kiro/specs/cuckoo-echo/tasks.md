@@ -83,12 +83,12 @@
 
 **任务列表**：
 
-- [ ] 8. RAG Engine Node
-  - [ ] 8.1 Implement `rag_engine_node(state)` in `chat_service/agent/nodes/rag_engine.py`: embed query via `embedding_service.embed()`; build `AnnSearchRequest` for `dense_vector` (COSINE, ef=100, limit=10) and `sparse_vector` (BM25, limit=10), both with `expr=f"tenant_id == '{tenant_id}'"` and `partition_names=[tenant_id]`
-  - [ ] 8.2 Call `collection.hybrid_search(reqs=[dense_req, sparse_req], rerank=RRFRanker(k=60), limit=5, output_fields=["chunk_text","doc_id"], partition_names=[tenant_id])`; handle empty results by returning `user_intent="no_answer"`
-  - [ ] 8.3 Implement soft-delete filtering: extract `doc_id` list from results, call `get_active_doc_ids(doc_ids, tenant_id)` (queries PG `knowledge_docs WHERE deleted_at IS NULL`), filter chunks to active docs only
-  - [ ] 8.4 Implement reranker using `FlagEmbedding` library with `BAAI/bge-reranker-v2-m3` model; call `reranker.compute_score(pairs)` via `asyncio.get_running_loop().run_in_executor()` wrapped with `asyncio.wait_for(..., timeout=0.5)`; on `TimeoutError` log warning (structlog) and fall back to RRF Top-3; always return `rag_context` as list of ≤ 3 strings
-  - [ ] 8.5 Write unit tests in `tests/unit/test_rag_engine.py`: Top-K ≤ 5 from Milvus, Top-3 after rerank, soft-deleted docs filtered out, rerank timeout falls back gracefully
+- [x] 8. RAG Engine Node
+  - [x] 8.1 Implement `rag_engine_node(state)` in `chat_service/agent/nodes/rag_engine.py`: embed query via `embedding_service.embed()`; build `AnnSearchRequest` for `dense_vector` (COSINE, ef=100, limit=10) and `sparse_vector` (BM25, limit=10), both with `expr=f"tenant_id == '{tenant_id}'"` and `partition_names=[tenant_id]`
+  - [x] 8.2 Call `collection.hybrid_search(reqs=[dense_req, sparse_req], rerank=RRFRanker(k=60), limit=5, output_fields=["chunk_text","doc_id"], partition_names=[tenant_id])`; handle empty results by returning `user_intent="no_answer"`
+  - [x] 8.3 Implement soft-delete filtering: extract `doc_id` list from results, call `get_active_doc_ids(doc_ids, tenant_id)` (queries PG `knowledge_docs WHERE deleted_at IS NULL`), filter chunks to active docs only
+  - [x] 8.4 Implement reranker using `FlagEmbedding` library with `BAAI/bge-reranker-v2-m3` model; call `reranker.compute_score(pairs)` via `asyncio.get_running_loop().run_in_executor()` wrapped with `asyncio.wait_for(..., timeout=0.5)`; on `TimeoutError` log warning (structlog) and fall back to RRF Top-3; always return `rag_context` as list of ≤ 3 strings
+  - [x] 8.5 Write unit tests in `tests/unit/test_rag_engine.py`: Top-K ≤ 5 from Milvus, Top-3 after rerank, soft-deleted docs filtered out, rerank timeout falls back gracefully
 
 - [ ] 9. Guardrails Node
   - [ ] 9.1 Load `CrossEncoder("cross-encoder/nli-deberta-v3-small")` as a module-level singleton in `chat_service/agent/nodes/guardrails.py`; document label order: `contradiction=0, entailment=1, neutral=2`
