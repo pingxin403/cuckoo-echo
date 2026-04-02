@@ -59,13 +59,13 @@
   - [x] 6.3 Implement `billing_service.record_usage(thread_id, tenant_id, tokens_used)` in `shared/billing.py`: `UPDATE messages SET tokens_used = $1 WHERE thread_id = $2` within `tenant_db_context`; also update multimodal Credits for audio/image consumption
   - [x] 6.4 Write unit tests in `tests/unit/test_llm_gateway.py`: primary backend success, primary timeout triggers fallback within 3s, `stream_usage=True` captures token counts, Langfuse callback invoked
 
-- [ ] 7. Router Node
-  - [ ] 7.1 Implement `RULE_PATTERNS` dict in `chat_service/agent/nodes/router.py` with compiled regex patterns for `get_order_status` and `update_shipping_address` (Chinese + English variants)
-  - [ ] 7.2 Implement `detect_negative_sentiment(state)` in `chat_service/agent/nodes/router.py`: keyword/pattern-based negative-emotion detection; return `True` if matched or `state["unresolved_turns"] >= 3`
-  - [ ] 7.3 Implement `llm_classify_intent(text, tenant_id)` in `chat_service/agent/nodes/router.py`: call AI Gateway with a classification prompt; return one of `"tool:{name}"`, `"rag"`, `"hitl"`, `"chitchat"`
-  - [ ] 7.4 Implement `router_node(state)`: rule engine first → sentiment/HITL check → LLM fallback; return updated `AgentState` with `user_intent` set
-  - [ ] 7.5 Implement `route_decision(state)` conditional edge function returning `"tool"`, `"rag"`, or `"hitl"`
-  - [ ] 7.6 Write unit tests in `tests/unit/test_router.py`: rule-engine patterns hit correctly, HITL triggers on negative sentiment and `unresolved_turns >= 3`, LLM fallback called only when rules miss
+- [x] 7. Router Node
+  - [x] 7.1 Implement `RULE_PATTERNS` dict in `chat_service/agent/nodes/router.py` with compiled regex patterns for `get_order_status` and `update_shipping_address` (Chinese + English variants)
+  - [x] 7.2 Implement `detect_negative_sentiment(state)` in `chat_service/agent/nodes/router.py`: keyword/pattern-based negative-emotion detection; return `True` if matched or `state["unresolved_turns"] >= 3`
+  - [x] 7.3 Implement `llm_classify_intent(text, tenant_id)` in `chat_service/agent/nodes/router.py`: call AI Gateway with a classification prompt; return one of `"tool:{name}"`, `"rag"`, `"hitl"`, `"chitchat"`
+  - [x] 7.4 Implement `router_node(state)`: rule engine first → sentiment/HITL check → LLM fallback; return updated `AgentState` with `user_intent` set
+  - [x] 7.5 Implement `route_decision(state)` conditional edge function returning `"tool"`, `"rag"`, or `"hitl"`
+  - [x] 7.6 Write unit tests in `tests/unit/test_router.py`: rule-engine patterns hit correctly, HITL triggers on negative sentiment and `unresolved_turns >= 3`, LLM fallback called only when rules miss
 
 ---
 

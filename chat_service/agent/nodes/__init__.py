@@ -1,22 +1,37 @@
-"""Stub node functions for the LangGraph agent graph."""
+"""Node functions for the LangGraph agent graph."""
 
 from __future__ import annotations
 
 import structlog
 
+from chat_service.agent.nodes.router import (
+    detect_negative_sentiment,
+    llm_classify_intent,
+    route_decision,
+    router_node,
+)
 from chat_service.agent.state import AgentState
 
 log = structlog.get_logger()
+
+__all__ = [
+    "preprocess_node",
+    "router_node",
+    "rag_engine_node",
+    "tool_executor_node",
+    "llm_generate_node",
+    "guardrails_node",
+    "postprocess_node",
+    "route_decision",
+    "guardrails_decision",
+    "detect_negative_sentiment",
+    "llm_classify_intent",
+]
 
 
 async def preprocess_node(state: AgentState) -> AgentState:
     log.debug("preprocess_node", thread_id=state.get("thread_id"))
     return state
-
-
-async def router_node(state: AgentState) -> AgentState:
-    log.debug("router_node", thread_id=state.get("thread_id"))
-    return {**state, "user_intent": "rag"}  # default to RAG for stub
 
 
 async def rag_engine_node(state: AgentState) -> AgentState:
@@ -42,15 +57,6 @@ async def guardrails_node(state: AgentState) -> AgentState:
 async def postprocess_node(state: AgentState) -> AgentState:
     log.debug("postprocess_node")
     return state
-
-
-def route_decision(state: AgentState) -> str:
-    intent = state.get("user_intent", "rag")
-    if intent and intent.startswith("tool:"):
-        return "tool"
-    if state.get("hitl_requested"):
-        return "hitl"
-    return "rag"
 
 
 def guardrails_decision(state: AgentState) -> str:
