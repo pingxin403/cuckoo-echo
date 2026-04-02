@@ -139,7 +139,7 @@
   - [ ] 12.4 Implement `POST /admin/v1/knowledge/docs/{id}/retry`: reset `status=pending`, clear `error_msg`; the polling worker will pick it up on next cycle
   - [ ] 12.5 Write unit tests in `tests/unit/test_admin_knowledge.py`: upload creates pending row, delete sets deleted_at, retry resets status, progress endpoint returns correct status
 
-- [ ] 13. Admin Service — HITL
+- [-] 13. Admin Service — HITL
   - [ ] 13.1 Implement `WS /admin/v1/ws/hitl` in `admin_service/routes/hitl.py`: maintain per-tenant WebSocket connection registry; push `{"type": "hitl_request", "thread_id": ..., "reason": ..., "unresolved_turns": ...}` when Agent sets `hitl_requested=True`
   - [ ] 13.2 Implement `POST /admin/v1/hitl/{session_id}/take`: update `threads.status = 'human_intervention'`; update `hitl_sessions.admin_user_id` and `status = 'active'`; stop Agent auto-reply for that thread
   - [ ] 13.3 Implement `POST /admin/v1/hitl/{session_id}/end`: update `threads.status = 'active'`; update `hitl_sessions.ended_at` and `status = 'resolved'`; allow Agent to resume
