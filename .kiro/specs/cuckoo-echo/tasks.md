@@ -126,7 +126,7 @@
   - [x] 11.3 Persist tool call record: after each call append `{"name": tool_name, "args": args, "result": result}` to `state["tool_calls"]`; the AsyncPostgresSaver Checkpoint already persists the full State including `tool_calls` — no separate DB write needed here
   - [x] 11.4 Write unit tests in `tests/unit/test_tool_executor.py`: successful call returns result, 5s timeout returns error dict, `tenant_id` present in every outbound call
 
-- [ ] 12. ASR Service & Multimodal Preprocess
+- [-] 12. ASR Service & Multimodal Preprocess
   - [ ] 11.1 Implement `POST /v1/asr/transcribe` in `asr_service/main.py`: validate `content_type in SUPPORTED_AUDIO_TYPES`; upload to OSS with prefix `{tenant_id}/audio/`; call `whisper_client.transcribe(oss_path)`; return `{"text": ..., "oss_path": ...}`; raise 500 on `WhisperError`
   - [ ] 11.2 Implement `preprocess_node` multimodal handling in `chat_service/agent/nodes/preprocess.py`: if `media` contains audio, call ASR service and replace content with transcript; if `media` contains image, upload to OSS and append signed URL to message; push `{"status": "processing"}` SSE event during preprocessing
   - [ ] 11.3 Measure ASR-to-Agent handoff latency: record `asr_done_at` timestamp after transcription; compute `handoff_ms = (agent_start_at - asr_done_at).total_seconds() * 1000`; emit `metrics.histogram("asr_handoff_ms", handoff_ms)` and log warning if `handoff_ms > 500`; also emit `metrics.histogram("asr_processing_ms", processing_ms)` for Whisper inference duration — this is the key signal for GPU scaling decisions
