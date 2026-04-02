@@ -132,7 +132,7 @@
   - [ ] 11.3 Measure ASR-to-Agent handoff latency: record `asr_done_at` timestamp after transcription; compute `handoff_ms = (agent_start_at - asr_done_at).total_seconds() * 1000`; emit `metrics.histogram("asr_handoff_ms", handoff_ms)` and log warning if `handoff_ms > 500`; also emit `metrics.histogram("asr_processing_ms", processing_ms)` for Whisper inference duration — this is the key signal for GPU scaling decisions
   - [ ] 11.4 Write unit tests in `tests/unit/test_asr_service.py`: successful transcription returns text, unsupported format returns 415, WhisperError returns 500, OSS path includes tenant prefix
 
-- [ ] 12. Admin Service — Knowledge Management
+- [-] 12. Admin Service — Knowledge Management
   - [ ] 12.1 Implement `POST /admin/v1/knowledge/docs` in `admin_service/routes/knowledge.py`: accept multipart upload ≤ 50MB; write OSS path and `status=pending` row to `knowledge_docs`; return `doc_id`
   - [ ] 12.2 Implement `GET /admin/v1/knowledge/docs/{id}`: query `knowledge_docs` for `status`, `chunk_count`, `error_msg`; return progress object
   - [ ] 12.3 Implement `DELETE /admin/v1/knowledge/docs/{id}`: set `deleted_at = NOW()` immediately (soft delete); enqueue async Milvus cleanup task (`delete expr=f"doc_id == '{doc_id}'"`) with retry (max 3 attempts, exponential backoff); Milvus physical delete must complete within 5 minutes
