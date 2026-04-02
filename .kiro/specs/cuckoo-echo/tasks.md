@@ -39,12 +39,12 @@
   - [x] 3.1 Write integration tests in `tests/integration/test_tenant_isolation.py`: insert rows for two tenants, query with each `tenant_db_context`, assert zero cross-tenant rows in `users`, `threads`, `messages`
   - [x] 3.2 Write integration tests in `tests/integration/test_milvus_isolation.py`: insert vectors for two tenants, search with `partition_names=[tenant_a]`, assert all results have `tenant_id == tenant_a`
 
-- [ ] 4. LangGraph Agent Graph
-  - [ ] 4.1 Define `AgentState` TypedDict in `chat_service/agent/state.py` with all fields: `thread_id`, `tenant_id`, `user_id`, `messages`, `summary`, `user_intent`, `rag_context`, `tool_calls`, `media_urls`, `hitl_requested`, `tokens_used`, `llm_response`, `guardrails_passed`, `correction_message`, `unresolved_turns`
-  - [ ] 4.2 Implement stub node functions in `chat_service/agent/nodes.py`: `preprocess_node`, `router_node`, `rag_engine_node`, `tool_executor_node`, `llm_generate_node`, `guardrails_node`, `postprocess_node` — each accepting and returning `AgentState`
-  - [ ] 4.3 Implement `build_agent_graph(checkpointer)` in `chat_service/agent/graph.py`: wire all nodes, `set_entry_point("preprocess")`, conditional edges from `router` (`tool`/`rag`/`hitl`→END) and `guardrails` (`pass`/`hitl`→END), `compile(checkpointer=checkpointer, interrupt_before=["hitl"])`
-  - [ ] 4.4 Implement `get_checkpointer()` in `chat_service/agent/checkpointer.py`: create a single global `AsyncPostgresSaver` instance and `AsyncPostgresStore` instance (跨 Thread 长期记忆) from the asyncpg pool at app startup; expose `lifespan` context manager that calls `checkpointer.setup()` and `store.setup()`; compile graph with both `checkpointer` and `store`; store the compiled graph in `app.state.agent`
-  - [ ] 4.5 Write unit tests in `tests/unit/test_agent_graph.py`: verify graph topology (node names, edge targets), verify `compile()` succeeds with a mock checkpointer
+- [x] 4. LangGraph Agent Graph
+  - [x] 4.1 Define `AgentState` TypedDict in `chat_service/agent/state.py` with all fields: `thread_id`, `tenant_id`, `user_id`, `messages`, `summary`, `user_intent`, `rag_context`, `tool_calls`, `media_urls`, `hitl_requested`, `tokens_used`, `llm_response`, `guardrails_passed`, `correction_message`, `unresolved_turns`
+  - [x] 4.2 Implement stub node functions in `chat_service/agent/nodes.py`: `preprocess_node`, `router_node`, `rag_engine_node`, `tool_executor_node`, `llm_generate_node`, `guardrails_node`, `postprocess_node` — each accepting and returning `AgentState`
+  - [x] 4.3 Implement `build_agent_graph(checkpointer)` in `chat_service/agent/graph.py`: wire all nodes, `set_entry_point("preprocess")`, conditional edges from `router` (`tool`/`rag`/`hitl`→END) and `guardrails` (`pass`/`hitl`→END), `compile(checkpointer=checkpointer, interrupt_before=["hitl"])`
+  - [x] 4.4 Implement `get_checkpointer()` in `chat_service/agent/checkpointer.py`: create a single global `AsyncPostgresSaver` instance and `AsyncPostgresStore` instance (跨 Thread 长期记忆) from the asyncpg pool at app startup; expose `lifespan` context manager that calls `checkpointer.setup()` and `store.setup()`; compile graph with both `checkpointer` and `store`; store the compiled graph in `app.state.agent`
+  - [x] 4.5 Write unit tests in `tests/unit/test_agent_graph.py`: verify graph topology (node names, edge targets), verify `compile()` succeeds with a mock checkpointer
 
 - [ ] 5. Chat_Service SSE Endpoint
   - [ ] 5.1 Implement `event_generator()` in `chat_service/routes/chat.py`: acquire Redis lock (`cuckoo:lock:{thread_id}`, TTL 90s, `blocking=False`) inside the generator; yield `{"error": "CONCURRENT_REQUEST"}` SSE event and return if lock not acquired (409 semantics)
