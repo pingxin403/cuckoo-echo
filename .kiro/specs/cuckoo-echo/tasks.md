@@ -35,9 +35,9 @@
   - [x] 2.5 Wire all middleware into `api_gateway/main.py` FastAPI app in order: `TenantAuthMiddleware` → `RateLimitMiddleware` → `CircuitBreakerMiddleware`; add `/health` endpoint; configure `structlog` JSON logging; production 启动命令使用 `granian --interface asgi api_gateway.main:app`，开发环境可用 `uvicorn api_gateway.main:app --reload`
   - [x] 2.6 Write unit tests in `tests/unit/test_gateway.py`: valid/invalid API key, rate-limit boundary (N-1, N, N+1), 415 for unsupported formats, circuit-breaker open/half-open/close transitions
 
-- [ ] 3. Multi-Tenant Isolation Integration Tests
-  - [ ] 3.1 Write integration tests in `tests/integration/test_tenant_isolation.py`: insert rows for two tenants, query with each `tenant_db_context`, assert zero cross-tenant rows in `users`, `threads`, `messages`
-  - [ ] 3.2 Write integration tests in `tests/integration/test_milvus_isolation.py`: insert vectors for two tenants, search with `partition_names=[tenant_a]`, assert all results have `tenant_id == tenant_a`
+- [x] 3. Multi-Tenant Isolation Integration Tests
+  - [x] 3.1 Write integration tests in `tests/integration/test_tenant_isolation.py`: insert rows for two tenants, query with each `tenant_db_context`, assert zero cross-tenant rows in `users`, `threads`, `messages`
+  - [x] 3.2 Write integration tests in `tests/integration/test_milvus_isolation.py`: insert vectors for two tenants, search with `partition_names=[tenant_a]`, assert all results have `tenant_id == tenant_a`
 
 - [ ] 4. LangGraph Agent Graph
   - [ ] 4.1 Define `AgentState` TypedDict in `chat_service/agent/state.py` with all fields: `thread_id`, `tenant_id`, `user_id`, `messages`, `summary`, `user_intent`, `rag_context`, `tool_calls`, `media_urls`, `hitl_requested`, `tokens_used`, `llm_response`, `guardrails_passed`, `correction_message`, `unresolved_turns`
