@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cuckoo
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  milvus:
+    image: milvusdb/milvus:v2.5-latest
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_USE_EMBED: "true"
+      ETCD_DATA_DIR: /var/lib/milvus/etcd
+      COMMON_STORAGETYPE: local
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    volumes:
+      - milvusdata:/var/lib/milvus
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+
+volumes:
+  pgdata:
+  milvusdata:
+  miniodata:
