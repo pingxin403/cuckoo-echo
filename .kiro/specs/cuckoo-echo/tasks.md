@@ -26,6 +26,7 @@
   - [x] 1.4 Write `shared/milvus_client.py`: `create_knowledge_chunks_collection()` with `CollectionSchema` (id, tenant_id PartitionKey, doc_id, chunk_text with `enable_analyzer=True` and `analyzer_params={"type": "chinese"}` — 使用 Milvus 2.5 内置 chinese analyzer 自动 jieba 分词 + 停用词 + 标点移除, dense_vector, sparse_vector), BM25 `Function`, HNSW index on `dense_vector`, `SPARSE_INVERTED_INDEX` on `sparse_vector`, `num_partitions=64`
   - [x] 1.5 Write `shared/redis_client.py`: `get_redis()` returning an `aioredis` client (single-node for local dev, Cluster DSN for production via env var `REDIS_URL`)
   - [x] 1.6 Add `docker-compose.yml` for local dev: PostgreSQL 16, Milvus 2.5, Redis 7 (single node — Cluster is production-only), MinIO; add `Makefile` with常用命令：`make install`（`uv sync`）、`make test`（`uv run pytest`）、`make lint`（`uv run ruff check`）、`make up`（`docker compose up -d`）；Dockerfile 中使用 `uv pip install` 替代 `pip install`
+  - [x] 1.7 Add CI/CD configuration: `.github/workflows/ci.yml` (PR trigger → `uv sync` → `ruff check` → `ruff format --check` → `pytest tests/unit/`); `.pre-commit-config.yaml` with ruff lint + format hooks; optional `.github/workflows/integration.yml` for integration tests with docker compose services
 
 - [x] 2. API Gateway
   - [x] 2.1 Implement `TenantAuthMiddleware` in `api_gateway/middleware/auth.py`: extract Bearer token, compute `hashlib.sha256(api_key.encode()).hexdigest()`, query `tenants` table by `api_key_hash`, attach `request.state.tenant_id`; return 401 on miss
