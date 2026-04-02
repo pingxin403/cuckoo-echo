@@ -98,12 +98,12 @@
   - [x] 9.5 Implement `guardrails_decision(state)` returning `"hitl"` or `"pass"`
   - [x] 9.6 Write unit tests in `tests/unit/test_guardrails.py`: entailment ≥ 0.5 passes, entailment < 0.5 sets correction_message and hitl_requested, non-RAG path skips NLI, timeout degrades gracefully
 
-- [ ] 10. Knowledge Pipeline Worker
-  - [ ] 10.1 Implement `KnowledgePipelineWorker.run()` in `knowledge_pipeline/worker.py`: poll loop with `SELECT id, tenant_id, oss_path FROM knowledge_docs WHERE status = 'pending' ORDER BY created_at LIMIT 1 FOR UPDATE SKIP LOCKED`; sleep 2s when no rows found
-  - [ ] 10.2 Implement `document_parser.parse(file_path)` in `knowledge_pipeline/parser.py`: use Docling `DocumentConverter` as unified parser for PDF, Word, HTML, plain text; call `converter.convert(file_path)` → `result.document.export_to_markdown()` to get structured Markdown output preserving headings/tables/lists; raise `ParseError` on failure; Docling 内置 OCR（EasyOCR），扫描件 PDF 也能处理
-  - [ ] 10.3 Implement `chunker.split(docling_doc)` in `knowledge_pipeline/chunker.py`: 优先使用 Docling 内置的 `HierarchicalChunker`（按文档结构标题/段落/表格智能分块，保留层级上下文），配置 `max_tokens=512`, `merge_peers=True`; 对于纯文本回退到 `RecursiveCharacterTextSplitter` with `separators=["\n\n", "\n", "。", "！", "？", ".", "!", "?", " ", ""]`, `chunk_size=512`, `chunk_overlap=64`; return `list[str]` with at least one non-empty chunk for any valid input
-  - [ ] 10.4 Implement `process_document(doc_id, tenant_id, file_path)`: update status to `processing` → parse → chunk → `embedding_service.embed_batch(chunks)` → `milvus_client.insert(partition_name=tenant_id)` → update status to `completed`; on any exception update status to `failed` with `error_msg` and increment `knowledge_pipeline.failed` metric
-  - [ ] 10.5 Write unit tests in `tests/unit/test_knowledge_pipeline.py`: Docling parses each format (PDF/Word/HTML/TXT) to non-empty Markdown, chunker produces ≤ 512-char chunks with overlap, failed parse sets status=failed, SKIP LOCKED prevents double-processing
+- [x] 10. Knowledge Pipeline Worker
+  - [x] 10.1 Implement `KnowledgePipelineWorker.run()` in `knowledge_pipeline/worker.py`: poll loop with `SELECT id, tenant_id, oss_path FROM knowledge_docs WHERE status = 'pending' ORDER BY created_at LIMIT 1 FOR UPDATE SKIP LOCKED`; sleep 2s when no rows found
+  - [x] 10.2 Implement `document_parser.parse(file_path)` in `knowledge_pipeline/parser.py`: use Docling `DocumentConverter` as unified parser for PDF, Word, HTML, plain text; call `converter.convert(file_path)` → `result.document.export_to_markdown()` to get structured Markdown output preserving headings/tables/lists; raise `ParseError` on failure; Docling 内置 OCR（EasyOCR），扫描件 PDF 也能处理
+  - [x] 10.3 Implement `chunker.split(docling_doc)` in `knowledge_pipeline/chunker.py`: 优先使用 Docling 内置的 `HierarchicalChunker`（按文档结构标题/段落/表格智能分块，保留层级上下文），配置 `max_tokens=512`, `merge_peers=True`; 对于纯文本回退到 `RecursiveCharacterTextSplitter` with `separators=["\n\n", "\n", "。", "！", "？", ".", "!", "?", " ", ""]`, `chunk_size=512`, `chunk_overlap=64`; return `list[str]` with at least one non-empty chunk for any valid input
+  - [x] 10.4 Implement `process_document(doc_id, tenant_id, file_path)`: update status to `processing` → parse → chunk → `embedding_service.embed_batch(chunks)` → `milvus_client.insert(partition_name=tenant_id)` → update status to `completed`; on any exception update status to `failed` with `error_msg` and increment `knowledge_pipeline.failed` metric
+  - [x] 10.5 Write unit tests in `tests/unit/test_knowledge_pipeline.py`: Docling parses each format (PDF/Word/HTML/TXT) to non-empty Markdown, chunker produces ≤ 512-char chunks with overlap, failed parse sets status=failed, SKIP LOCKED prevents double-processing
 
 ---
 
