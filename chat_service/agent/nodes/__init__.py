@@ -4,6 +4,11 @@ from __future__ import annotations
 
 import structlog
 
+from chat_service.agent.nodes.guardrails import (
+    guardrails_decision,
+    guardrails_node,
+    postprocess_node,
+)
 from chat_service.agent.nodes.rag_engine import rag_engine_node
 from chat_service.agent.nodes.router import (
     detect_negative_sentiment,
@@ -43,17 +48,3 @@ async def tool_executor_node(state: AgentState) -> AgentState:
 async def llm_generate_node(state: AgentState) -> AgentState:
     log.debug("llm_generate_node")
     return {**state, "llm_response": "stub response", "guardrails_passed": True}
-
-
-async def guardrails_node(state: AgentState) -> AgentState:
-    log.debug("guardrails_node")
-    return {**state, "guardrails_passed": True}
-
-
-async def postprocess_node(state: AgentState) -> AgentState:
-    log.debug("postprocess_node")
-    return state
-
-
-def guardrails_decision(state: AgentState) -> str:
-    return "hitl" if state.get("hitl_requested") else "pass"

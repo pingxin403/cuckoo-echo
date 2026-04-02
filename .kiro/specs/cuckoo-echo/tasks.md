@@ -90,13 +90,13 @@
   - [x] 8.4 Implement reranker using `FlagEmbedding` library with `BAAI/bge-reranker-v2-m3` model; call `reranker.compute_score(pairs)` via `asyncio.get_running_loop().run_in_executor()` wrapped with `asyncio.wait_for(..., timeout=0.5)`; on `TimeoutError` log warning (structlog) and fall back to RRF Top-3; always return `rag_context` as list of ≤ 3 strings
   - [x] 8.5 Write unit tests in `tests/unit/test_rag_engine.py`: Top-K ≤ 5 from Milvus, Top-3 after rerank, soft-deleted docs filtered out, rerank timeout falls back gracefully
 
-- [ ] 9. Guardrails Node
-  - [ ] 9.1 Load `CrossEncoder("cross-encoder/nli-deberta-v3-small")` as a module-level singleton in `chat_service/agent/nodes/guardrails.py`; document label order: `contradiction=0, entailment=1, neutral=2`
-  - [ ] 9.2 Implement `guardrails_node(state)`: skip if `rag_context` is empty (non-RAG path); build `pairs = [(ctx, response) for ctx in rag_context]`; run `nli_model.predict(pairs, apply_softmax=True)` via `asyncio.get_running_loop().run_in_executor(None, ...)` — CrossEncoder inference is CPU-bound and will block the event loop if called directly; wrap with `asyncio.wait_for(..., timeout=0.3)`
-  - [ ] 9.3 If `max_entailment < 0.5`: set `guardrails_passed=False`, `correction_message="⚠️ 抱歉，刚才的回答可能有误，已为您转接人工客服核实。"`, `hitl_requested=True`; on `TimeoutError` log warning and pass through
-  - [ ] 9.4 Implement `postprocess_node(state)`: if `correction_message` is set, yield it as an SSE event; append current turn to `messages`; increment `unresolved_turns` if `guardrails_passed=False`
-  - [ ] 9.5 Implement `guardrails_decision(state)` returning `"hitl"` or `"pass"`
-  - [ ] 9.6 Write unit tests in `tests/unit/test_guardrails.py`: entailment ≥ 0.5 passes, entailment < 0.5 sets correction_message and hitl_requested, non-RAG path skips NLI, timeout degrades gracefully
+- [x] 9. Guardrails Node
+  - [x] 9.1 Load `CrossEncoder("cross-encoder/nli-deberta-v3-small")` as a module-level singleton in `chat_service/agent/nodes/guardrails.py`; document label order: `contradiction=0, entailment=1, neutral=2`
+  - [x] 9.2 Implement `guardrails_node(state)`: skip if `rag_context` is empty (non-RAG path); build `pairs = [(ctx, response) for ctx in rag_context]`; run `nli_model.predict(pairs, apply_softmax=True)` via `asyncio.get_running_loop().run_in_executor(None, ...)` — CrossEncoder inference is CPU-bound and will block the event loop if called directly; wrap with `asyncio.wait_for(..., timeout=0.3)`
+  - [x] 9.3 If `max_entailment < 0.5`: set `guardrails_passed=False`, `correction_message="⚠️ 抱歉，刚才的回答可能有误，已为您转接人工客服核实。"`, `hitl_requested=True`; on `TimeoutError` log warning and pass through
+  - [x] 9.4 Implement `postprocess_node(state)`: if `correction_message` is set, yield it as an SSE event; append current turn to `messages`; increment `unresolved_turns` if `guardrails_passed=False`
+  - [x] 9.5 Implement `guardrails_decision(state)` returning `"hitl"` or `"pass"`
+  - [x] 9.6 Write unit tests in `tests/unit/test_guardrails.py`: entailment ≥ 0.5 passes, entailment < 0.5 sets correction_message and hitl_requested, non-RAG path skips NLI, timeout degrades gracefully
 
 - [ ] 10. Knowledge Pipeline Worker
   - [ ] 10.1 Implement `KnowledgePipelineWorker.run()` in `knowledge_pipeline/worker.py`: poll loop with `SELECT id, tenant_id, oss_path FROM knowledge_docs WHERE status = 'pending' ORDER BY created_at LIMIT 1 FOR UPDATE SKIP LOCKED`; sleep 2s when no rows found
