@@ -53,11 +53,11 @@
   - [x] 5.4 Implement `POST /v1/chat/completions` endpoint returning `EventSourceResponse(event_generator(), ping=15)`; add `GET /v1/threads/{thread_id}` to fetch conversation history via `AsyncPostgresSaver`
   - [x] 5.5 Write unit tests in `tests/unit/test_chat_service.py`: lock-acquired path yields tokens, lock-not-acquired path yields error event, `[DONE]` is last event, `billing_service.record_usage` called in finally
 
-- [ ] 6. LLM Gateway Integration
-  - [ ] 6.1 Implement `ai_gateway/client.py`: wrap LiteLLM `acompletion` with `stream=True` and `stream_usage=True`; configure primary and fallback model backends from `tenants.llm_config`; implement 3s fallback timeout using `asyncio.wait_for`
-  - [ ] 6.2 Integrate Langfuse: add `LangfuseCallbackHandler` to all LLM calls; record `trace_id = thread_id`, `span` per node, `usage_metadata` for token counting; configure via env vars `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_HOST`
-  - [ ] 6.3 Implement `billing_service.record_usage(thread_id, tenant_id, tokens_used)` in `shared/billing.py`: `UPDATE messages SET tokens_used = $1 WHERE thread_id = $2` within `tenant_db_context`; also update multimodal Credits for audio/image consumption
-  - [ ] 6.4 Write unit tests in `tests/unit/test_llm_gateway.py`: primary backend success, primary timeout triggers fallback within 3s, `stream_usage=True` captures token counts, Langfuse callback invoked
+- [x] 6. LLM Gateway Integration
+  - [x] 6.1 Implement `ai_gateway/client.py`: wrap LiteLLM `acompletion` with `stream=True` and `stream_usage=True`; configure primary and fallback model backends from `tenants.llm_config`; implement 3s fallback timeout using `asyncio.wait_for`
+  - [x] 6.2 Integrate Langfuse: add `LangfuseCallbackHandler` to all LLM calls; record `trace_id = thread_id`, `span` per node, `usage_metadata` for token counting; configure via env vars `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_HOST`
+  - [x] 6.3 Implement `billing_service.record_usage(thread_id, tenant_id, tokens_used)` in `shared/billing.py`: `UPDATE messages SET tokens_used = $1 WHERE thread_id = $2` within `tenant_db_context`; also update multimodal Credits for audio/image consumption
+  - [x] 6.4 Write unit tests in `tests/unit/test_llm_gateway.py`: primary backend success, primary timeout triggers fallback within 3s, `stream_usage=True` captures token counts, Langfuse callback invoked
 
 - [ ] 7. Router Node
   - [ ] 7.1 Implement `RULE_PATTERNS` dict in `chat_service/agent/nodes/router.py` with compiled regex patterns for `get_order_status` and `update_shipping_address` (Chinese + English variants)
