@@ -120,11 +120,11 @@
 
 **任务列表**：
 
-- [ ] 11. Tool Executor Node
-  - [ ] 11.1 Implement `get_order_status(order_id, tenant_id)` and `update_shipping_address(order_id, address, tenant_id)` in `chat_service/agent/tools/order_tools.py`; each function must include `tenant_id` in every outbound request/query
-  - [ ] 11.2 Implement `tool_executor_node(state)` in `chat_service/agent/nodes/tool_executor.py`: parse `user_intent` to extract tool name and args; call `safe_tool_call(tool_name, args, tenant_id)` with `asyncio.wait_for(..., timeout=5.0)`; on `TimeoutError` return friendly error dict
-  - [ ] 11.3 Persist tool call record: after each call append `{"name": tool_name, "args": args, "result": result}` to `state["tool_calls"]`; the AsyncPostgresSaver Checkpoint already persists the full State including `tool_calls` — no separate DB write needed here
-  - [ ] 11.4 Write unit tests in `tests/unit/test_tool_executor.py`: successful call returns result, 5s timeout returns error dict, `tenant_id` present in every outbound call
+- [-] 11. Tool Executor Node
+  - [x] 11.1 Implement `get_order_status(order_id, tenant_id)` and `update_shipping_address(order_id, address, tenant_id)` in `chat_service/agent/tools/order_tools.py`; each function must include `tenant_id` in every outbound request/query
+  - [x] 11.2 Implement `tool_executor_node(state)` in `chat_service/agent/nodes/tool_executor.py`: parse `user_intent` to extract tool name and args; call `safe_tool_call(tool_name, args, tenant_id)` with `asyncio.wait_for(..., timeout=5.0)`; on `TimeoutError` return friendly error dict
+  - [x] 11.3 Persist tool call record: after each call append `{"name": tool_name, "args": args, "result": result}` to `state["tool_calls"]`; the AsyncPostgresSaver Checkpoint already persists the full State including `tool_calls` — no separate DB write needed here
+  - [x] 11.4 Write unit tests in `tests/unit/test_tool_executor.py`: successful call returns result, 5s timeout returns error dict, `tenant_id` present in every outbound call
 
 - [ ] 12. ASR Service & Multimodal Preprocess
   - [ ] 11.1 Implement `POST /v1/asr/transcribe` in `asr_service/main.py`: validate `content_type in SUPPORTED_AUDIO_TYPES`; upload to OSS with prefix `{tenant_id}/audio/`; call `whisper_client.transcribe(oss_path)`; return `{"text": ..., "oss_path": ...}`; raise 500 on `WhisperError`

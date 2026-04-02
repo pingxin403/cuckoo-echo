@@ -16,6 +16,7 @@ from chat_service.agent.nodes.router import (
     route_decision,
     router_node,
 )
+from chat_service.agent.nodes.tool_executor import tool_executor_node
 from chat_service.agent.state import AgentState
 
 log = structlog.get_logger()
@@ -37,11 +38,6 @@ __all__ = [
 
 async def preprocess_node(state: AgentState) -> AgentState:
     log.debug("preprocess_node", thread_id=state.get("thread_id"))
-    return state
-
-
-async def tool_executor_node(state: AgentState) -> AgentState:
-    log.debug("tool_executor_node")
     return state
 
 
