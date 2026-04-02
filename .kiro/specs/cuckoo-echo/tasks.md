@@ -46,12 +46,12 @@
   - [x] 4.4 Implement `get_checkpointer()` in `chat_service/agent/checkpointer.py`: create a single global `AsyncPostgresSaver` instance and `AsyncPostgresStore` instance (跨 Thread 长期记忆) from the asyncpg pool at app startup; expose `lifespan` context manager that calls `checkpointer.setup()` and `store.setup()`; compile graph with both `checkpointer` and `store`; store the compiled graph in `app.state.agent`
   - [x] 4.5 Write unit tests in `tests/unit/test_agent_graph.py`: verify graph topology (node names, edge targets), verify `compile()` succeeds with a mock checkpointer
 
-- [ ] 5. Chat_Service SSE Endpoint
-  - [ ] 5.1 Implement `event_generator()` in `chat_service/routes/chat.py`: acquire Redis lock (`cuckoo:lock:{thread_id}`, TTL 90s, `blocking=False`) inside the generator; yield `{"error": "CONCURRENT_REQUEST"}` SSE event and return if lock not acquired (409 semantics)
-  - [ ] 5.2 Inside `event_generator()`, call `asyncio.shield(agent.astream_events(payload, config, version="v2"))`; handle `on_chat_model_stream` events to yield `data: {"content": token}` SSE frames using `orjson.dumps().decode()` for high-frequency serialization; yield `data: [DONE]` on completion
-  - [ ] 5.3 In the `finally` block of `event_generator()`: release the Redis lock; call `billing_service.record_usage(thread_id, tenant_id, tokens_used)` if `tokens_used > 0`; write `interrupted` status to `messages` table on `asyncio.CancelledError`
-  - [ ] 5.4 Implement `POST /v1/chat/completions` endpoint returning `EventSourceResponse(event_generator(), ping=15)`; add `GET /v1/threads/{thread_id}` to fetch conversation history via `AsyncPostgresSaver`
-  - [ ] 5.5 Write unit tests in `tests/unit/test_chat_service.py`: lock-acquired path yields tokens, lock-not-acquired path yields error event, `[DONE]` is last event, `billing_service.record_usage` called in finally
+- [x] 5. Chat_Service SSE Endpoint
+  - [x] 5.1 Implement `event_generator()` in `chat_service/routes/chat.py`: acquire Redis lock (`cuckoo:lock:{thread_id}`, TTL 90s, `blocking=False`) inside the generator; yield `{"error": "CONCURRENT_REQUEST"}` SSE event and return if lock not acquired (409 semantics)
+  - [x] 5.2 Inside `event_generator()`, call `asyncio.shield(agent.astream_events(payload, config, version="v2"))`; handle `on_chat_model_stream` events to yield `data: {"content": token}` SSE frames using `orjson.dumps().decode()` for high-frequency serialization; yield `data: [DONE]` on completion
+  - [x] 5.3 In the `finally` block of `event_generator()`: release the Redis lock; call `billing_service.record_usage(thread_id, tenant_id, tokens_used)` if `tokens_used > 0`; write `interrupted` status to `messages` table on `asyncio.CancelledError`
+  - [x] 5.4 Implement `POST /v1/chat/completions` endpoint returning `EventSourceResponse(event_generator(), ping=15)`; add `GET /v1/threads/{thread_id}` to fetch conversation history via `AsyncPostgresSaver`
+  - [x] 5.5 Write unit tests in `tests/unit/test_chat_service.py`: lock-acquired path yields tokens, lock-not-acquired path yields error event, `[DONE]` is last event, `billing_service.record_usage` called in finally
 
 - [ ] 6. LLM Gateway Integration
   - [ ] 6.1 Implement `ai_gateway/client.py`: wrap LiteLLM `acompletion` with `stream=True` and `stream_usage=True`; configure primary and fallback model backends from `tenants.llm_config`; implement 3s fallback timeout using `asyncio.wait_for`
