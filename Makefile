@@ -1,4 +1,4 @@
-.PHONY: install test lint format up down migrate migrate-down migrate-new migrate-status dev pre-commit test-e2e dev-all seed logs clean verify-e2e
+.PHONY: install test lint format up down migrate migrate-down migrate-new migrate-status dev pre-commit test-e2e dev-all seed logs clean verify-e2e quality-gate
 
 install:
 	uv sync
@@ -62,3 +62,6 @@ verify-e2e:
 clean:
 	docker compose down -v
 	@echo "All Docker volumes removed."
+
+quality-gate:
+	uv run python scripts/ragas_quality_gate.py --test-cases tests/quality/test_cases.json --output reports/ragas_report.json

@@ -447,9 +447,9 @@
   - [x] 44.2 确认 override 使用 `uvicorn --reload`；添加 migrate service volume mount
   - [x] 44.3 在 `docs/development.md` 中记录热重载说明
 
-- [ ] 45. Ragas 自动化质量监控
-  - [ ] 45.1 创建 `scripts/ragas_quality_gate.py`：独立脚本，读取测试用例（JSON 格式：`[{"question": "...", "ground_truth": "...", "contexts": [...]}]`），调用 Ragas `evaluate()` 计算 `Faithfulness`、`ContextPrecision`、`ContextRecall`、`AnswerRelevancy` 四项指标；输出 JSON 报告 + pass/fail 判定（阈值：Faithfulness ≥ 0.85, ContextPrecision ≥ 0.80, ContextRecall ≥ 0.75, AnswerRelevancy ≥ 0.85）
-  - [ ] 45.2 创建 `tests/quality/test_cases.json`：包含 10-20 个标准测试用例（覆盖 FAQ、订单查询、退货政策等典型场景），每个用例包含 question、ground_truth、contexts 字段
-  - [ ] 45.3 添加 `make quality-gate` 到 Makefile：`uv run python scripts/ragas_quality_gate.py --test-cases tests/quality/test_cases.json --output reports/ragas_report.json`
-  - [ ] 45.4 在 `.github/workflows/ci.yml` 中添加可选的 quality gate step（需要 `LLM_API_KEY` secret，无 key 时跳过）
-  - [ ] 45.5 写单元测试：验证 `ragas_quality_gate.py` 的报告生成逻辑（mock Ragas evaluate）
+- [x] 45. Ragas 自动化质量监控
+  - [x] 45.1 创建 `scripts/ragas_quality_gate.py`：独立脚本，Ragas evaluate + JSON 报告 + pass/fail 判定
+  - [x] 45.2 创建 `tests/quality/test_cases.json`：10 个标准测试用例（FAQ、订单、退货等）
+  - [x] 45.3 添加 `make quality-gate` 到 Makefile
+  - [x] 45.4 CI 中可选 quality gate step（需 LLM_API_KEY）
+  - [x] 45.5 写单元测试：报告生成逻辑（pass/fail 判定、mock evaluation）

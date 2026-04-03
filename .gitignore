@@ -10,3 +10,6 @@ build/
 .ruff_cache/
 .mypy_cache/
 .hypothesis/
+
+# Quality gate reports
+reports/
