@@ -321,7 +321,7 @@
   - [ ] 29.4 Replace the simplified header-based auth middleware in `admin_service/main.py` with `JWTAuthMiddleware`; keep `/health` and `/admin/v1/auth/login` exempt
   - [ ] 29.5 Write unit tests for JWT auth middleware and login endpoint
 
-- [ ] 30. Alembic Migration Integration
+- [-] 30. Alembic Migration Integration
   - [ ] 30.1 Initialize Alembic: `uv add alembic`; `uv run alembic init migrations/alembic`; configure `alembic.ini` to read `DATABASE_URL` from pydantic-settings; set `script_location = migrations/alembic`
   - [ ] 30.2 Convert existing SQL migrations to Alembic revisions: `001_initial.sql` → revision 1, `002_escalation_tables.sql` → revision 2, `003_admin_users.sql` → revision 3; use `op.execute()` for raw SQL to preserve exact DDL
   - [ ] 30.3 Update Makefile: `make migrate-up` → `uv run alembic upgrade head`; `make migrate-down` → `uv run alembic downgrade -1`; `make migrate-new MSG="description"` → `uv run alembic revision --autogenerate -m "description"`

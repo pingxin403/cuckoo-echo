@@ -1,4 +1,4 @@
-.PHONY: install test lint format up down migrate dev pre-commit test-e2e dev-all seed logs clean verify-e2e
+.PHONY: install test lint format up down migrate migrate-down migrate-new migrate-status dev pre-commit test-e2e dev-all seed logs clean verify-e2e
 
 install:
 	uv sync
@@ -28,12 +28,16 @@ down:
 	docker compose down
 
 migrate:
-	psql "postgresql://postgres:postgres@localhost:5432/cuckoo" -f migrations/001_initial.sql
-	psql "postgresql://postgres:postgres@localhost:5432/cuckoo" -f migrations/002_escalation_tables.sql
+	uv run alembic upgrade head
+
+migrate-down:
+	uv run alembic downgrade -1
+
+migrate-new:
+	@read -p "Migration message: " MSG; uv run alembic revision --autogenerate -m "$$MSG"
 
 migrate-status:
-	@echo "Migrations are raw SQL files in migrations/"
-	@ls -la migrations/*.sql
+	uv run alembic current
 
 dev:
 	uv run uvicorn api_gateway.main:app --reload --port 8000
