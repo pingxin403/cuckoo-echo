@@ -308,11 +308,11 @@
   - [x] 27.2 Create `chat_service/agent/tools/registry.py`: dynamic tool registry that auto-discovers tools from `tools/` directory; support `@register_tool(name, description)` decorator pattern; replace hardcoded `TOOL_REGISTRY` dict in `tool_executor.py`
   - [x] 27.3 Write unit tests for the new tool registry and configurable order client
 
-- [ ] 28. ASR Whisper Integration
-  - [ ] 28.1 Create `shared/whisper_client.py`: async Whisper client supporting both local inference (`faster-whisper` library) and remote API (`POST /v1/audio/transcriptions` OpenAI-compatible); configurable via `ASR_MODE` (local/remote) and `ASR_API_URL` in Settings
-  - [ ] 28.2 Wire `whisper_client` into `asr_service/main.py` and `chat_service/agent/nodes/preprocess.py`; replace `whisper_client = None` placeholder
-  - [ ] 28.3 Add `faster-whisper>=1.0.0` to optional dependencies (`[project.optional-dependencies] asr = [...]`); update docker compose ASR service with GPU support flag
-  - [ ] 28.4 Write unit tests for whisper_client (mock both local and remote modes)
+- [x] 28. ASR Whisper Integration
+  - [x] 28.1 Create `shared/whisper_client.py`: async Whisper client supporting both local inference (`faster-whisper` library) and remote API (`POST /v1/audio/transcriptions` OpenAI-compatible); configurable via `ASR_MODE` (local/remote) and `ASR_API_URL` in Settings
+  - [x] 28.2 Wire `whisper_client` into `asr_service/main.py` and `chat_service/agent/nodes/preprocess.py`; replace `whisper_client = None` placeholder
+  - [x] 28.3 Add `faster-whisper>=1.0.0` to optional dependencies (`[project.optional-dependencies] asr = [...]`); update docker compose ASR service with GPU support flag
+  - [x] 28.4 Write unit tests for whisper_client (mock both local and remote modes)
 
 - [ ] 29. Admin JWT Authentication
   - [ ] 29.1 Implement `admin_service/middleware/jwt_auth.py`: decode JWT token from `Authorization: Bearer <jwt>` header; extract `tenant_id`, `admin_user_id`, `role` from claims; validate signature using `ADMIN_JWT_SECRET` from Settings; return 401 on invalid/expired token

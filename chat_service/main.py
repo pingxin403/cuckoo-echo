@@ -54,8 +54,14 @@ def _wire_dependencies(app: FastAPI):
     rag_mod.db_pool = app.state.db_pool
     llm_mod.db_pool = app.state.db_pool
 
-    # ASR client placeholder (wired when ASR service is available)
-    pre_mod.asr_client = None
+    # ASR client
+    try:
+        from shared.whisper_client import get_whisper_client
+        pre_mod.asr_client = get_whisper_client()
+    except Exception as e:
+        log.warning("whisper_client_init_failed", error=str(e),
+                    hint="ASR unavailable — voice input disabled")
+        pre_mod.asr_client = None
 
     # Track RAG readiness
     rag_ready = True

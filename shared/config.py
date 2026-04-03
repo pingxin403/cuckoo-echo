@@ -45,6 +45,11 @@ class Settings(BaseSettings):
     tool_mock_mode: bool = True
     tool_order_service_url: str = ""
 
+    # ASR (Speech-to-Text)
+    asr_mode: str = "remote"  # "local" (faster-whisper) or "remote" (OpenAI-compatible API)
+    asr_api_url: str = "http://localhost:9000"
+    asr_model: str = "whisper-1"
+
     model_config = {"env_prefix": "", "env_file": ".env", "env_file_encoding": "utf-8"}
 
 

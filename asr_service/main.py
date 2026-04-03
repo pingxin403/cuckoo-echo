@@ -24,9 +24,9 @@ try:
 except ImportError:
     pass
 
-# Placeholder clients — wired at startup
-oss_client = None
+# Clients — wired at app startup, not at import time
 whisper_client = None
+oss_client = None
 
 
 class WhisperError(Exception):
@@ -49,7 +49,8 @@ async def transcribe(
     # Transcribe
     try:
         if whisper_client:
-            text = await whisper_client.transcribe(oss_path)
+            result = await whisper_client.transcribe(oss_path)
+            text = result.get("text", "") if isinstance(result, dict) else str(result)
         else:
             text = "[ASR stub: whisper not configured]"
         return {"text": text, "oss_path": oss_path}
