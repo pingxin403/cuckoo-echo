@@ -238,16 +238,16 @@
   - [x] 20.3 Implement WebSocket chat protocol in `chat_service/routes/ws_chat.py`: bidirectional WebSocket for real-time chat as alternative to SSE; reuse `event_generator` logic
   - [ ]* 20.4 Implement semantic cache using Milvus `semantic_cache` collection: on query, search cache with similarity ≥ 0.95; if hit, return cached answer without LLM call; on miss, cache the new Q&A pair after LLM response
 
-- [ ] 21. Observability & Monitoring
-  - [ ] 21.1 Add Prometheus metrics via `prometheus-fastapi-instrumentator`: request latency, TTFT histogram, token usage counter, error rate by endpoint
-  - [ ] 21.2 Create `k8s/prometheus-servicemonitor.yaml` for auto-discovery
-  - [ ] 21.3 Add structured log correlation: inject `trace_id`, `span_id` into structlog context for Langfuse + ELK cross-referencing
-  - [ ] 21.4 Implement TTFT alerting: log warning when P95 exceeds 2x SLA threshold per scenario
+- [x] 21. Observability & Monitoring
+  - [x] 21.1 Add Prometheus metrics via `prometheus-fastapi-instrumentator`: request latency, TTFT histogram, token usage counter, error rate by endpoint
+  - [x] 21.2 Create `k8s/prometheus-servicemonitor.yaml` for auto-discovery
+  - [x] 21.3 Add structured log correlation: inject `trace_id`, `span_id` into structlog context for Langfuse + ELK cross-referencing
+  - [x] 21.4 Implement TTFT alerting: log warning when P95 exceeds 2x SLA threshold per scenario
 
-- [ ] 22. Database & Migration Tooling
-  - [ ] 22.1 Add `alembic` for database migration management; convert `migrations/001_initial.sql` to Alembic revision
-  - [ ] 22.2 Add `hitl_escalation_tasks` and `tickets` tables to migration (referenced in HITL code but missing from DDL)
-  - [ ] 22.3 Update Makefile: `make migrate-up`, `make migrate-down`, `make migrate-new`
+- [x] 22. Database & Migration Tooling
+  - [x] 22.1 Add `alembic` for database migration management; convert `migrations/001_initial.sql` to Alembic revision
+  - [x] 22.2 Add `hitl_escalation_tasks` and `tickets` tables to migration (referenced in HITL code but missing from DDL)
+  - [x] 22.3 Update Makefile: `make migrate-up`, `make migrate-down`, `make migrate-new`
 
 - [ ]* 23. Performance & Load Testing
   - [ ]* 23.1 Create `tests/load/locustfile.py`: simulate 1000 concurrent users sending chat messages; measure TTFT P50/P95/P99
