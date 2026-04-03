@@ -375,10 +375,10 @@
 
 ### P2 — 功能完整性
 
-- [ ] 35. Vision LLM 图片理解
-  - [ ] 35.1 在 `chat_service/agent/nodes/preprocess.py` 中实现真实 Vision LLM 调用：当 `media` 包含图片时，将 OSS signed URL 与用户文本组合为 OpenAI Vision API 格式的 `messages`（`{"type": "image_url", "image_url": {"url": signed_url}}`）；通过 `ai_gateway.client` 调用支持 vision 的模型
-  - [ ] 35.2 在 `shared/config.py` 中添加 `vision_model: str = "gpt-4o-mini"` 配置项；在 `ai_gateway/client.py` 中添加 `vision_completion()` 方法，支持 image_url 类型的 content
-  - [ ] 35.3 写单元测试：图片消息触发 Vision LLM 调用、纯文本消息不触发、Vision 调用失败时降级为纯文本处理
+- [x] 35. Vision LLM 图片理解
+  - [x] 35.1 在 `chat_service/agent/nodes/preprocess.py` 中实现真实 Vision LLM 调用
+  - [x] 35.2 在 `shared/config.py` 中添加 `vision_model` 配置项；在 `ai_gateway/client.py` 中添加 `vision_completion()` 方法
+  - [x] 35.3 写单元测试：图片消息触发 Vision LLM 调用、纯文本消息不触发、Vision 调用失败时降级为纯文本处理
 
 - [ ] 36. Preprocess 摘要压缩验证
   - [ ] 36.1 在 `chat_service/agent/nodes/preprocess.py` 中确认 `SUMMARIZE_THRESHOLD` 逻辑已实现：当 `len(state["messages"]) >= 50` 时调用 LLM 生成摘要，压缩 messages 列表；如未实现则补齐

@@ -63,6 +63,15 @@ def _wire_dependencies(app: FastAPI):
                     hint="ASR unavailable — voice input disabled")
         pre_mod.asr_client = None
 
+    # Vision LLM client
+    try:
+        from ai_gateway import client as ai_client
+        pre_mod.vision_client = ai_client
+    except Exception as e:
+        log.warning("vision_client_init_failed", error=str(e),
+                    hint="Vision LLM unavailable — image understanding disabled")
+        pre_mod.vision_client = None
+
     # Track RAG readiness
     rag_ready = True
 

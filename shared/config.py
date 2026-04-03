@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     asr_api_url: str = "http://localhost:9000"
     asr_model: str = "whisper-1"
 
+    # Vision LLM
+    vision_model: str = "gpt-4o-mini"  # Model supporting image input (OpenAI Vision API format)
+
     model_config = {"env_prefix": "", "env_file": ".env", "env_file_encoding": "utf-8"}
 
 

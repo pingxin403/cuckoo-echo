@@ -69,3 +69,38 @@ async def stream_chat_completion(
         response = await acompletion(**fallback_kwargs)
         log.info("llm_fallback_success", model=fallback_model)
         return response
+
+
+async def vision_completion(image_url: str, user_text: str) -> str:
+    """Call a Vision LLM to understand an image in context of user text.
+
+    Uses OpenAI Vision API format with image_url content type.
+    Returns the model's text description/response.
+    """
+    settings = get_settings()
+    messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": user_text or "请描述这张图片的内容"},
+                {"type": "image_url", "image_url": {"url": image_url}},
+            ],
+        }
+    ]
+    try:
+        kwargs = {
+            "model": settings.vision_model,
+            "messages": messages,
+            "stream": False,
+            "max_tokens": 300,
+        }
+        if settings.llm_api_key:
+            kwargs["api_key"] = settings.llm_api_key
+        if settings.llm_api_base:
+            kwargs["api_base"] = settings.llm_api_base
+
+        response = await acompletion(**kwargs)
+        return response.choices[0].message.content or ""
+    except Exception as e:
+        log.warning("vision_completion_failed", error=str(e))
+        raise
