@@ -391,10 +391,10 @@
 
 ### P3 — 生产运维工具链
 
-- [ ] 38. Grafana Dashboard
-  - [ ] 38.1 创建 `k8s/grafana/cuckoo-echo-overview.json`：预置 Grafana dashboard JSON，包含面板：请求 QPS、TTFT P50/P95/P99 直方图、错误率、Token 消耗趋势、活跃对话数、RAG 命中率、HITL 转接率
-  - [ ] 38.2 创建 `k8s/grafana/cuckoo-echo-rag.json`：RAG 专项面板 — 检索延迟、Rerank 延迟、Rerank 超时降级次数、Guardrails NLI 拦截率、知识库文档处理状态分布
-  - [ ] 38.3 在 `docs/deployment.md` 中补充 Grafana 导入指南
+- [x] 38. Grafana Dashboard
+  - [x] 38.1 创建 `k8s/grafana/cuckoo-echo-overview.json`：QPS、TTFT、错误率、Token 消耗、活跃对话、AI 解决率、HITL 转接率、限流拒绝
+  - [x] 38.2 创建 `k8s/grafana/cuckoo-echo-rag.json`：RAG 检索延迟、Rerank 延迟/超时、Guardrails NLI 拦截率、知识库状态、语义缓存命中率
+  - [x] 38.3 在 `docs/deployment.md` 中补充 Grafana 导入指南
 
 - [ ] 39. 备份与恢复脚本
   - [ ] 39.1 创建 `scripts/backup.sh`：PostgreSQL `pg_dump` 全量备份 + WAL 归档说明；Milvus 数据导出到 MinIO/OSS；备份文件按日期命名，保留最近 7 天

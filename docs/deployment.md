@@ -248,10 +248,13 @@ Langfuse provides:
 
 ### Grafana Dashboards
 
-Recommended dashboard panels:
-1. Request rate and error rate by service
-2. TTFT P50/P95/P99 histogram
-3. Token consumption by tenant (daily/weekly)
-4. RAG retrieval latency and cache hit rate
-5. HITL escalation rate and resolution time
-6. Knowledge pipeline processing queue depth
+Pre-built Grafana dashboards are available in `k8s/grafana/`:
+
+- `cuckoo-echo-overview.json` — Request QPS, TTFT histogram, error rate, token consumption, active conversations, AI resolution rate, HITL transfer rate, rate limit rejections
+- `cuckoo-echo-rag.json` — RAG search latency, rerank latency, rerank timeout fallbacks, guardrails NLI interception rate, knowledge pipeline status, semantic cache hit rate
+
+Import via Grafana UI:
+1. Open Grafana → Dashboards → Import
+2. Upload JSON file or paste content
+3. Select your Prometheus data source
+4. Click Import
