@@ -1008,3 +1008,53 @@ server {
 | INP（交互响应） | < 200ms | rAF 批量渲染 + 虚拟滚动 + Zustand 细粒度订阅 |
 | 消息列表 1000+ 条 | 无卡顿 | react-virtuoso 虚拟滚动 |
 | embed.js 体积 | < 150KB gzip | 独立打包，Tree-shaking |
+
+
+---
+
+## 补充设计说明（来自专家评审）
+
+### SSE 超时保护（P0）
+
+SSE_Client 在 `connect()` 方法中 SHALL 添加 60 秒超时保护。如果 60 秒内未收到任何 Token 或 `[DONE]` 事件，SHALL 主动断开连接并触发 `onError` 回调，展示"消息发送中断，请重试"提示。
+
+```typescript
+// sseClient.ts 补充
+const STREAM_TIMEOUT_MS = 60_000;
+let timeoutId: number;
+
+// 每次收到 Token 时重置超时
+function resetTimeout() {
+  clearTimeout(timeoutId);
+  timeoutId = setTimeout(() => {
+    this.disconnect();
+    options.onError(new SSEError('STREAM_TIMEOUT', '消息发送中断，请重试'));
+  }, STREAM_TIMEOUT_MS);
+}
+```
+
+### AdminStore 拆分建议（P1）
+
+随着业务复杂度增长，`adminStore` 建议拆分为 5 个独立 Slice Store：
+
+| Store | 职责 |
+|-------|------|
+| `knowledgeStore` | 文档列表、上传、删除、轮询 |
+| `hitlStore` | HITL 会话列表、接管/结束 |
+| `configStore` | Persona、模型、限流配置 |
+| `metricsStore` | 指标数据、时间范围 |
+| `sandboxStore` | 测试用例、评估结果 |
+
+通过 Zustand 的 `combine` 或独立 `create` 实现，避免单个 Store 成为"上帝对象"。
+
+### rAF 与 ErrorBoundary 协调（P1）
+
+`requestAnimationFrame` 回调中的异常不会被 React ErrorBoundary 捕获。SSE_Client 的 `parseStream` 逻辑 SHALL 在 rAF 回调中做严格的 try-catch 包裹，将错误通过 Zustand `chatStore.setError()` 抛出，由 React 组件层消费并展示降级 UI。
+
+### 图片占位符防布局偏移（P1）
+
+`MessageBubble` 中的图片 SHALL 设置预设宽高比（Aspect Ratio Box，如 16:9），在图片加载前展示 Skeleton 占位符，防止 react-virtuoso 列表因图片加载导致的布局偏移（CLS）。
+
+### Web Component 主题注入（P2）
+
+Shadow DOM 内的样式无法通过宿主页面 CSS 变量直接修改。Chat_Widget SHALL 在初始化时读取 `data-*` 属性或 `window.CuckooConfig` 配置对象，将品牌色、Logo URL 等通过 `adoptedStyleSheets` 或 `style.setProperty()` 注入到 Shadow Root 中。
