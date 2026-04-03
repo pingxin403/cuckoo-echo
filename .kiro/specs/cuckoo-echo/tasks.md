@@ -333,7 +333,7 @@
   - [ ] 31.3 Add cache invalidation: when knowledge docs are updated/deleted, invalidate related cache entries for that tenant; add `POST /admin/v1/cache/clear` endpoint
   - [ ] 31.4 Write unit tests: cache hit returns response without LLM call, cache miss proceeds normally, cache invalidation works, tenant isolation in cache
 
-- [ ] 32. Integration Test Suite on Real Infrastructure
+- [-] 32. Integration Test Suite on Real Infrastructure
   - [ ] 32.1 Write `tests/integration/test_full_chat_flow.py`: `docker compose up` → create tenant → send message → verify SSE stream → verify message persisted in PG → verify Langfuse trace created; mark as `pytest.mark.integration`
   - [ ] 32.2 Write `tests/integration/test_full_rag_flow.py`: upload document → wait for pipeline → send RAG query → verify response references document content → delete document → verify RAG no longer returns it
   - [ ] 32.3 Write `tests/integration/test_full_hitl_flow.py`: trigger HITL → verify WebSocket notification → take session → send human reply → end session → verify thread restored
