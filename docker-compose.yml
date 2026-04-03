@@ -1,4 +1,7 @@
 services:
+  # ============================================================
+  # Infrastructure Services
+  # ============================================================
   postgres:
     image: postgres:16
     environment:
@@ -10,6 +13,11 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -40,6 +48,65 @@ services:
       - "9001:9001"
     volumes:
       - miniodata:/data
+
+  # ============================================================
+  # Application Services
+  # ============================================================
+  api-gateway:
+    build:
+      context: .
+      dockerfile: k8s/Dockerfile
+    command: ["granian", "--interface", "asgi", "--host", "0.0.0.0", "--port", "8000", "api_gateway.main:app"]
+    ports:
+      - "8000:8000"
+    env_file: .env.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  chat-service:
+    build:
+      context: .
+      dockerfile: k8s/Dockerfile
+    command: ["granian", "--interface", "asgi", "--host", "0.0.0.0", "--port", "8001", "chat_service.main:app"]
+    ports:
+      - "8001:8001"
+    env_file: .env.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      milvus:
+        condition: service_started
+
+  admin-service:
+    build:
+      context: .
+      dockerfile: k8s/Dockerfile
+    command: ["granian", "--interface", "asgi", "--host", "0.0.0.0", "--port", "8002", "admin_service.main:app"]
+    ports:
+      - "8002:8002"
+    env_file: .env.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  knowledge-pipeline:
+    build:
+      context: .
+      dockerfile: k8s/Dockerfile
+    command: ["python", "-m", "knowledge_pipeline.worker"]
+    env_file: .env.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      milvus:
+        condition: service_started
 
 volumes:
   pgdata:

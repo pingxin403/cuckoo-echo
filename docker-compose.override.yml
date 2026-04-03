@@ -1,0 +1,27 @@
+# Development overrides: hot-reload with volume mounts
+# This file is automatically loaded by `docker compose up`
+services:
+  api-gateway:
+    command: ["uvicorn", "api_gateway.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./api_gateway:/app/api_gateway
+      - ./shared:/app/shared
+
+  chat-service:
+    command: ["uvicorn", "chat_service.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+    volumes:
+      - ./chat_service:/app/chat_service
+      - ./shared:/app/shared
+      - ./ai_gateway:/app/ai_gateway
+
+  admin-service:
+    command: ["uvicorn", "admin_service.main:app", "--host", "0.0.0.0", "--port", "8002", "--reload"]
+    volumes:
+      - ./admin_service:/app/admin_service
+      - ./shared:/app/shared
+
+  knowledge-pipeline:
+    command: ["python", "-m", "knowledge_pipeline.worker"]
+    volumes:
+      - ./knowledge_pipeline:/app/knowledge_pipeline
+      - ./shared:/app/shared

@@ -1,4 +1,4 @@
-.PHONY: install test lint format up down migrate dev pre-commit test-e2e
+.PHONY: install test lint format up down migrate dev pre-commit test-e2e dev-all seed logs clean
 
 install:
 	uv sync
@@ -37,3 +37,21 @@ migrate-status:
 
 dev:
 	uv run uvicorn api_gateway.main:app --reload --port 8000
+
+dev-all:
+	docker compose up -d postgres redis milvus minio
+	@echo "Starting all services in development mode..."
+	@echo "API Gateway:        http://localhost:8000"
+	@echo "Chat Service:       http://localhost:8001"
+	@echo "Admin Service:      http://localhost:8002"
+	docker compose up api-gateway chat-service admin-service knowledge-pipeline
+
+seed:
+	uv run python scripts/seed_tenant.py
+
+logs:
+	docker compose logs -f api-gateway chat-service admin-service knowledge-pipeline
+
+clean:
+	docker compose down -v
+	@echo "All Docker volumes removed."
