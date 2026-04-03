@@ -486,6 +486,33 @@
     - 验证 Nginx 配置语法正确
     - _需求: 设计-性能SLA_
 
+  - [ ] 19.6 实现 API Mock（MSW）
+    - 配置 MSW（Mock Service Worker）拦截所有后端 API 请求
+    - 为每个 API 端点提供 Mock 数据（与后端 API 契约对齐）
+    - 支持开发模式下独立运行前端（无需后端服务）
+    - 在 Vitest 中集成 MSW 作为测试 Mock 层
+    - _需求: 全局（前端独立开发支持）_
+
+  - [ ]* 19.7 配置 CI/CD（GitHub Actions）
+    - 创建 `.github/workflows/frontend-ci.yml`
+    - 流水线：`pnpm install` → `pnpm lint` → `pnpm test` → `pnpm build`
+    - 属性测试（P1-P8）在 CI 中运行
+    - Docker 构建推送到容器仓库
+    - _需求: 全局（自动化构建测试）_
+
+  - [ ]* 19.8 编写无障碍测试
+    - 集成 axe-core 到 Playwright E2E 测试
+    - 测试键盘导航（Tab 顺序、Enter 激活、Escape 关闭）
+    - 测试 aria-label 覆盖率
+    - 测试颜色对比度 ≥ 4.5:1（WCAG 2.1 AA）
+    - _需求: 10.7_
+
+  - [ ]* 19.9 配置 Lighthouse CI
+    - 集成 Lighthouse CI 到 GitHub Actions
+    - 设置性能回归检测阈值：FCP < 1.5s、INP < 200ms、LCP < 2.5s
+    - 构建失败条件：任一核心指标低于阈值
+    - _需求: 补充-性能SLA_
+
 - [ ] 20. 最终检查点 — 全量验证
   - 确保 `pnpm build` 成功，所有单元测试、属性测试（P1-P8）、E2E 测试通过。Docker 构建成功。如有问题请向用户确认。
 
