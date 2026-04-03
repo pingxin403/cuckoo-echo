@@ -1,0 +1,4 @@
+# file: /Users/hanyunpeng/Projects/cuckoo-echo/api_gateway/middleware/circuit_breaker.py
+# hypothesis_version: 6.151.10
+
+['circuit_breaker_open', 'error', 'llm', 'message', 'service_unavailable', 'tool', '系统繁忙，请稍后重试']

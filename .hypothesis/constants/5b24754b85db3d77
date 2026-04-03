@@ -1,0 +1,4 @@
+# file: /Users/hanyunpeng/Projects/cuckoo-echo/chat_service/agent/nodes/guardrails.py
+# hypothesis_version: 6.151.10
+
+[0.3, 0.5, 'correction_message', 'guardrails_error', 'guardrails_passed', 'hitl', 'hitl_requested', 'llm_response', 'nli_model_loaded', 'pass', 'pushing_correction', 'rag_context', 'skipping guardrails', 'thread_id', 'unresolved_turns']

@@ -1,0 +1,4 @@
+# file: /Users/hanyunpeng/Projects/cuckoo-echo/api_gateway/middleware/media_format.py
+# hypothesis_version: 6.151.10
+
+[b'ID3', b'RIFF', b'WAVE', b'WEBP', b'ftyp', b'\x89PNG', b'\xff\xd8\xff', b'\xff\xf2', b'\xff\xf3', b'\xff\xfb', 'audio', 'image', 'jpeg', 'm4a', 'mp3', 'png', 'wav', 'webp']

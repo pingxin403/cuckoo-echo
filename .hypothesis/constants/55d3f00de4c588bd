@@ -1,0 +1,4 @@
+# file: /Users/hanyunpeng/Projects/cuckoo-echo/chat_service/agent/nodes/preprocess.py
+# hypothesis_version: 6.151.10
+
+[500, 1000, 'asr_handoff', 'asr_handoff_slow', 'audio', 'content', 'image', 'media', 'media_urls', 'messages', 'oss_url', 'summary', 'summary_compressed', 'text', 'thread_id', 'type', 'url']

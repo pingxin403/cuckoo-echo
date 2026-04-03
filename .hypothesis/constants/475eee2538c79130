@@ -1,0 +1,4 @@
+# file: /Users/hanyunpeng/Projects/cuckoo-echo/chat_service/routes/chat.py
+# hypothesis_version: 6.151.10
+
+['/v1/chat/completions', 'CONCURRENT_REQUEST', '[DONE]', 'anonymous', 'billing_service', 'channel_values', 'chunk', 'client_disconnected', 'configurable', 'content', 'data', 'error', 'event', 'input_tokens', 'lock_release_failed', 'message', 'messages', 'on_chat_model_stream', 'on_llm_end', 'output', 'output_tokens', 'tenant_id', 'thread_id', 'usage_metadata', 'user_id', 'v2']

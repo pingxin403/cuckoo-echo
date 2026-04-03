@@ -1,0 +1,4 @@
+# file: /Users/hanyunpeng/Projects/cuckoo-echo/chat_service/agent/tools/order_tools.py
+# hypothesis_version: 6.151.10
+
+['2026-04-05', 'SF1234567890', 'estimated_delivery', 'get_order_status', 'new_address', 'order_id', 'shipped', 'status', 'tenant_id', 'tracking_number', 'updated']

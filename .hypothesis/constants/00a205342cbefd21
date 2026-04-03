@@ -1,0 +1,4 @@
+# file: /Users/hanyunpeng/Projects/cuckoo-echo/chat_service/agent/nodes/rag_engine.py
+# hypothesis_version: 6.151.10
+
+[0.5, 100, 'BM25', 'COSINE', 'chunk_text', 'content', 'dense_vector', 'doc_id', 'ef', 'id', 'messages', 'metric_type', 'no_answer', 'params', 'rag_context', 'rerank_timeout', 'sparse_vector', 'tenant_id', 'user_intent']

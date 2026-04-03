@@ -1,0 +1,4 @@
+# file: /Users/hanyunpeng/Projects/cuckoo-echo/ai_gateway/client.py
+# hypothesis_version: 6.151.10
+
+[0.7, 'fallback_model', 'include_usage', 'llm_fallback_success', 'llm_primary_failed', 'llm_primary_success', 'model', 'temperature']

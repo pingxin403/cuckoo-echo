@@ -1,0 +1,4 @@
+# file: /Users/hanyunpeng/Projects/cuckoo-echo/knowledge_pipeline/worker.py
+# hypothesis_version: 6.151.10
+
+['chunk_text', 'completed', 'created_at', 'dense_vector', 'doc_id', 'doc_processed', 'failed', 'id', 'knowledge_chunks', 'oss_path', 'processing', 'tenant_id']
