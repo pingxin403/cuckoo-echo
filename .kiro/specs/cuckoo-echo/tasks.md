@@ -314,7 +314,7 @@
   - [x] 28.3 Add `faster-whisper>=1.0.0` to optional dependencies (`[project.optional-dependencies] asr = [...]`); update docker compose ASR service with GPU support flag
   - [x] 28.4 Write unit tests for whisper_client (mock both local and remote modes)
 
-- [ ] 29. Admin JWT Authentication
+- [-] 29. Admin JWT Authentication
   - [ ] 29.1 Implement `admin_service/middleware/jwt_auth.py`: decode JWT token from `Authorization: Bearer <jwt>` header; extract `tenant_id`, `admin_user_id`, `role` from claims; validate signature using `ADMIN_JWT_SECRET` from Settings; return 401 on invalid/expired token
   - [ ] 29.2 Create `admin_service/routes/auth.py`: `POST /admin/v1/auth/login` — validate admin credentials against `admin_users` table (add to migration); return JWT token with 24h expiry; `POST /admin/v1/auth/refresh` — refresh token
   - [ ] 29.3 Add `admin_users` table to `migrations/003_admin_users.sql` with `id`, `tenant_id`, `email`, `password_hash` (bcrypt), `role`, `created_at`

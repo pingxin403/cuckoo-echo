@@ -4,14 +4,15 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 
 import structlog
-from fastapi import FastAPI, Request
-from starlette.responses import Response
+from fastapi import FastAPI
 
 from shared.config import get_settings
 from shared.logging import setup_logging
 from shared.db import create_asyncpg_pool
 from shared.redis_client import get_redis, close_redis
 from admin_service.routes import knowledge_router, hitl_router, config_router, metrics_router
+from admin_service.routes.auth import router as auth_router
+from admin_service.middleware.jwt_auth import JWTAuthMiddleware
 from shared.metrics import setup_prometheus
 
 log = structlog.get_logger()
@@ -53,16 +54,10 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Cuckoo-Echo Admin Service", lifespan=lifespan)
 setup_prometheus(app, service_name="admin-service")
 
+# JWT authentication middleware (replaces simplified header-based auth)
+app.add_middleware(JWTAuthMiddleware)
 
-# Auth middleware for admin (simplified — production would use JWT/session)
-@app.middleware("http")
-async def admin_auth_middleware(request: Request, call_next) -> Response:
-    # TODO: implement proper admin auth
-    request.state.tenant_id = request.headers.get("X-Tenant-ID", "")
-    request.state.admin_user_id = request.headers.get("X-Admin-User-ID", "")
-    return await call_next(request)
-
-
+app.include_router(auth_router)
 app.include_router(knowledge_router)
 app.include_router(hitl_router)
 app.include_router(config_router)

@@ -37,6 +37,9 @@ class Settings(BaseSettings):
     langfuse_secret_key: str = ""
     langfuse_host: str = "http://localhost:3000"
 
+    # Admin JWT
+    admin_jwt_secret: str = "change-me-in-production"
+
     # App
     environment: str = "development"
     log_level: str = "INFO"
