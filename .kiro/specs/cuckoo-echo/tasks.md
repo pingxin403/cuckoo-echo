@@ -338,3 +338,66 @@
   - [x] 32.2 Write `tests/integration/test_full_rag_flow.py`: upload document → wait for pipeline → send RAG query → verify response references document content → delete document → verify RAG no longer returns it
   - [x] 32.3 Write `tests/integration/test_full_hitl_flow.py`: trigger HITL → verify WebSocket notification → take session → send human reply → end session → verify thread restored
   - [x] 32.4 Execute load test: `uv run locust -f tests/load/locustfile.py --headless -u 100 -r 10 -t 60s`; document results in `docs/performance.md`
+
+---
+
+## Phase 9 — 质量补齐与生产加固（Quality Gaps & Production Hardening）
+
+**目标**：修复已知问题、补齐需求文档中定义但未实现的 PBT 测试、完善 Docker 健康检查、增强生产运维工具链。
+
+**验收标准**：
+- 测试 warning 清零（271 passed, 0 warnings）
+- docker-compose 所有服务均有 healthcheck，依赖使用 `service_healthy` 条件
+- 需求文档中 9 个正确性属性全部有对应 PBT 测试（当前缺 P2/P7/P8）
+- Vision LLM 图片理解真实调用（非 stub）
+- preprocess 节点摘要压缩逻辑可验证
+- Alembic 迁移在 docker compose 启动时自动执行
+- Grafana dashboard JSON 可直接导入使用
+- 备份/恢复脚本可运行
+
+**任务列表**：
+
+### P0 — 需要修复的问题
+
+- [ ] 33. 修复测试 Warning 与 Docker 健康检查
+  - [ ] 33.1 修复 `tests/unit/test_llm_gateway.py` 中 `test_tenant_config_overrides_defaults` 的 `RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited`：检查 mock 的 `return_value` 是否应为 coroutine，确保 `AsyncMock` 正确配置；目标：271 passed, 0 warnings
+  - [ ] 33.2 为 `docker-compose.yml` 中 milvus 添加 healthcheck（`curl -f http://localhost:9091/healthz`）；为 minio 添加 healthcheck（`curl -f http://localhost:9000/minio/health/live`）
+  - [ ] 33.3 将 `docker-compose.yml` 中所有应用服务对 milvus/minio 的依赖从 `service_started` 改为 `service_healthy`
+  - [ ] 33.4 验证 `docker compose up` 后所有服务按正确顺序启动，无启动失败
+
+### P1 — 补齐缺失的 PBT 测试
+
+- [ ] 34. 补齐需求文档中定义的 3 个缺失 PBT 测试
+  - [ ] 34.1 实现 Property 2 测试 `test_embedding_idempotency` in `tests/pbt/test_p2_embedding_idempotency.py`：`@given(text=st.text(min_size=1, max_size=2000, alphabet=st.characters(whitelist_categories=("L","N","P","Z"))))`；对同一文本调用 `embedding_service.embed()` 两次；断言两次返回的向量在每个维度上误差 < 1e-6。**验证：需求 3 验收标准 6（Embedding 幂等性）**
+  - [ ] 34.2 实现 Property 7 测试 `test_tool_tenant_id_passthrough` in `tests/pbt/test_p7_tool_tenant_id.py`：`@given(tenant_id=st.uuids(), order_id=st.text(min_size=1, max_size=20, alphabet=st.characters(whitelist_categories=("L","N"))))`；mock 工具的外部调用；触发 `tool_executor_node`；断言 mock 收到的每次请求中 `tenant_id` 与输入一致。**验证：需求 4 验收标准 3（工具调用 tenant_id 透传）**
+  - [ ] 34.3 实现 Property 8 测试 `test_routing_determinism` in `tests/pbt/test_p8_routing_determinism.py`：`@given(order_id=st.text(min_size=1, max_size=10, alphabet=st.characters(whitelist_categories=("N",))))`；构造明确工具意图消息（如 `f"查询订单 {order_id}"`）；调用 `router_node`；断言 `user_intent` 以 `"tool:"` 开头。同理构造知识问答消息，断言路由到 `"rag"`。**验证：需求 4 验收标准 1（路由确定性）**
+  - [ ] 34.4 运行全部 PBT 测试验证通过：`uv run pytest tests/pbt/ -x --tb=short`；确认 12 个 PBT 测试文件全部绿色
+
+### P2 — 功能完整性
+
+- [ ] 35. Vision LLM 图片理解
+  - [ ] 35.1 在 `chat_service/agent/nodes/preprocess.py` 中实现真实 Vision LLM 调用：当 `media` 包含图片时，将 OSS signed URL 与用户文本组合为 OpenAI Vision API 格式的 `messages`（`{"type": "image_url", "image_url": {"url": signed_url}}`）；通过 `ai_gateway.client` 调用支持 vision 的模型
+  - [ ] 35.2 在 `shared/config.py` 中添加 `vision_model: str = "gpt-4o-mini"` 配置项；在 `ai_gateway/client.py` 中添加 `vision_completion()` 方法，支持 image_url 类型的 content
+  - [ ] 35.3 写单元测试：图片消息触发 Vision LLM 调用、纯文本消息不触发、Vision 调用失败时降级为纯文本处理
+
+- [ ] 36. Preprocess 摘要压缩验证
+  - [ ] 36.1 在 `chat_service/agent/nodes/preprocess.py` 中确认 `SUMMARIZE_THRESHOLD` 逻辑已实现：当 `len(state["messages"]) >= 50` 时调用 LLM 生成摘要，压缩 messages 列表；如未实现则补齐
+  - [ ] 36.2 写单元测试：消息数 < 50 不触发摘要、消息数 ≥ 50 触发摘要并压缩 messages、摘要后 state["summary"] 非空
+
+- [ ] 37. Docker Compose 自动迁移
+  - [ ] 37.1 在 `docker-compose.yml` 中为应用服务添加 `entrypoint` 或 init 脚本：先执行 `alembic upgrade head`，再启动应用服务；或添加 `migrate` init service（`depends_on: postgres: service_healthy`，`command: uv run alembic upgrade head`），其他应用服务 `depends_on: migrate: service_completed_successfully`
+  - [ ] 37.2 创建 `scripts/docker-entrypoint.sh`：`#!/bin/bash` → `alembic upgrade head` → `exec "$@"`；更新 `k8s/Dockerfile` 将此脚本设为 ENTRYPOINT
+  - [ ] 37.3 验证 `docker compose down -v && docker compose up` 后数据库自动完成迁移，无需手动 `make migrate`
+
+### P3 — 生产运维工具链
+
+- [ ] 38. Grafana Dashboard
+  - [ ] 38.1 创建 `k8s/grafana/cuckoo-echo-overview.json`：预置 Grafana dashboard JSON，包含面板：请求 QPS、TTFT P50/P95/P99 直方图、错误率、Token 消耗趋势、活跃对话数、RAG 命中率、HITL 转接率
+  - [ ] 38.2 创建 `k8s/grafana/cuckoo-echo-rag.json`：RAG 专项面板 — 检索延迟、Rerank 延迟、Rerank 超时降级次数、Guardrails NLI 拦截率、知识库文档处理状态分布
+  - [ ] 38.3 在 `docs/deployment.md` 中补充 Grafana 导入指南
+
+- [ ] 39. 备份与恢复脚本
+  - [ ] 39.1 创建 `scripts/backup.sh`：PostgreSQL `pg_dump` 全量备份 + WAL 归档说明；Milvus 数据导出到 MinIO/OSS；备份文件按日期命名，保留最近 7 天
+  - [ ] 39.2 创建 `scripts/restore.sh`：从备份文件恢复 PostgreSQL（`pg_restore`）；Milvus 数据重新导入；验证恢复后数据完整性
+  - [ ] 39.3 在 `docs/deployment.md` 中补充备份恢复操作指南，标注 RPO < 15min / RTO < 4h 的实现方式
+  - [ ] 39.4 创建 `scripts/healthcheck.sh`：一键检查所有服务健康状态（PG、Redis、Milvus、MinIO、各应用服务 /health 端点）
