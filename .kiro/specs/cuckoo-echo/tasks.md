@@ -367,11 +367,11 @@
 
 ### P1 — 补齐缺失的 PBT 测试
 
-- [ ] 34. 补齐需求文档中定义的 3 个缺失 PBT 测试
-  - [ ] 34.1 实现 Property 2 测试 `test_embedding_idempotency` in `tests/pbt/test_p2_embedding_idempotency.py`：`@given(text=st.text(min_size=1, max_size=2000, alphabet=st.characters(whitelist_categories=("L","N","P","Z"))))`；对同一文本调用 `embedding_service.embed()` 两次；断言两次返回的向量在每个维度上误差 < 1e-6。**验证：需求 3 验收标准 6（Embedding 幂等性）**
-  - [ ] 34.2 实现 Property 7 测试 `test_tool_tenant_id_passthrough` in `tests/pbt/test_p7_tool_tenant_id.py`：`@given(tenant_id=st.uuids(), order_id=st.text(min_size=1, max_size=20, alphabet=st.characters(whitelist_categories=("L","N"))))`；mock 工具的外部调用；触发 `tool_executor_node`；断言 mock 收到的每次请求中 `tenant_id` 与输入一致。**验证：需求 4 验收标准 3（工具调用 tenant_id 透传）**
-  - [ ] 34.3 实现 Property 8 测试 `test_routing_determinism` in `tests/pbt/test_p8_routing_determinism.py`：`@given(order_id=st.text(min_size=1, max_size=10, alphabet=st.characters(whitelist_categories=("N",))))`；构造明确工具意图消息（如 `f"查询订单 {order_id}"`）；调用 `router_node`；断言 `user_intent` 以 `"tool:"` 开头。同理构造知识问答消息，断言路由到 `"rag"`。**验证：需求 4 验收标准 1（路由确定性）**
-  - [ ] 34.4 运行全部 PBT 测试验证通过：`uv run pytest tests/pbt/ -x --tb=short`；确认 12 个 PBT 测试文件全部绿色
+- [x] 34. 补齐需求文档中定义的 3 个缺失 PBT 测试
+  - [x] 34.1 实现 Property 2 测试 `test_embedding_idempotency` in `tests/pbt/test_p2_embedding_idempotency.py`
+  - [x] 34.2 实现 Property 7 测试 `test_tool_tenant_id_passthrough` in `tests/pbt/test_p7_tool_tenant_id.py`
+  - [x] 34.3 实现 Property 8 测试 `test_routing_determinism` in `tests/pbt/test_p8_routing_determinism.py`
+  - [x] 34.4 运行全部 PBT 测试验证通过：15 个 PBT 测试全部绿色
 
 ### P2 — 功能完整性
 

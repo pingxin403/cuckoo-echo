@@ -56,6 +56,8 @@ filterwarnings = [
     # when MagicMock auto-creates AsyncMock children. This is a known CPython issue,
     # not a real bug in our code. See: https://github.com/python/cpython/issues/100226
     "ignore::RuntimeWarning:unittest.mock",
+    # PBT tests use asyncio.new_event_loop() in sync wrappers for Hypothesis compatibility
+    "ignore::DeprecationWarning:asyncio",
 ]
 
 [tool.ruff]
