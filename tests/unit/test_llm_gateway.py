@@ -51,11 +51,14 @@ class TestStreamChatCompletion:
     @pytest.mark.asyncio
     async def test_primary_success_returns_stream(self):
         """Primary backend succeeds — returns the stream response directly."""
-        mock_stream = AsyncMock()
+        mock_stream = MagicMock()
+
+        async def fake_acompletion(**kwargs):
+            return mock_stream
 
         with (
             patch("ai_gateway.client.get_settings", return_value=_fake_settings()),
-            patch("ai_gateway.client.acompletion", new_callable=AsyncMock, return_value=mock_stream),
+            patch("ai_gateway.client.acompletion", side_effect=fake_acompletion),
         ):
             result = await stream_chat_completion(MESSAGES)
             assert result is mock_stream
@@ -118,21 +121,14 @@ class TestStreamChatCompletion:
     @pytest.mark.asyncio
     async def test_stream_options_include_usage(self):
         """stream_options={'include_usage': True} is passed to acompletion."""
-        mock_stream = AsyncMock()
+        mock_stream = MagicMock()
+
+        async def fake_acompletion(**kwargs):
+            return mock_stream
 
         with (
             patch("ai_gateway.client.get_settings", return_value=_fake_settings()),
-            patch("ai_gateway.client.acompletion", new_callable=AsyncMock, return_value=mock_stream),
-        ):
-            await stream_chat_completion(MESSAGES)
-
-            call_kwargs = mock_stream  # noqa: F841
-            from ai_gateway.client import acompletion as patched_ref  # noqa: F811
-
-        # Re-run with explicit assertion on call args
-        with (
-            patch("ai_gateway.client.get_settings", return_value=_fake_settings()),
-            patch("ai_gateway.client.acompletion", new_callable=AsyncMock, return_value=mock_stream) as mock_ac,
+            patch("ai_gateway.client.acompletion", side_effect=fake_acompletion) as mock_ac,
         ):
             await stream_chat_completion(MESSAGES)
             mock_ac.assert_called_once()
@@ -143,16 +139,21 @@ class TestStreamChatCompletion:
     @pytest.mark.asyncio
     async def test_tenant_config_overrides_defaults(self):
         """Per-tenant LLM config overrides default model and temperature."""
-        mock_stream = AsyncMock()
+        mock_stream = MagicMock()
         tenant_config = {
             "model": "gpt-4o",
             "fallback_model": "claude-3",
             "temperature": 0.3,
         }
 
+        # Use a regular coroutine function to avoid unawaited coroutine warning
+        # from AsyncMock. asyncio.wait_for expects a coroutine, so we provide one.
+        async def fake_acompletion(**kwargs):
+            return mock_stream
+
         with (
             patch("ai_gateway.client.get_settings", return_value=_fake_settings()),
-            patch("ai_gateway.client.acompletion", new_callable=AsyncMock, return_value=mock_stream) as mock_ac,
+            patch("ai_gateway.client.acompletion", side_effect=fake_acompletion) as mock_ac,
         ):
             await stream_chat_completion(MESSAGES, tenant_llm_config=tenant_config)
             call_kwargs = mock_ac.call_args.kwargs

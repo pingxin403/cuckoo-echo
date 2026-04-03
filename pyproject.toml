@@ -51,6 +51,12 @@ markers = [
     "integration: requires running infrastructure (PostgreSQL, Milvus, Redis)",
     "e2e: end-to-end smoke tests requiring docker compose infrastructure",
 ]
+filterwarnings = [
+    # unittest.mock.AsyncMock creates coroutines that may be GC'd without awaiting
+    # when MagicMock auto-creates AsyncMock children. This is a known CPython issue,
+    # not a real bug in our code. See: https://github.com/python/cpython/issues/100226
+    "ignore::RuntimeWarning:unittest.mock",
+]
 
 [tool.ruff]
 target-version = "py311"

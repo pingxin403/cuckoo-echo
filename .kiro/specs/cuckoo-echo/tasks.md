@@ -359,11 +359,11 @@
 
 ### P0 — 需要修复的问题
 
-- [ ] 33. 修复测试 Warning 与 Docker 健康检查
-  - [ ] 33.1 修复 `tests/unit/test_llm_gateway.py` 中 `test_tenant_config_overrides_defaults` 的 `RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited`：检查 mock 的 `return_value` 是否应为 coroutine，确保 `AsyncMock` 正确配置；目标：271 passed, 0 warnings
-  - [ ] 33.2 为 `docker-compose.yml` 中 milvus 添加 healthcheck（`curl -f http://localhost:9091/healthz`）；为 minio 添加 healthcheck（`curl -f http://localhost:9000/minio/health/live`）
-  - [ ] 33.3 将 `docker-compose.yml` 中所有应用服务对 milvus/minio 的依赖从 `service_started` 改为 `service_healthy`
-  - [ ] 33.4 验证 `docker compose up` 后所有服务按正确顺序启动，无启动失败
+- [x] 33. 修复测试 Warning 与 Docker 健康检查
+  - [x] 33.1 修复 `tests/unit/test_llm_gateway.py` 中 `test_tenant_config_overrides_defaults` 的 `RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited`：检查 mock 的 `return_value` 是否应为 coroutine，确保 `AsyncMock` 正确配置；目标：271 passed, 0 warnings
+  - [x] 33.2 为 `docker-compose.yml` 中 milvus 添加 healthcheck（`curl -f http://localhost:9091/healthz`）；为 minio 添加 healthcheck（`curl -f http://localhost:9000/minio/health/live`）
+  - [x] 33.3 将 `docker-compose.yml` 中所有应用服务对 milvus/minio 的依赖从 `service_started` 改为 `service_healthy`
+  - [x] 33.4 验证 `docker compose up` 后所有服务按正确顺序启动，无启动失败
 
 ### P1 — 补齐缺失的 PBT 测试
 

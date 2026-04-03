@@ -22,6 +22,11 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   milvus:
     image: milvusdb/milvus:v2.5-latest
@@ -35,6 +40,12 @@ services:
       - "9091:9091"
     volumes:
       - milvusdata:/var/lib/milvus
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9091/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   minio:
     image: minio/minio:latest
@@ -47,6 +58,12 @@ services:
       - "9001:9001"
     volumes:
       - miniodata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   # ============================================================
   # Application Services
@@ -63,7 +80,7 @@ services:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
 
   chat-service:
     build:
@@ -77,9 +94,9 @@ services:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
       milvus:
-        condition: service_started
+        condition: service_healthy
 
   admin-service:
     build:
@@ -93,7 +110,9 @@ services:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
+      minio:
+        condition: service_healthy
 
   knowledge-pipeline:
     build:
@@ -105,7 +124,9 @@ services:
       postgres:
         condition: service_healthy
       milvus:
-        condition: service_started
+        condition: service_healthy
+      minio:
+        condition: service_healthy
 
 volumes:
   pgdata:
