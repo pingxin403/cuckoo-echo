@@ -418,10 +418,10 @@
 
 **任务列表**：
 
-- [ ] 40. Wire llm_summarizer 到 Preprocess
-  - [ ] 40.1 在 `chat_service/main.py` 的 `_wire_dependencies()` 中创建 `LLMSummarizer` 实例并赋值给 `pre_mod.llm_summarizer`；`LLMSummarizer` 封装 `ai_gateway.client.stream_chat_completion()` 调用，使用系统提示词 `"请将以下对话历史压缩为简洁的摘要，保留关键信息和用户意图"`，返回摘要文本
-  - [ ] 40.2 创建 `chat_service/agent/summarizer.py`：实现 `LLMSummarizer` 类，`async def summarize(messages: list[dict]) -> str`；调用 LLM 生成摘要；处理异常时返回空字符串（降级为不压缩）
-  - [ ] 40.3 写单元测试：验证 `_wire_dependencies()` 后 `pre_mod.llm_summarizer` 不为 None；验证 `LLMSummarizer.summarize()` 调用 LLM 并返回字符串；验证 LLM 调用失败时返回空字符串
+- [x] 40. Wire llm_summarizer 到 Preprocess
+  - [x] 40.1 在 `chat_service/main.py` 的 `_wire_dependencies()` 中创建 `LLMSummarizer` 实例并赋值给 `pre_mod.llm_summarizer`
+  - [x] 40.2 创建 `chat_service/agent/summarizer.py`：实现 `LLMSummarizer` 类
+  - [x] 40.3 写单元测试：验证 summarize 调用 LLM、失败返回空字符串、wire 后不为 None
 
 - [ ] 41. 分离 Admin Service 读写连接池
   - [ ] 41.1 在 `shared/config.py` 中添加 `database_ro_url: str = ""` 配置项（空字符串时 fallback 到 `database_url`）

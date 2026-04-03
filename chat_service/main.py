@@ -72,6 +72,16 @@ def _wire_dependencies(app: FastAPI):
                     hint="Vision LLM unavailable — image understanding disabled")
         pre_mod.vision_client = None
 
+    # LLM Summarizer for conversation compression
+    try:
+        from chat_service.agent.summarizer import LLMSummarizer
+        pre_mod.llm_summarizer = LLMSummarizer()
+        log.info("llm_summarizer_ready")
+    except Exception as e:
+        log.warning("llm_summarizer_init_failed", error=str(e),
+                    hint="Summarizer unavailable — long conversations won't be compressed")
+        pre_mod.llm_summarizer = None
+
     # Track RAG readiness
     rag_ready = True
 
