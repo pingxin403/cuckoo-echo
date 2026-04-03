@@ -327,7 +327,7 @@
   - [ ] 30.3 Update Makefile: `make migrate-up` → `uv run alembic upgrade head`; `make migrate-down` → `uv run alembic downgrade -1`; `make migrate-new MSG="description"` → `uv run alembic revision --autogenerate -m "description"`
   - [ ] 30.4 Update docker-compose.yml: change migration init from `docker-entrypoint-initdb.d` to explicit `alembic upgrade head` in entrypoint or init container
 
-- [ ] 31. Semantic Cache Implementation
+- [-] 31. Semantic Cache Implementation
   - [ ] 31.1 Implement `shared/semantic_cache.py`: create Milvus `semantic_cache` collection (query_vector, response_text, tenant_id, created_at, ttl); `cache_lookup(query_vec, tenant_id, threshold=0.95)` → returns cached response or None; `cache_store(query_vec, response, tenant_id)`
   - [ ] 31.2 Integrate into `chat_service/agent/nodes/rag_engine.py`: before RAG search, check semantic cache; if hit (similarity ≥ 0.95), return cached response directly without LLM call; if miss, proceed with normal RAG → LLM flow and cache the result
   - [ ] 31.3 Add cache invalidation: when knowledge docs are updated/deleted, invalidate related cache entries for that tenant; add `POST /admin/v1/cache/clear` endpoint

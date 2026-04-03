@@ -88,7 +88,7 @@ async def _rerank_chunks(
 # ---------------------------------------------------------------------------
 
 async def rag_engine_node(state: AgentState) -> AgentState:
-    """RAG Engine: hybrid search (dense + BM25) → soft-delete filter → rerank → top-3."""
+    """RAG Engine: cache check → hybrid search (dense + BM25) → soft-delete filter → rerank → top-3."""
     messages = state.get("messages", [])
     if not messages:
         return {**state, "rag_context": [], "user_intent": "no_answer"}
@@ -98,6 +98,12 @@ async def rag_engine_node(state: AgentState) -> AgentState:
 
     if not query or not tenant_id:
         return {**state, "rag_context": [], "user_intent": "no_answer"}
+
+    # 0. Semantic cache check — return cached response without LLM call
+    from shared.semantic_cache import cache_lookup
+    cached = await cache_lookup(query, tenant_id)
+    if cached:
+        return {**state, "rag_context": [], "llm_response": cached}
 
     # 1. Embed query (dense vector)
     if embedding_service is None:

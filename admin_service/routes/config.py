@@ -72,3 +72,13 @@ async def update_rate_limit(body: RateLimitUpdate, request: Request):
     await redis.delete(f"cuckoo:ratelimit_config:{tenant_id}")
     log.info("rate_limit_updated", tenant_id=tenant_id)
     return {"updated": True}
+
+
+@router.post("/cache/clear")
+async def clear_cache(request: Request):
+    """Clear semantic cache entries for the current tenant."""
+    from shared.semantic_cache import cache_invalidate
+
+    tenant_id = request.state.tenant_id
+    await cache_invalidate(tenant_id)
+    return {"status": "cleared", "tenant_id": tenant_id}

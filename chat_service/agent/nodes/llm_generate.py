@@ -70,6 +70,16 @@ async def llm_generate_node(state: AgentState) -> AgentState:
             if hasattr(chunk, "usage") and chunk.usage:
                 tokens_used = getattr(chunk.usage, "total_tokens", 0)
 
+        # Cache the response for RAG queries (semantic cache)
+        if rag_context and full_response:
+            try:
+                from shared.semantic_cache import cache_store
+                query = messages[-1].get("content", "") if messages else ""
+                if query:
+                    await cache_store(query, full_response, tenant_id)
+            except Exception as cache_err:
+                log.warning("semantic_cache_store_skipped", error=str(cache_err))
+
         return {**state, "llm_response": full_response, "tokens_used": tokens_used, "guardrails_passed": True}
     except Exception as e:
         log.error("llm_generate_failed", error=str(e))
