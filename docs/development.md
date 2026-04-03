@@ -77,6 +77,18 @@ make dev
 make dev-all
 ```
 
+#### Hot-Reload 说明
+
+`docker-compose.override.yml` 在 `docker compose up` 时自动加载，提供：
+- 所有应用服务使用 `uvicorn --reload` 替代 `granian`（granian 不支持热重载）
+- 源码目录通过 volume mount 映射到容器内 `/app/`
+- 修改本地 Python 文件后，容器内 uvicorn 自动检测变更并重启服务
+
+如果不需要热重载（如测试生产配置），使用：
+```bash
+docker compose -f docker-compose.yml up  # 仅加载主文件，使用 granian
+```
+
 ---
 
 ## Running Tests / 运行测试

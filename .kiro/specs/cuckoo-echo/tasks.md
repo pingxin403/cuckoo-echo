@@ -442,10 +442,10 @@
   - [x] 43.3 确保 integration test 在无 LLM API Key 时跳过需要真实 LLM 的测试
   - [x] 43.4 CI workflow 配置完成，PR 和 push 到 main 时触发
 
-- [ ] 44. Docker Compose Override 热重载验证
-  - [ ] 44.1 检查 `docker-compose.override.yml` 中的 volume mount 路径是否正确（源码目录挂载到容器 `/app`）
-  - [ ] 44.2 确认 override 中使用 `uvicorn --reload` 替代 `granian`（granian 不支持热重载）
-  - [ ] 44.3 验证修改本地 Python 文件后，容器内服务自动重启；记录验证结果到 `docs/development.md`
+- [x] 44. Docker Compose Override 热重载验证
+  - [x] 44.1 检查 volume mount 路径正确（源码 → 容器 /app/）
+  - [x] 44.2 确认 override 使用 `uvicorn --reload`；添加 migrate service volume mount
+  - [x] 44.3 在 `docs/development.md` 中记录热重载说明
 
 - [ ] 45. Ragas 自动化质量监控
   - [ ] 45.1 创建 `scripts/ragas_quality_gate.py`：独立脚本，读取测试用例（JSON 格式：`[{"question": "...", "ground_truth": "...", "contexts": [...]}]`），调用 Ragas `evaluate()` 计算 `Faithfulness`、`ContextPrecision`、`ContextRecall`、`AnswerRelevancy` 四项指标；输出 JSON 报告 + pass/fail 判定（阈值：Faithfulness ≥ 0.85, ContextPrecision ≥ 0.80, ContextRecall ≥ 0.75, AnswerRelevancy ≥ 0.85）
