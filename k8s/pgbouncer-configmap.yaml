@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgbouncer-config
+data:
+  pgbouncer.ini: |
+    [databases]
+    cuckoo = host=postgres port=5432 dbname=cuckoo
+
+    [pgbouncer]
+    listen_addr = 0.0.0.0
+    listen_port = 6432
+    auth_type = md5
+    pool_mode = transaction
+    max_client_conn = 1000
+    default_pool_size = 20
+    # transaction mode is REQUIRED for SET LOCAL RLS activation:
+    # SET LOCAL is transaction-scoped; in session mode, connections are
+    # shared across transactions, causing SET LOCAL to leak between requests.

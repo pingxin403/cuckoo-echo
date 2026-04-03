@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: knowledge-pipeline
+  labels:
+    app: knowledge-pipeline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: knowledge-pipeline
+  template:
+    metadata:
+      labels:
+        app: knowledge-pipeline
+    spec:
+      containers:
+        - name: knowledge-pipeline
+          image: cuckoo-echo/knowledge-pipeline:latest
+          command: ["python", "-m", "knowledge_pipeline.worker"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: cuckoo-secrets
+                  key: database-url
+            - name: MILVUS_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: cuckoo-config
+                  key: milvus-uri
+            - name: MINIO_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: cuckoo-config
+                  key: minio-endpoint
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cuckoo-secrets
+                  key: minio-access-key
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cuckoo-secrets
+                  key: minio-secret-key
+            - name: EMBEDDING_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: cuckoo-config
+                  key: embedding-service-url
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
