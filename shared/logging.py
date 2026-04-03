@@ -25,3 +25,12 @@ def setup_logging(log_level: str = "INFO") -> None:
         logger_factory=structlog.PrintLoggerFactory(),
         cache_logger_on_first_use=True,
     )
+
+
+def bind_request_context(tenant_id: str = "", thread_id: str = "", trace_id: str = ""):
+    """Bind request-scoped context variables for structured logging."""
+    structlog.contextvars.bind_contextvars(
+        tenant_id=tenant_id,
+        thread_id=thread_id,
+        trace_id=trace_id,
+    )

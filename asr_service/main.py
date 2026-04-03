@@ -17,6 +17,13 @@ SUPPORTED_AUDIO_TYPES = {
 
 app = FastAPI(title="Cuckoo-Echo ASR Service")
 
+# Prometheus metrics
+try:
+    from shared.metrics import setup_prometheus
+    setup_prometheus(app, service_name="asr-service")
+except ImportError:
+    pass
+
 # Placeholder clients — wired at startup
 oss_client = None
 whisper_client = None

@@ -253,3 +253,30 @@
   - [ ]* 23.1 Create `tests/load/locustfile.py`: simulate 1000 concurrent users sending chat messages; measure TTFT P50/P95/P99
   - [ ]* 23.2 Create `tests/load/rag_load.py`: simulate RAG queries with varying document sizes; verify TTFT < 1200ms P95
   - [ ]* 23.3 Document performance baseline in `docs/performance.md`
+
+---
+
+## Phase 7 — 项目文档与开发体验（Documentation & DX）
+
+**目标**：完善项目文档、开发工具链和 docker compose 全栈启动体验，让新开发者能在 10 分钟内跑通完整流程。
+
+**验收标准**：
+- README.md 包含项目简介、架构图、快速启动指南、API 文档链接
+- `docker compose up` 一键启动所有服务（Gateway + Chat + Admin + Pipeline + 基础设施）
+- `make dev-all` 启动所有服务的开发模式
+- API 文档通过 FastAPI 自动生成的 Swagger UI 可访问
+
+**任务列表**：
+
+- [ ] 24. Project Documentation
+  - [ ] 24.1 Write comprehensive `README.md`: project overview（中英双语）, architecture diagram (Mermaid), tech stack table, quick start guide (`uv sync` → `docker compose up` → `make migrate` → `make dev`), API endpoints summary, project structure tree, contributing guidelines
+  - [ ] 24.2 Write `docs/api.md`: C 端对话 API（SSE + WebSocket）、Admin API（知识库/HITL/配置/指标）完整接口文档，包含 curl 示例
+  - [ ] 24.3 Write `docs/architecture.md`: 系统架构详解，从 design.md 提取核心内容，补充部署拓扑图和数据流图
+  - [ ] 24.4 Write `docs/development.md`: 开发环境搭建指南（uv 安装、docker compose、环境变量配置、IDE 推荐设置）、测试运行指南（unit/integration/pbt/e2e）、代码规范（ruff + pre-commit）
+
+- [ ] 25. Docker Compose Full Stack
+  - [ ] 25.1 Update `docker-compose.yml` to include all application services: `api-gateway` (port 8000), `chat-service` (port 8001), `admin-service` (port 8002), `knowledge-pipeline-worker`; each service uses the shared `k8s/Dockerfile` with different CMD; depends_on infrastructure services with health checks
+  - [ ] 25.2 Create `docker-compose.override.yml` for development: mount source code as volumes for hot-reload; use `uvicorn --reload` instead of `granian`; expose debug ports
+  - [ ] 25.3 Add `scripts/seed_tenant.py`: create a test tenant with API key, seed sample knowledge docs; output the API key for testing; runnable via `make seed`
+  - [ ] 25.4 Update `Makefile` with full-stack commands: `make dev-all`（启动所有服务开发模式）, `make seed`（创建测试租户）, `make logs`（查看所有服务日志）, `make clean`（清理所有数据卷）
+  - [ ] 25.5 Create `.env.docker` with docker compose specific environment variables (service discovery URLs using container names instead of localhost)

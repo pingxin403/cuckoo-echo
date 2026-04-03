@@ -13,6 +13,7 @@ from shared.redis_client import get_redis, close_redis
 from chat_service.agent.checkpointer import lifespan as agent_lifespan
 from chat_service.routes.chat import router as chat_router
 from chat_service.routes.ws_chat import router as ws_chat_router
+from shared.metrics import setup_prometheus
 
 log = structlog.get_logger()
 
@@ -85,6 +86,7 @@ def _wire_dependencies(app: FastAPI):
 
 
 app = FastAPI(title="Cuckoo-Echo Chat Service", lifespan=lifespan)
+setup_prometheus(app, service_name="chat-service")
 app.include_router(chat_router)
 app.include_router(ws_chat_router)
 

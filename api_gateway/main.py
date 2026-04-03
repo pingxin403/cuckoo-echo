@@ -22,6 +22,7 @@ from shared.redis_client import get_redis
 
 from api_gateway.middleware.auth import TenantAuthMiddleware
 from api_gateway.middleware.rate_limit import RateLimitMiddleware
+from shared.metrics import setup_prometheus
 
 log = structlog.get_logger()
 
@@ -40,6 +41,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Cuckoo-Echo API Gateway", lifespan=lifespan)
+setup_prometheus(app, service_name="api-gateway")
 
 
 # Middleware ordering in Starlette: last added wraps outermost.

@@ -12,6 +12,7 @@ from shared.logging import setup_logging
 from shared.db import create_asyncpg_pool
 from shared.redis_client import get_redis, close_redis
 from admin_service.routes import knowledge_router, hitl_router, config_router, metrics_router
+from shared.metrics import setup_prometheus
 
 log = structlog.get_logger()
 
@@ -50,6 +51,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Cuckoo-Echo Admin Service", lifespan=lifespan)
+setup_prometheus(app, service_name="admin-service")
 
 
 # Auth middleware for admin (simplified — production would use JWT/session)

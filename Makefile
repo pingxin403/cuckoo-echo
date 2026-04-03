@@ -29,6 +29,11 @@ down:
 
 migrate:
 	psql "postgresql://postgres:postgres@localhost:5432/cuckoo" -f migrations/001_initial.sql
+	psql "postgresql://postgres:postgres@localhost:5432/cuckoo" -f migrations/002_escalation_tables.sql
+
+migrate-status:
+	@echo "Migrations are raw SQL files in migrations/"
+	@ls -la migrations/*.sql
 
 dev:
 	uv run uvicorn api_gateway.main:app --reload --port 8000
