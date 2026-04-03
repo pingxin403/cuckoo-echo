@@ -53,8 +53,8 @@ class TestSafeToolCall:
             await asyncio.sleep(10)
 
         with patch(
-            "chat_service.agent.nodes.tool_executor.TOOL_REGISTRY",
-            {"slow": slow_tool},
+            "chat_service.agent.tools.registry._registry",
+            {"slow": {"fn": slow_tool, "name": "slow", "description": ""}},
         ), patch(
             "chat_service.agent.nodes.tool_executor.TOOL_TIMEOUT",
             0.1,
@@ -68,8 +68,8 @@ class TestSafeToolCall:
             raise RuntimeError("boom")
 
         with patch(
-            "chat_service.agent.nodes.tool_executor.TOOL_REGISTRY",
-            {"broken": broken_tool},
+            "chat_service.agent.tools.registry._registry",
+            {"broken": {"fn": broken_tool, "name": "broken", "description": ""}},
         ):
             result = await safe_tool_call("broken", {}, "t1")
         assert result["error"] == "TOOL_ERROR"

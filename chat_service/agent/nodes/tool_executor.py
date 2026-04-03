@@ -1,35 +1,35 @@
 """Tool Executor node — safe tool calling with timeout and record keeping."""
 from __future__ import annotations
+
 import asyncio
 import re
+
 import structlog
+
 from chat_service.agent.state import AgentState
-from chat_service.agent.tools.order_tools import get_order_status, update_shipping_address
+from chat_service.agent.tools.registry import get_tool
+
+# Ensure tools are registered by importing the module
+import chat_service.agent.tools.order_tools  # noqa: F401
 
 log = structlog.get_logger()
 
 TOOL_TIMEOUT = 5.0
 
-TOOL_REGISTRY = {
-    "get_order_status": get_order_status,
-    "update_shipping_address": update_shipping_address,
-}
-
 
 def _parse_tool_intent(user_intent: str, last_message: str) -> tuple[str, dict]:
     """Extract tool name and args from user_intent and message text."""
-    # user_intent format: "tool:get_order_status" or "tool:update_shipping_address"
     tool_name = user_intent.removeprefix("tool:")
     args: dict = {}
 
     if tool_name == "get_order_status":
-        match = re.search(r'(\d{4,})', last_message)
+        match = re.search(r"(\d{4,})", last_message)
         if match:
             args["order_id"] = match.group(1)
         else:
             args["order_id"] = "unknown"
     elif tool_name == "update_shipping_address":
-        match = re.search(r'(?:地址|address)[：:\s]*(.+)', last_message, re.IGNORECASE)
+        match = re.search(r"(?:地址|address)[：:\s]*(.+)", last_message, re.IGNORECASE)
         if match:
             args["address"] = match.group(1).strip()
             args["order_id"] = "latest"
@@ -41,8 +41,8 @@ def _parse_tool_intent(user_intent: str, last_message: str) -> tuple[str, dict]:
 
 
 async def safe_tool_call(tool_name: str, args: dict, tenant_id: str) -> dict:
-    """Call a tool with timeout protection."""
-    tool_fn = TOOL_REGISTRY.get(tool_name)
+    """Call a tool with timeout protection. Uses dynamic registry."""
+    tool_fn = get_tool(tool_name)
     if not tool_fn:
         return {"error": "UNKNOWN_TOOL", "message": f"Unknown tool: {tool_name}"}
 
@@ -69,7 +69,7 @@ async def tool_executor_node(state: AgentState) -> AgentState:
     tool_name, args = _parse_tool_intent(user_intent, last_message)
     result = await safe_tool_call(tool_name, args, tenant_id)
 
-    # Task 11.3: Append tool call record to state
+    # Append tool call record to state
     tool_calls = list(state.get("tool_calls", []))
     tool_calls.append({"name": tool_name, "args": args, "result": result})
 

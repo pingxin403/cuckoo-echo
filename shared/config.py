@@ -41,6 +41,10 @@ class Settings(BaseSettings):
     environment: str = "development"
     log_level: str = "INFO"
 
+    # Tool Service
+    tool_mock_mode: bool = True
+    tool_order_service_url: str = ""
+
     model_config = {"env_prefix": "", "env_file": ".env", "env_file_encoding": "utf-8"}
 
 

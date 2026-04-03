@@ -303,10 +303,10 @@
   - [x] 26.3 Update `chat_service/main.py` `_wire_dependencies()`: handle graceful degradation when embedding model / reranker / Milvus not available — log warning and set `rag_engine.embedding_service = None` (RAG disabled, chat-only mode still works)
   - [x] 26.4 Write `docs/deployment.md`: 生产部署指南 — 环境变量清单、LLM API Key 配置、PgBouncer 配置、Milvus 集群配置、Redis Cluster 配置、K8s 部署步骤
 
-- [ ] 27. Tool System Extensibility
-  - [ ] 27.1 Refactor `chat_service/agent/tools/order_tools.py`: extract `OrderServiceClient` class with configurable `base_url` from Settings; support both real HTTP API calls (`httpx.AsyncClient`) and mock mode (`TOOL_MOCK_MODE=true` returns stub data); add `TOOL_ORDER_SERVICE_URL` to Settings
-  - [ ] 27.2 Create `chat_service/agent/tools/registry.py`: dynamic tool registry that auto-discovers tools from `tools/` directory; support `@register_tool(name, description)` decorator pattern; replace hardcoded `TOOL_REGISTRY` dict in `tool_executor.py`
-  - [ ] 27.3 Write unit tests for the new tool registry and configurable order client
+- [x] 27. Tool System Extensibility
+  - [x] 27.1 Refactor `chat_service/agent/tools/order_tools.py`: extract `OrderServiceClient` class with configurable `base_url` from Settings; support both real HTTP API calls (`httpx.AsyncClient`) and mock mode (`TOOL_MOCK_MODE=true` returns stub data); add `TOOL_ORDER_SERVICE_URL` to Settings
+  - [x] 27.2 Create `chat_service/agent/tools/registry.py`: dynamic tool registry that auto-discovers tools from `tools/` directory; support `@register_tool(name, description)` decorator pattern; replace hardcoded `TOOL_REGISTRY` dict in `tool_executor.py`
+  - [x] 27.3 Write unit tests for the new tool registry and configurable order client
 
 - [ ] 28. ASR Whisper Integration
   - [ ] 28.1 Create `shared/whisper_client.py`: async Whisper client supporting both local inference (`faster-whisper` library) and remote API (`POST /v1/audio/transcriptions` OpenAI-compatible); configurable via `ASR_MODE` (local/remote) and `ASR_API_URL` in Settings
