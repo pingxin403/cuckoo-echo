@@ -167,12 +167,12 @@
 
 **任务列表**：
 
-- [ ]* 16. Kubernetes Deployment
-  - [ ]* 16.1 Write `k8s/api-gateway-deployment.yaml`: `Deployment` + `HPA` (CPU target 70%, min 2 / max 20 replicas); `readinessProbe` on `/health`; `livenessProbe` on `/health`; env vars for Redis, PG DSN; Dockerfile 使用 `COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv` 多阶段构建，`uv pip install --system` 安装依赖
-  - [ ]* 16.2 Write `k8s/chat-service-deployment.yaml`: same HPA pattern; mount `CHECKPOINTER_PG_DSN` secret; `terminationGracePeriodSeconds: 120` to allow in-flight SSE streams to complete
-  - [ ]* 16.3 Write `k8s/pgbouncer-configmap.yaml`: `pool_mode = transaction`, `max_client_conn = 1000`, `default_pool_size = 20`; document why transaction mode is required for `SET LOCAL` RLS activation
-  - [ ]* 16.4 Write `k8s/knowledge-pipeline-deployment.yaml`: single-replica `Deployment` (SKIP LOCKED handles multi-worker safety); env vars for PG, Milvus, OSS, Embedding Service
-  - [ ]* 16.5 Write `k8s/admin-service-deployment.yaml`: separate `PG_RO_DSN` env var pointing to read-replica; HPA min 1 / max 5
+- [x]* 16. Kubernetes Deployment
+  - [x]* 16.1 Write `k8s/api-gateway-deployment.yaml`: `Deployment` + `HPA` (CPU target 70%, min 2 / max 20 replicas); `readinessProbe` on `/health`; `livenessProbe` on `/health`; env vars for Redis, PG DSN; Dockerfile 使用 `COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv` 多阶段构建，`uv pip install --system` 安装依赖
+  - [x]* 16.2 Write `k8s/chat-service-deployment.yaml`: same HPA pattern; mount `CHECKPOINTER_PG_DSN` secret; `terminationGracePeriodSeconds: 120` to allow in-flight SSE streams to complete
+  - [x]* 16.3 Write `k8s/pgbouncer-configmap.yaml`: `pool_mode = transaction`, `max_client_conn = 1000`, `default_pool_size = 20`; document why transaction mode is required for `SET LOCAL` RLS activation
+  - [x]* 16.4 Write `k8s/knowledge-pipeline-deployment.yaml`: single-replica `Deployment` (SKIP LOCKED handles multi-worker safety); env vars for PG, Milvus, OSS, Embedding Service
+  - [x]* 16.5 Write `k8s/admin-service-deployment.yaml`: separate `PG_RO_DSN` env var pointing to read-replica; HPA min 1 / max 5
 
 - [x] 17. Property-Based Tests (Hypothesis)
   > **Hypothesis + asyncio 注意事项**：Hypothesis 原生不支持 `async def` 测试函数（会返回 coroutine 而非 None）。所有 PBT 测试必须是同步函数，在内部用 `asyncio.get_event_loop().run_until_complete()` 或 `anyio.from_thread.run_sync()` 调用异步代码；或者使用 `hypothesis[asyncio]` 扩展配合 `@given` + `@pytest.mark.asyncio`（需 pytest-asyncio >= 0.21 且 `asyncio_mode = "auto"`）。推荐方案：每个 PBT 文件顶部加 `@settings(suppress_health_check=[HealthCheck.too_slow])` 并用同步包装器。
@@ -236,7 +236,7 @@
   - [x] 20.1 Implement Ragas quality gate in `admin_service/routes/metrics.py` sandbox endpoint: replace stub with real `run_rag_quality_gate()` calling Ragas `evaluate()` with `Faithfulness`, `ContextPrecision`, `ContextRecall`, `AnswerRelevancy` metrics
   - [x] 20.2 Implement multimodal Credits billing in `shared/billing.py`: audio credits = `ceil(audio_seconds / 15) * AUDIO_CREDIT_RATE`; image credits = resolution-based tier (SD/HD/4K); update `messages` table with `credits_used` field
   - [x] 20.3 Implement WebSocket chat protocol in `chat_service/routes/ws_chat.py`: bidirectional WebSocket for real-time chat as alternative to SSE; reuse `event_generator` logic
-  - [ ]* 20.4 Implement semantic cache using Milvus `semantic_cache` collection: on query, search cache with similarity ≥ 0.95; if hit, return cached answer without LLM call; on miss, cache the new Q&A pair after LLM response
+  - [x]* 20.4 Implement semantic cache using Milvus `semantic_cache` collection: on query, search cache with similarity ≥ 0.95; if hit, return cached answer without LLM call; on miss, cache the new Q&A pair after LLM response
 
 - [x] 21. Observability & Monitoring
   - [x] 21.1 Add Prometheus metrics via `prometheus-fastapi-instrumentator`: request latency, TTFT histogram, token usage counter, error rate by endpoint
@@ -249,10 +249,10 @@
   - [x] 22.2 Add `hitl_escalation_tasks` and `tickets` tables to migration (referenced in HITL code but missing from DDL)
   - [x] 22.3 Update Makefile: `make migrate-up`, `make migrate-down`, `make migrate-new`
 
-- [ ]* 23. Performance & Load Testing
-  - [ ]* 23.1 Create `tests/load/locustfile.py`: simulate 1000 concurrent users sending chat messages; measure TTFT P50/P95/P99
-  - [ ]* 23.2 Create `tests/load/rag_load.py`: simulate RAG queries with varying document sizes; verify TTFT < 1200ms P95
-  - [ ]* 23.3 Document performance baseline in `docs/performance.md`
+- [x]* 23. Performance & Load Testing
+  - [x]* 23.1 Create `tests/load/locustfile.py`: simulate 1000 concurrent users sending chat messages; measure TTFT P50/P95/P99
+  - [x]* 23.2 Create `tests/load/rag_load.py`: simulate RAG queries with varying document sizes; verify TTFT < 1200ms P95
+  - [x]* 23.3 Document performance baseline in `docs/performance.md`
 
 ---
 
@@ -315,26 +315,26 @@
   - [x] 28.4 Write unit tests for whisper_client (mock both local and remote modes)
 
 - [-] 29. Admin JWT Authentication
-  - [ ] 29.1 Implement `admin_service/middleware/jwt_auth.py`: decode JWT token from `Authorization: Bearer <jwt>` header; extract `tenant_id`, `admin_user_id`, `role` from claims; validate signature using `ADMIN_JWT_SECRET` from Settings; return 401 on invalid/expired token
-  - [ ] 29.2 Create `admin_service/routes/auth.py`: `POST /admin/v1/auth/login` — validate admin credentials against `admin_users` table (add to migration); return JWT token with 24h expiry; `POST /admin/v1/auth/refresh` — refresh token
-  - [ ] 29.3 Add `admin_users` table to `migrations/003_admin_users.sql` with `id`, `tenant_id`, `email`, `password_hash` (bcrypt), `role`, `created_at`
-  - [ ] 29.4 Replace the simplified header-based auth middleware in `admin_service/main.py` with `JWTAuthMiddleware`; keep `/health` and `/admin/v1/auth/login` exempt
-  - [ ] 29.5 Write unit tests for JWT auth middleware and login endpoint
+  - [x] 29.1 Implement `admin_service/middleware/jwt_auth.py`: decode JWT token from `Authorization: Bearer <jwt>` header; extract `tenant_id`, `admin_user_id`, `role` from claims; validate signature using `ADMIN_JWT_SECRET` from Settings; return 401 on invalid/expired token
+  - [x] 29.2 Create `admin_service/routes/auth.py`: `POST /admin/v1/auth/login` — validate admin credentials against `admin_users` table (add to migration); return JWT token with 24h expiry; `POST /admin/v1/auth/refresh` — refresh token
+  - [x] 29.3 Add `admin_users` table to `migrations/003_admin_users.sql` with `id`, `tenant_id`, `email`, `password_hash` (bcrypt), `role`, `created_at`
+  - [x] 29.4 Replace the simplified header-based auth middleware in `admin_service/main.py` with `JWTAuthMiddleware`; keep `/health` and `/admin/v1/auth/login` exempt
+  - [x] 29.5 Write unit tests for JWT auth middleware and login endpoint
 
 - [-] 30. Alembic Migration Integration
-  - [ ] 30.1 Initialize Alembic: `uv add alembic`; `uv run alembic init migrations/alembic`; configure `alembic.ini` to read `DATABASE_URL` from pydantic-settings; set `script_location = migrations/alembic`
-  - [ ] 30.2 Convert existing SQL migrations to Alembic revisions: `001_initial.sql` → revision 1, `002_escalation_tables.sql` → revision 2, `003_admin_users.sql` → revision 3; use `op.execute()` for raw SQL to preserve exact DDL
-  - [ ] 30.3 Update Makefile: `make migrate-up` → `uv run alembic upgrade head`; `make migrate-down` → `uv run alembic downgrade -1`; `make migrate-new MSG="description"` → `uv run alembic revision --autogenerate -m "description"`
-  - [ ] 30.4 Update docker-compose.yml: change migration init from `docker-entrypoint-initdb.d` to explicit `alembic upgrade head` in entrypoint or init container
+  - [x] 30.1 Initialize Alembic: `uv add alembic`; `uv run alembic init migrations/alembic`; configure `alembic.ini` to read `DATABASE_URL` from pydantic-settings; set `script_location = migrations/alembic`
+  - [x] 30.2 Convert existing SQL migrations to Alembic revisions: `001_initial.sql` → revision 1, `002_escalation_tables.sql` → revision 2, `003_admin_users.sql` → revision 3; use `op.execute()` for raw SQL to preserve exact DDL
+  - [x] 30.3 Update Makefile: `make migrate-up` → `uv run alembic upgrade head`; `make migrate-down` → `uv run alembic downgrade -1`; `make migrate-new MSG="description"` → `uv run alembic revision --autogenerate -m "description"`
+  - [x] 30.4 Update docker-compose.yml: change migration init from `docker-entrypoint-initdb.d` to explicit `alembic upgrade head` in entrypoint or init container
 
 - [-] 31. Semantic Cache Implementation
-  - [ ] 31.1 Implement `shared/semantic_cache.py`: create Milvus `semantic_cache` collection (query_vector, response_text, tenant_id, created_at, ttl); `cache_lookup(query_vec, tenant_id, threshold=0.95)` → returns cached response or None; `cache_store(query_vec, response, tenant_id)`
-  - [ ] 31.2 Integrate into `chat_service/agent/nodes/rag_engine.py`: before RAG search, check semantic cache; if hit (similarity ≥ 0.95), return cached response directly without LLM call; if miss, proceed with normal RAG → LLM flow and cache the result
-  - [ ] 31.3 Add cache invalidation: when knowledge docs are updated/deleted, invalidate related cache entries for that tenant; add `POST /admin/v1/cache/clear` endpoint
-  - [ ] 31.4 Write unit tests: cache hit returns response without LLM call, cache miss proceeds normally, cache invalidation works, tenant isolation in cache
+  - [x] 31.1 Implement `shared/semantic_cache.py`: create Milvus `semantic_cache` collection (query_vector, response_text, tenant_id, created_at, ttl); `cache_lookup(query_vec, tenant_id, threshold=0.95)` → returns cached response or None; `cache_store(query_vec, response, tenant_id)`
+  - [x] 31.2 Integrate into `chat_service/agent/nodes/rag_engine.py`: before RAG search, check semantic cache; if hit (similarity ≥ 0.95), return cached response directly without LLM call; if miss, proceed with normal RAG → LLM flow and cache the result
+  - [x] 31.3 Add cache invalidation: when knowledge docs are updated/deleted, invalidate related cache entries for that tenant; add `POST /admin/v1/cache/clear` endpoint
+  - [x] 31.4 Write unit tests: cache hit returns response without LLM call, cache miss proceeds normally, cache invalidation works, tenant isolation in cache
 
-- [-] 32. Integration Test Suite on Real Infrastructure
-  - [ ] 32.1 Write `tests/integration/test_full_chat_flow.py`: `docker compose up` → create tenant → send message → verify SSE stream → verify message persisted in PG → verify Langfuse trace created; mark as `pytest.mark.integration`
-  - [ ] 32.2 Write `tests/integration/test_full_rag_flow.py`: upload document → wait for pipeline → send RAG query → verify response references document content → delete document → verify RAG no longer returns it
-  - [ ] 32.3 Write `tests/integration/test_full_hitl_flow.py`: trigger HITL → verify WebSocket notification → take session → send human reply → end session → verify thread restored
-  - [ ] 32.4 Execute load test: `uv run locust -f tests/load/locustfile.py --headless -u 100 -r 10 -t 60s`; document results in `docs/performance.md`
+- [x] 32. Integration Test Suite on Real Infrastructure
+  - [x] 32.1 Write `tests/integration/test_full_chat_flow.py`: `docker compose up` → create tenant → send message → verify SSE stream → verify message persisted in PG → verify Langfuse trace created; mark as `pytest.mark.integration`
+  - [x] 32.2 Write `tests/integration/test_full_rag_flow.py`: upload document → wait for pipeline → send RAG query → verify response references document content → delete document → verify RAG no longer returns it
+  - [x] 32.3 Write `tests/integration/test_full_hitl_flow.py`: trigger HITL → verify WebSocket notification → take session → send human reply → end session → verify thread restored
+  - [x] 32.4 Execute load test: `uv run locust -f tests/load/locustfile.py --headless -u 100 -r 10 -t 60s`; document results in `docs/performance.md`
