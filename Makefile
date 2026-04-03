@@ -1,4 +1,4 @@
-.PHONY: install test lint format up down migrate dev pre-commit
+.PHONY: install test lint format up down migrate dev pre-commit test-e2e
 
 install:
 	uv sync
@@ -8,6 +8,9 @@ test:
 
 test-integration:
 	uv run pytest tests/integration/ -m integration -v
+
+test-e2e:
+	uv run pytest tests/e2e/ -m e2e -v
 
 lint:
 	uv run ruff check .

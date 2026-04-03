@@ -211,12 +211,12 @@
   - [x] 18.7 Wire dependency injection in `admin_service/main.py` lifespan: initialize `db_pool_ro` (read-replica, fallback to main pool), `milvus_client`, `oss_client`
   - [x] 18.8 Add `pytest-timeout>=2.3.0` to dev dependencies; add `.hypothesis/` to `.gitignore`; remove `.hypothesis/` from git tracking
 
-- [ ] 19. End-to-End Smoke Tests
-  - [ ] 19.1 Write `tests/e2e/test_smoke.py`: `docker compose up` → apply migration → create test tenant → send chat message → assert SSE stream contains tokens and `[DONE]`; use `httpx` with SSE parsing; mark as `pytest.mark.e2e`
-  - [ ] 19.2 Write `tests/e2e/test_knowledge_flow.py`: upload document via Admin API → wait for Knowledge Pipeline to process → send RAG query → assert response references uploaded content
-  - [ ] 19.3 Write `tests/e2e/test_tool_call_flow.py`: send "查订单 12345" → assert tool_calls in response → assert natural language reply contains order info
-  - [ ] 19.4 Write `tests/e2e/test_hitl_flow.py`: trigger negative sentiment → assert HITL session created → take session → end session → verify thread status restored
-  - [ ] 19.5 Add `e2e` marker to `pyproject.toml`; add `make test-e2e` target to Makefile
+- [x] 19. End-to-End Smoke Tests
+  - [x] 19.1 Write `tests/e2e/test_smoke.py`: `docker compose up` → apply migration → create test tenant → send chat message → assert SSE stream contains tokens and `[DONE]`; use `httpx` with SSE parsing; mark as `pytest.mark.e2e`
+  - [x] 19.2 Write `tests/e2e/test_knowledge_flow.py`: upload document via Admin API → wait for Knowledge Pipeline to process → send RAG query → assert response references uploaded content
+  - [x] 19.3 Write `tests/e2e/test_tool_call_flow.py`: send "查订单 12345" → assert tool_calls in response → assert natural language reply contains order info
+  - [x] 19.4 Write `tests/e2e/test_hitl_flow.py`: trigger negative sentiment → assert HITL session created → take session → end session → verify thread status restored
+  - [x] 19.5 Add `e2e` marker to `pyproject.toml`; add `make test-e2e` target to Makefile
 
 ---
 
