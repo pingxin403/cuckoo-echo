@@ -87,10 +87,50 @@ async def sandbox_run(request: Request):
     body = await request.json()
     tenant_id = request.state.tenant_id
     test_cases = body.get("test_cases", [])
-    # Stub — actual Ragas integration requires running LLM
-    log.info("sandbox_run", tenant_id=tenant_id, test_cases_count=len(test_cases))
-    return {
-        "status": "stub",
-        "message": "Ragas quality gate not yet wired to live LLM",
-        "test_cases_count": len(test_cases),
-    }
+
+    if not test_cases:
+        return {"status": "error", "message": "No test cases provided"}
+
+    try:
+        from ragas import evaluate, EvaluationDataset
+        from ragas.metrics import Faithfulness, ContextPrecision, ContextRecall, AnswerRelevancy
+
+        # Build evaluation dataset from test cases
+        dataset = []
+        for case in test_cases:
+            dataset.append({
+                "user_input": case.get("query", ""),
+                "retrieved_contexts": case.get("contexts", []),
+                "response": case.get("response", ""),
+                "reference": case.get("reference", ""),
+            })
+
+        eval_dataset = EvaluationDataset.from_list(dataset)
+        result = evaluate(
+            dataset=eval_dataset,
+            metrics=[Faithfulness(), ContextPrecision(), ContextRecall(), AnswerRelevancy()],
+        )
+
+        # Quality gate thresholds
+        thresholds = {
+            "faithfulness": 0.85,
+            "context_precision": 0.80,
+            "context_recall": 0.75,
+            "answer_relevancy": 0.85,
+        }
+
+        scores = {k: float(v) for k, v in result.items() if isinstance(v, (int, float))}
+        failed = {k: v for k, v in scores.items() if v < thresholds.get(k, 0)}
+
+        return {
+            "status": "passed" if not failed else "failed",
+            "scores": scores,
+            "thresholds": thresholds,
+            "failed_metrics": failed,
+            "test_cases_count": len(test_cases),
+        }
+    except ImportError:
+        return {"status": "stub", "message": "Ragas not installed", "test_cases_count": len(test_cases)}
+    except Exception as e:
+        log.error("sandbox_run_failed", error=str(e))
+        return {"status": "error", "message": str(e), "test_cases_count": len(test_cases)}

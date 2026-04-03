@@ -232,10 +232,10 @@
 
 **任务列表**：
 
-- [ ] 20. Feature Completeness
-  - [ ] 20.1 Implement Ragas quality gate in `admin_service/routes/metrics.py` sandbox endpoint: replace stub with real `run_rag_quality_gate()` calling Ragas `evaluate()` with `Faithfulness`, `ContextPrecision`, `ContextRecall`, `AnswerRelevancy` metrics
-  - [ ] 20.2 Implement multimodal Credits billing in `shared/billing.py`: audio credits = `ceil(audio_seconds / 15) * AUDIO_CREDIT_RATE`; image credits = resolution-based tier (SD/HD/4K); update `messages` table with `credits_used` field
-  - [ ] 20.3 Implement WebSocket chat protocol in `chat_service/routes/ws_chat.py`: bidirectional WebSocket for real-time chat as alternative to SSE; reuse `event_generator` logic
+- [x] 20. Feature Completeness
+  - [x] 20.1 Implement Ragas quality gate in `admin_service/routes/metrics.py` sandbox endpoint: replace stub with real `run_rag_quality_gate()` calling Ragas `evaluate()` with `Faithfulness`, `ContextPrecision`, `ContextRecall`, `AnswerRelevancy` metrics
+  - [x] 20.2 Implement multimodal Credits billing in `shared/billing.py`: audio credits = `ceil(audio_seconds / 15) * AUDIO_CREDIT_RATE`; image credits = resolution-based tier (SD/HD/4K); update `messages` table with `credits_used` field
+  - [x] 20.3 Implement WebSocket chat protocol in `chat_service/routes/ws_chat.py`: bidirectional WebSocket for real-time chat as alternative to SSE; reuse `event_generator` logic
   - [ ]* 20.4 Implement semantic cache using Milvus `semantic_cache` collection: on query, search cache with similarity ≥ 0.95; if hit, return cached answer without LLM call; on miss, cache the new Q&A pair after LLM response
 
 - [ ] 21. Observability & Monitoring

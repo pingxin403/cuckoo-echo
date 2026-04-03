@@ -289,4 +289,5 @@ class TestSandboxRun:
 
         assert resp.status_code == 200
         body = resp.json()
-        assert body["test_cases_count"] == 0
+        assert body["status"] == "error"
+        assert "No test cases" in body["message"]
