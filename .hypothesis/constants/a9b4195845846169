@@ -1,4 +1,0 @@
-# file: /Users/hanyunpeng/Projects/cuckoo-echo/chat_service/agent/nodes/tool_executor.py
-# hypothesis_version: 6.151.10
-
-[5.0, '(\\d{4,})', 'TOOL_ERROR', 'TOOL_TIMEOUT', 'UNKNOWN_TOOL', 'address', 'args', 'content', 'error', 'get_order_status', 'latest', 'llm_response', 'message', 'messages', 'name', 'order_id', 'result', 'tenant_id', 'tool:', 'tool_calls', 'tool_error', 'tool_timeout', 'unknown', 'user_intent', '工具调用失败', '查询超时，请稍后重试']

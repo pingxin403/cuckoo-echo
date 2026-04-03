@@ -1,4 +1,0 @@
-# file: /Users/hanyunpeng/Projects/cuckoo-echo/admin_service/routes/knowledge.py
-# hypothesis_version: 6.151.10
-
-[404, 413, 1024, '/admin/v1/knowledge', '/docs', '/docs/{doc_id}', '/docs/{doc_id}/retry', 'Document not found', 'chunk_count', 'deleted', 'doc_id', 'document_deleted', 'document_retry', 'document_uploaded', 'error_msg', 'knowledge_chunks', 'milvus_client', 'milvus_delete_failed', 'milvus_delete_retry', 'pending', 'status']

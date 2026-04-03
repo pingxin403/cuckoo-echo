@@ -1,4 +1,0 @@
-# file: /Users/hanyunpeng/Projects/cuckoo-echo/shared/config.py
-# hypothesis_version: 6.151.10
-
-[3.0, '.env', 'INFO', 'cuckoo-echo', 'deepseek-chat', 'development', 'env_file', 'env_file_encoding', 'env_prefix', 'localhost:9000', 'minioadmin', 'qwen-plus', 'utf-8']

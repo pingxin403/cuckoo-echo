@@ -1,4 +1,0 @@
-# file: /Users/hanyunpeng/Projects/cuckoo-echo/api_gateway/middleware/auth.py
-# hypothesis_version: 6.151.10
-
-[401, '/health', 'Authorization', 'Bearer ', 'Unauthorized', 'active', 'error', 'id', 'status', 'tenant_authenticated']

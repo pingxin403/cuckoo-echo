@@ -1,4 +1,0 @@
-# file: /Users/hanyunpeng/Projects/cuckoo-echo/api_gateway/middleware/rate_limit.py
-# hypothesis_version: 6.151.10
-
-[1.0, 429, '/health', '1', 'Rate limit exceeded', 'Retry-After', 'X-User-ID', 'anonymous', 'capacity', 'error', 'last_refill', 'rate_limit', 'rate_limit_local', 'rate_limit_redis', 'tenant_id', 'tokens', 'user_rps']

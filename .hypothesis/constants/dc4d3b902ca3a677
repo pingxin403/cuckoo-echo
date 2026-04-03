@@ -1,4 +1,0 @@
-# file: /Users/hanyunpeng/Projects/cuckoo-echo/asr_service/main.py
-# hypothesis_version: 6.151.10
-
-[415, 500, '/v1/asr/transcribe', 'ASR_FAILED', 'X-Tenant-ID', 'asr_failed', 'audio/m4a', 'audio/mp3', 'audio/mp4', 'audio/mpeg', 'audio/wav', 'audio/x-m4a', 'oss_path', 'text']

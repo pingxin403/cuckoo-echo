@@ -1,4 +1,0 @@
-# file: /Users/hanyunpeng/Projects/cuckoo-echo/admin_service/routes/metrics.py
-# hypothesis_version: 6.151.10
-
-['/admin/v1/metrics', '/missed-queries', '/overview', '/sandbox/run', '/tokens', '1 day', '1d', '30 days', '30d', '7 days', '7d', 'db_pool_ro', 'human_transfer_count', 'human_transfer_rate', 'message', 'message_count', 'missed_queries', 'range', 'sandbox_run', 'status', 'stub', 'test_cases', 'test_cases_count', 'total_conversations', 'total_tokens']

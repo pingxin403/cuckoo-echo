@@ -1,4 +1,0 @@
-# file: /Users/hanyunpeng/Projects/cuckoo-echo/.venv/bin/pytest
-# hypothesis_version: 6.151.10
-
-['-script.pyw', '.exe', '__main__']

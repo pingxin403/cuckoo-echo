@@ -18,7 +18,7 @@ from chat_service.agent.nodes.router import (
     router_node,
 )
 from chat_service.agent.nodes.tool_executor import tool_executor_node
-from chat_service.agent.state import AgentState
+from chat_service.agent.nodes.llm_generate import llm_generate_node
 
 log = structlog.get_logger()
 
@@ -35,8 +35,3 @@ __all__ = [
     "detect_negative_sentiment",
     "llm_classify_intent",
 ]
-
-
-async def llm_generate_node(state: AgentState) -> AgentState:
-    log.debug("llm_generate_node")
-    return {**state, "llm_response": "stub response", "guardrails_passed": True}

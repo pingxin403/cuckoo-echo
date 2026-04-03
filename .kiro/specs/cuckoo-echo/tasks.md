@@ -201,15 +201,15 @@
 
 **任务列表**：
 
-- [ ] 18. Service Entry Points & Dependency Injection
-  - [ ] 18.1 Create `chat_service/main.py`: FastAPI app with `lifespan` from `checkpointer.py`; include `chat_router`; wire `db_pool`, `redis`, `agent` to `app.state`
-  - [ ] 18.2 Create `admin_service/main.py`: FastAPI app with lifespan; include `knowledge_router`, `hitl_router`, `config_router`, `metrics_router`; wire `db_pool`, `db_pool_ro`, `redis`, `milvus_client` to `app.state`
-  - [ ] 18.3 Implement real `llm_generate_node` in `chat_service/agent/nodes/llm_generate.py`: call `ai_gateway.client.stream_chat_completion()` with tenant LLM config; collect response tokens; set `llm_response` in state; replace the stub in `nodes/__init__.py`
-  - [ ] 18.4 Create `shared/oss_client.py`: MinIO SDK wrapper with `upload()`, `get_signed_url()`, `delete()` methods; read config from `pydantic-settings`
-  - [ ] 18.5 Create `shared/embedding_service.py`: wrapper for Embedding API (OpenAI Compatible); expose `embed(text) -> list[float]` and `embed_batch(texts) -> list[list[float]]`
-  - [ ] 18.6 Wire dependency injection in `chat_service/main.py` lifespan: initialize `embedding_service`, `reranker` (FlagEmbedding BGE Reranker v2), `milvus_collection`, `oss_client`; inject into `rag_engine` and `preprocess` module-level placeholders
-  - [ ] 18.7 Wire dependency injection in `admin_service/main.py` lifespan: initialize `db_pool_ro` (read-replica, fallback to main pool), `milvus_client`, `oss_client`
-  - [ ] 18.8 Add `pytest-timeout>=2.3.0` to dev dependencies; add `.hypothesis/` to `.gitignore`; remove `.hypothesis/` from git tracking
+- [x] 18. Service Entry Points & Dependency Injection
+  - [x] 18.1 Create `chat_service/main.py`: FastAPI app with `lifespan` from `checkpointer.py`; include `chat_router`; wire `db_pool`, `redis`, `agent` to `app.state`
+  - [x] 18.2 Create `admin_service/main.py`: FastAPI app with lifespan; include `knowledge_router`, `hitl_router`, `config_router`, `metrics_router`; wire `db_pool`, `db_pool_ro`, `redis`, `milvus_client` to `app.state`
+  - [x] 18.3 Implement real `llm_generate_node` in `chat_service/agent/nodes/llm_generate.py`: call `ai_gateway.client.stream_chat_completion()` with tenant LLM config; collect response tokens; set `llm_response` in state; replace the stub in `nodes/__init__.py`
+  - [x] 18.4 Create `shared/oss_client.py`: MinIO SDK wrapper with `upload()`, `get_signed_url()`, `delete()` methods; read config from `pydantic-settings`
+  - [x] 18.5 Create `shared/embedding_service.py`: wrapper for Embedding API (OpenAI Compatible); expose `embed(text) -> list[float]` and `embed_batch(texts) -> list[list[float]]`
+  - [x] 18.6 Wire dependency injection in `chat_service/main.py` lifespan: initialize `embedding_service`, `reranker` (FlagEmbedding BGE Reranker v2), `milvus_collection`, `oss_client`; inject into `rag_engine` and `preprocess` module-level placeholders
+  - [x] 18.7 Wire dependency injection in `admin_service/main.py` lifespan: initialize `db_pool_ro` (read-replica, fallback to main pool), `milvus_client`, `oss_client`
+  - [x] 18.8 Add `pytest-timeout>=2.3.0` to dev dependencies; add `.hypothesis/` to `.gitignore`; remove `.hypothesis/` from git tracking
 
 - [ ] 19. End-to-End Smoke Tests
   - [ ] 19.1 Write `tests/e2e/test_smoke.py`: `docker compose up` → apply migration → create test tenant → send chat message → assert SSE stream contains tokens and `[DONE]`; use `httpx` with SSE parsing; mark as `pytest.mark.e2e`

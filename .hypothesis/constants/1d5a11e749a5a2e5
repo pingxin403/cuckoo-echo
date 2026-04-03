@@ -1,4 +1,0 @@
-# file: /Users/hanyunpeng/Projects/cuckoo-echo/chat_service/agent/nodes/router.py
-# hypothesis_version: 6.151.10
-
-[0.0, 'angry', 'awful', 'change.*address', 'chitchat', 'complaint', 'content', 'disgusting', 'fraud', 'furious', 'get_order_status', 'hitl', 'hitl_requested', 'horrible', 'llm_classify_failed', 'messages', 'modify.*shipping', 'negative_sentiment', 'order\\s*status', 'rag', 'role', 'router_rule_hit', 'scam', 'temperature', 'tenant_id', 'terrible', 'tool', 'tool:', 'track.{0,5}order', 'unacceptable', 'unresolved_turns', 'update.*address', 'user', 'user_intent', 'worst', '|', '不满', '举报', '修改.{0,5}收货', '坑', '垃圾', '太慢', '失望', '差评', '废物', '恶心', '愤怒', '我的订单', '投诉', '改.{0,5}地址', '无语', '更换.{0,5}地址', '查.{0,5}订单', '烂', '生气', '订单.{0,5}状态', '退款', '骗子']
