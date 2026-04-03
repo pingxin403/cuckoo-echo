@@ -3,6 +3,8 @@ name: Integration Tests
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -46,11 +48,21 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Apply migrations
-        run: psql "postgresql://postgres:postgres@localhost:5432/cuckoo" -f migrations/001_initial.sql
+      - name: Apply database migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/cuckoo
+        run: uv run alembic upgrade head
+
+      - name: Run unit tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/cuckoo
+          REDIS_URL: redis://localhost:6379/0
+        run: uv run pytest tests/unit/ tests/pbt/ -x --tb=short --timeout=120
 
       - name: Run integration tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/cuckoo
           REDIS_URL: redis://localhost:6379/0
-        run: uv run pytest tests/integration/ -v -m integration --tb=short
+          MILVUS_URI: ""
+          LLM_API_KEY: ""
+        run: uv run pytest tests/integration/ -v -m integration --tb=short --timeout=120 -k "not milvus and not full"

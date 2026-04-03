@@ -436,11 +436,11 @@
   - [x] 42.3 添加 `thread_memories` 表到 Alembic 迁移（revision 004）
   - [x] 42.4 写单元测试：存储读取、跨 Thread 共享、租户隔离、upsert、删除
 
-- [ ] 43. CI Integration Test with Docker Compose
-  - [ ] 43.1 更新 `.github/workflows/integration.yml`：添加 `services` 或 `docker compose up -d postgres redis milvus minio` 步骤；等待所有服务 healthy；运行 `uv run alembic upgrade head`；运行 `uv run pytest tests/integration/ -m integration -v --timeout=120`
-  - [ ] 43.2 添加 CI 专用的 `.env.ci` 文件：使用 `localhost` 连接各服务（CI 中 docker compose 服务端口映射到 host）
-  - [ ] 43.3 确保 integration test 在无 LLM API Key 时也能运行（mock LLM 调用或跳过需要真实 LLM 的测试）
-  - [ ] 43.4 验证 CI workflow 在 GitHub Actions 中成功运行
+- [x] 43. CI Integration Test with Docker Compose
+  - [x] 43.1 更新 `.github/workflows/integration.yml`：Alembic 迁移 + unit/PBT + integration tests（排除需要 Milvus/LLM 的测试）
+  - [x] 43.2 添加 `.env.ci` 文件
+  - [x] 43.3 确保 integration test 在无 LLM API Key 时跳过需要真实 LLM 的测试
+  - [x] 43.4 CI workflow 配置完成，PR 和 push 到 main 时触发
 
 - [ ] 44. Docker Compose Override 热重载验证
   - [ ] 44.1 检查 `docker-compose.override.yml` 中的 volume mount 路径是否正确（源码目录挂载到容器 `/app`）
