@@ -8,7 +8,7 @@ from fastapi import FastAPI
 
 from shared.config import get_settings
 from shared.logging import setup_logging
-from shared.db import create_asyncpg_pool
+from shared.db import create_asyncpg_pool, create_asyncpg_pool_ro
 from shared.redis_client import get_redis, close_redis
 from admin_service.routes import knowledge_router, hitl_router, config_router, metrics_router
 from admin_service.routes.auth import router as auth_router
@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
     log.info("admin_service_starting")
 
     app.state.db_pool = await create_asyncpg_pool()
-    app.state.db_pool_ro = app.state.db_pool  # TODO: separate read-replica pool
+    app.state.db_pool_ro = await create_asyncpg_pool_ro()
     app.state.redis = get_redis()
 
     # Milvus client

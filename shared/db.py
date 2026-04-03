@@ -30,6 +30,28 @@ async def create_asyncpg_pool() -> asyncpg.Pool:
     return await asyncpg.create_pool(dsn=dsn, statement_cache_size=0)
 
 
+async def create_asyncpg_pool_ro() -> asyncpg.Pool:
+    """Create a read-only asyncpg connection pool for Admin queries.
+
+    If ``database_ro_url`` is configured, creates an independent pool pointing
+    to the read-replica. Otherwise falls back to the primary pool via
+    ``create_asyncpg_pool()``.
+
+    The read-only pool uses a smaller ``max_size`` since Admin queries are
+    lower volume than C-end chat traffic.
+    """
+    settings = get_settings()
+    if settings.database_ro_url:
+        log.info("creating_asyncpg_pool_ro", dsn=settings.database_ro_url)
+        return await asyncpg.create_pool(
+            dsn=settings.database_ro_url,
+            statement_cache_size=0,
+            max_size=10,
+        )
+    log.info("asyncpg_pool_ro_fallback", hint="No DATABASE_RO_URL configured, using primary pool")
+    return await create_asyncpg_pool()
+
+
 @asynccontextmanager
 async def tenant_db_context(
     conn: asyncpg.Connection,

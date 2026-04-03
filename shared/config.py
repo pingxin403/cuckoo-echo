@@ -12,6 +12,7 @@ class Settings(BaseSettings):
 
     # Database
     database_url: str = "postgresql://postgres:postgres@localhost:5432/cuckoo"
+    database_ro_url: str = ""  # Read-replica DSN for Admin queries; empty = fallback to primary
 
     # Redis
     redis_url: str = "redis://localhost:6379/0"

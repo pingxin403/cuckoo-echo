@@ -423,12 +423,12 @@
   - [x] 40.2 创建 `chat_service/agent/summarizer.py`：实现 `LLMSummarizer` 类
   - [x] 40.3 写单元测试：验证 summarize 调用 LLM、失败返回空字符串、wire 后不为 None
 
-- [ ] 41. 分离 Admin Service 读写连接池
-  - [ ] 41.1 在 `shared/config.py` 中添加 `database_ro_url: str = ""` 配置项（空字符串时 fallback 到 `database_url`）
-  - [ ] 41.2 在 `shared/db.py` 中添加 `create_asyncpg_pool_ro()` 函数：读取 `Settings.database_ro_url`，如果为空则调用 `create_asyncpg_pool()` 复用主库连接池；否则创建独立的只读连接池（`statement_cache_size=0`，`max_size=10`）
-  - [ ] 41.3 在 `admin_service/main.py` 的 lifespan 中将 `app.state.db_pool_ro = await create_asyncpg_pool_ro()` 替换当前的 `app.state.db_pool_ro = app.state.db_pool`
-  - [ ] 41.4 写单元测试：`database_ro_url` 为空时 `create_asyncpg_pool_ro()` 返回主库 pool；`database_ro_url` 非空时创建独立 pool
-  - [ ] 41.5 更新 `.env.example` 和 `docs/deployment.md` 添加 `DATABASE_RO_URL` 说明
+- [x] 41. 分离 Admin Service 读写连接池
+  - [x] 41.1 在 `shared/config.py` 中添加 `database_ro_url` 配置项
+  - [x] 41.2 在 `shared/db.py` 中添加 `create_asyncpg_pool_ro()` 函数
+  - [x] 41.3 在 `admin_service/main.py` 中使用 `create_asyncpg_pool_ro()` 替代 fallback
+  - [x] 41.4 写单元测试：空 RO URL fallback 到主库、非空 RO URL 创建独立 pool
+  - [x] 41.5 更新 `.env.example` 和 `docs/deployment.md` 添加 `DATABASE_RO_URL` 说明
 
 - [ ] 42. LangGraph Store 跨 Thread 长期记忆
   - [ ] 42.1 检查 `langgraph-store-postgres` 最新发布状态；如果已发布：取消 `pyproject.toml` 中的注释，`uv add langgraph-store-postgres`，在 `chat_service/agent/checkpointer.py` 中初始化 `AsyncPostgresStore` 并传入 `graph.compile(checkpointer=checkpointer, store=store)`
