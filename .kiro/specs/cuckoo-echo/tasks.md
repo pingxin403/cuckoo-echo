@@ -280,3 +280,61 @@
   - [x] 25.3 Add `scripts/seed_tenant.py`: create a test tenant with API key, seed sample knowledge docs; output the API key for testing; runnable via `make seed`
   - [x] 25.4 Update `Makefile` with full-stack commands: `make dev-all`（启动所有服务开发模式）, `make seed`（创建测试租户）, `make logs`（查看所有服务日志）, `make clean`（清理所有数据卷）
   - [x] 25.5 Create `.env.docker` with docker compose specific environment variables (service discovery URLs using container names instead of localhost)
+
+---
+
+## Phase 8 — 真实集成与生产闭环（Real Integration & Production Closure）
+
+**目标**：替换所有 stub/占位符，对接真实外部服务，实现端到端可运行的完整系统。`docker compose up` + `make seed` 后，用户能通过 API Key 发送消息并收到 LLM 真实回复。
+
+**验收标准**：
+- `docker compose up` → `make seed` → curl 发送消息 → 收到 LLM 真实 SSE 流式回复
+- 上传文档后能通过 RAG 检索到相关内容
+- 工具调用返回真实数据（或可配置的 mock 数据源）
+- Admin JWT 鉴权工作
+- Alembic 迁移可正常执行
+- 语义缓存命中时不调用 LLM
+
+**任务列表**：
+
+- [ ] 26. Real LLM Integration & E2E Verification
+  - [ ] 26.1 Create `scripts/verify_e2e.sh`: 自动化端到端验证脚本 — `docker compose up -d` → wait for health → `make migrate` → `make seed` → curl chat endpoint → assert SSE response contains tokens → `docker compose down`; 可在 CI 中运行（需要 LLM_API_KEY secret）
+  - [ ] 26.2 Add `LLM_API_KEY` and `LLM_API_BASE` to `shared/config.py` Settings; update `ai_gateway/client.py` to pass `api_key` and `api_base` to LiteLLM `acompletion()`; document in `.env.example`
+  - [ ] 26.3 Update `chat_service/main.py` `_wire_dependencies()`: handle graceful degradation when embedding model / reranker / Milvus not available — log warning and set `rag_engine.embedding_service = None` (RAG disabled, chat-only mode still works)
+  - [ ] 26.4 Write `docs/deployment.md`: 生产部署指南 — 环境变量清单、LLM API Key 配置、PgBouncer 配置、Milvus 集群配置、Redis Cluster 配置、K8s 部署步骤
+
+- [ ] 27. Tool System Extensibility
+  - [ ] 27.1 Refactor `chat_service/agent/tools/order_tools.py`: extract `OrderServiceClient` class with configurable `base_url` from Settings; support both real HTTP API calls (`httpx.AsyncClient`) and mock mode (`TOOL_MOCK_MODE=true` returns stub data); add `TOOL_ORDER_SERVICE_URL` to Settings
+  - [ ] 27.2 Create `chat_service/agent/tools/registry.py`: dynamic tool registry that auto-discovers tools from `tools/` directory; support `@register_tool(name, description)` decorator pattern; replace hardcoded `TOOL_REGISTRY` dict in `tool_executor.py`
+  - [ ] 27.3 Write unit tests for the new tool registry and configurable order client
+
+- [ ] 28. ASR Whisper Integration
+  - [ ] 28.1 Create `shared/whisper_client.py`: async Whisper client supporting both local inference (`faster-whisper` library) and remote API (`POST /v1/audio/transcriptions` OpenAI-compatible); configurable via `ASR_MODE` (local/remote) and `ASR_API_URL` in Settings
+  - [ ] 28.2 Wire `whisper_client` into `asr_service/main.py` and `chat_service/agent/nodes/preprocess.py`; replace `whisper_client = None` placeholder
+  - [ ] 28.3 Add `faster-whisper>=1.0.0` to optional dependencies (`[project.optional-dependencies] asr = [...]`); update docker compose ASR service with GPU support flag
+  - [ ] 28.4 Write unit tests for whisper_client (mock both local and remote modes)
+
+- [ ] 29. Admin JWT Authentication
+  - [ ] 29.1 Implement `admin_service/middleware/jwt_auth.py`: decode JWT token from `Authorization: Bearer <jwt>` header; extract `tenant_id`, `admin_user_id`, `role` from claims; validate signature using `ADMIN_JWT_SECRET` from Settings; return 401 on invalid/expired token
+  - [ ] 29.2 Create `admin_service/routes/auth.py`: `POST /admin/v1/auth/login` — validate admin credentials against `admin_users` table (add to migration); return JWT token with 24h expiry; `POST /admin/v1/auth/refresh` — refresh token
+  - [ ] 29.3 Add `admin_users` table to `migrations/003_admin_users.sql` with `id`, `tenant_id`, `email`, `password_hash` (bcrypt), `role`, `created_at`
+  - [ ] 29.4 Replace the simplified header-based auth middleware in `admin_service/main.py` with `JWTAuthMiddleware`; keep `/health` and `/admin/v1/auth/login` exempt
+  - [ ] 29.5 Write unit tests for JWT auth middleware and login endpoint
+
+- [ ] 30. Alembic Migration Integration
+  - [ ] 30.1 Initialize Alembic: `uv add alembic`; `uv run alembic init migrations/alembic`; configure `alembic.ini` to read `DATABASE_URL` from pydantic-settings; set `script_location = migrations/alembic`
+  - [ ] 30.2 Convert existing SQL migrations to Alembic revisions: `001_initial.sql` → revision 1, `002_escalation_tables.sql` → revision 2, `003_admin_users.sql` → revision 3; use `op.execute()` for raw SQL to preserve exact DDL
+  - [ ] 30.3 Update Makefile: `make migrate-up` → `uv run alembic upgrade head`; `make migrate-down` → `uv run alembic downgrade -1`; `make migrate-new MSG="description"` → `uv run alembic revision --autogenerate -m "description"`
+  - [ ] 30.4 Update docker-compose.yml: change migration init from `docker-entrypoint-initdb.d` to explicit `alembic upgrade head` in entrypoint or init container
+
+- [ ] 31. Semantic Cache Implementation
+  - [ ] 31.1 Implement `shared/semantic_cache.py`: create Milvus `semantic_cache` collection (query_vector, response_text, tenant_id, created_at, ttl); `cache_lookup(query_vec, tenant_id, threshold=0.95)` → returns cached response or None; `cache_store(query_vec, response, tenant_id)`
+  - [ ] 31.2 Integrate into `chat_service/agent/nodes/rag_engine.py`: before RAG search, check semantic cache; if hit (similarity ≥ 0.95), return cached response directly without LLM call; if miss, proceed with normal RAG → LLM flow and cache the result
+  - [ ] 31.3 Add cache invalidation: when knowledge docs are updated/deleted, invalidate related cache entries for that tenant; add `POST /admin/v1/cache/clear` endpoint
+  - [ ] 31.4 Write unit tests: cache hit returns response without LLM call, cache miss proceeds normally, cache invalidation works, tenant isolation in cache
+
+- [ ] 32. Integration Test Suite on Real Infrastructure
+  - [ ] 32.1 Write `tests/integration/test_full_chat_flow.py`: `docker compose up` → create tenant → send message → verify SSE stream → verify message persisted in PG → verify Langfuse trace created; mark as `pytest.mark.integration`
+  - [ ] 32.2 Write `tests/integration/test_full_rag_flow.py`: upload document → wait for pipeline → send RAG query → verify response references document content → delete document → verify RAG no longer returns it
+  - [ ] 32.3 Write `tests/integration/test_full_hitl_flow.py`: trigger HITL → verify WebSocket notification → take session → send human reply → end session → verify thread restored
+  - [ ] 32.4 Execute load test: `uv run locust -f tests/load/locustfile.py --headless -u 100 -r 10 -t 60s`; document results in `docs/performance.md`
