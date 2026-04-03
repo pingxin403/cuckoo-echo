@@ -430,11 +430,11 @@
   - [x] 41.4 写单元测试：空 RO URL fallback 到主库、非空 RO URL 创建独立 pool
   - [x] 41.5 更新 `.env.example` 和 `docs/deployment.md` 添加 `DATABASE_RO_URL` 说明
 
-- [ ] 42. LangGraph Store 跨 Thread 长期记忆
-  - [ ] 42.1 检查 `langgraph-store-postgres` 最新发布状态；如果已发布：取消 `pyproject.toml` 中的注释，`uv add langgraph-store-postgres`，在 `chat_service/agent/checkpointer.py` 中初始化 `AsyncPostgresStore` 并传入 `graph.compile(checkpointer=checkpointer, store=store)`
-  - [ ] 42.2 如果 `langgraph-store-postgres` 仍未发布：实现轻量级替代方案 `shared/memory_store.py`，使用 PostgreSQL `thread_memories` 表存储跨 Thread 的用户偏好和长期记忆（`tenant_id`, `user_id`, `key`, `value`, `updated_at`）；在 `preprocess_node` 中加载用户记忆，在 `postprocess_node` 中保存新记忆
-  - [ ] 42.3 添加 `thread_memories` 表到 Alembic 迁移
-  - [ ] 42.4 写单元测试：记忆存储和读取、跨 Thread 记忆共享、租户隔离
+- [x] 42. LangGraph Store 跨 Thread 长期记忆
+  - [x] 42.1 确认 `langgraph-store-postgres` 仍未发布（PyPI 无此包）
+  - [x] 42.2 实现轻量级替代方案 `shared/memory_store.py`：PostgreSQL `thread_memories` 表，支持 get/get_all/put/delete，RLS 租户隔离
+  - [x] 42.3 添加 `thread_memories` 表到 Alembic 迁移（revision 004）
+  - [x] 42.4 写单元测试：存储读取、跨 Thread 共享、租户隔离、upsert、删除
 
 - [ ] 43. CI Integration Test with Docker Compose
   - [ ] 43.1 更新 `.github/workflows/integration.yml`：添加 `services` 或 `docker compose up -d postgres redis milvus minio` 步骤；等待所有服务 healthy；运行 `uv run alembic upgrade head`；运行 `uv run pytest tests/integration/ -m integration -v --timeout=120`
