@@ -52,7 +52,11 @@ def test_embedding_idempotency(text):
             vec2 = await svc.embed(text)
             return vec1, vec2
 
-    vec1, vec2 = asyncio.new_event_loop().run_until_complete(_run())
+    loop = asyncio.new_event_loop()
+    try:
+        vec1, vec2 = loop.run_until_complete(_run())
+    finally:
+        loop.close()
 
     assert len(vec1) == len(vec2), "Vector dimensions must match"
     for i, (a, b) in enumerate(zip(vec1, vec2)):

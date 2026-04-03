@@ -258,3 +258,64 @@ Import via Grafana UI:
 2. Upload JSON file or paste content
 3. Select your Prometheus data source
 4. Click Import
+
+
+## Backup & Restore
+
+### RPO / RTO Targets
+
+| Metric | Target | Implementation |
+|--------|--------|----------------|
+| RPO (Recovery Point Objective) | < 15 minutes | PostgreSQL WAL archiving + periodic full backups |
+| RTO (Recovery Time Objective) | < 4 hours | Automated restore script + pre-built container images |
+
+### Backup
+
+Run the backup script to create a full PostgreSQL dump:
+
+```bash
+# Default: creates backup in ./backups/<timestamp>/
+./scripts/backup.sh
+
+# Custom directory
+./scripts/backup.sh /path/to/backup/dir
+```
+
+The script:
+1. Creates a `pg_dump` (custom format, compressed) of the entire database
+2. Records the current Alembic migration version
+3. Notes Milvus backup status (requires separate `milvus-backup` tool)
+4. Cleans up backups older than 7 days (configurable via `BACKUP_RETENTION_DAYS`)
+
+### WAL Archiving (Continuous Backup)
+
+For RPO < 15 minutes, enable PostgreSQL WAL archiving:
+
+```ini
+# postgresql.conf
+wal_level = replica
+archive_mode = on
+archive_command = 'cp %p /backup/wal/%f'
+```
+
+### Restore
+
+```bash
+./scripts/restore.sh ./backups/20260403_120000/
+```
+
+The script:
+1. Drops and recreates the database
+2. Restores from `pg_dump` backup
+3. Verifies data integrity (tenant/thread/message counts)
+4. Prints next steps for Milvus restore and service restart
+
+### Health Check
+
+Verify all services are operational:
+
+```bash
+./scripts/healthcheck.sh
+```
+
+Checks: PostgreSQL, Redis, Milvus, MinIO, API Gateway, Chat Service, Admin Service, Alembic migration status, RLS policies.

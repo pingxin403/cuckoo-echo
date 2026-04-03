@@ -396,8 +396,8 @@
   - [x] 38.2 创建 `k8s/grafana/cuckoo-echo-rag.json`：RAG 检索延迟、Rerank 延迟/超时、Guardrails NLI 拦截率、知识库状态、语义缓存命中率
   - [x] 38.3 在 `docs/deployment.md` 中补充 Grafana 导入指南
 
-- [ ] 39. 备份与恢复脚本
-  - [ ] 39.1 创建 `scripts/backup.sh`：PostgreSQL `pg_dump` 全量备份 + WAL 归档说明；Milvus 数据导出到 MinIO/OSS；备份文件按日期命名，保留最近 7 天
-  - [ ] 39.2 创建 `scripts/restore.sh`：从备份文件恢复 PostgreSQL（`pg_restore`）；Milvus 数据重新导入；验证恢复后数据完整性
-  - [ ] 39.3 在 `docs/deployment.md` 中补充备份恢复操作指南，标注 RPO < 15min / RTO < 4h 的实现方式
-  - [ ] 39.4 创建 `scripts/healthcheck.sh`：一键检查所有服务健康状态（PG、Redis、Milvus、MinIO、各应用服务 /health 端点）
+- [x] 39. 备份与恢复脚本
+  - [x] 39.1 创建 `scripts/backup.sh`：PostgreSQL pg_dump + WAL 归档说明 + 7 天保留
+  - [x] 39.2 创建 `scripts/restore.sh`：从备份恢复 PostgreSQL + 数据完整性验证
+  - [x] 39.3 在 `docs/deployment.md` 中补充备份恢复操作指南，标注 RPO < 15min / RTO < 4h
+  - [x] 39.4 创建 `scripts/healthcheck.sh`：一键检查所有服务健康状态

@@ -37,6 +37,15 @@ def _make_state(text: str) -> dict:
     }
 
 
+def _run_async(coro):
+    """Run an async coroutine in a new event loop, properly closing it after."""
+    loop = asyncio.new_event_loop()
+    try:
+        return loop.run_until_complete(coro)
+    finally:
+        loop.close()
+
+
 @settings(max_examples=100, suppress_health_check=[HealthCheck.too_slow])
 @given(
     order_id=st.text(
@@ -52,7 +61,6 @@ def test_order_status_routes_to_tool(order_id, prefix):
     state = _make_state(text)
 
     async def _run():
-        # LLM fallback should never be reached for rule-matched intents
         with patch(
             "chat_service.agent.nodes.router.llm_classify_intent",
             new_callable=AsyncMock,
@@ -60,7 +68,7 @@ def test_order_status_routes_to_tool(order_id, prefix):
         ):
             return await router_node(state)
 
-    result = asyncio.new_event_loop().run_until_complete(_run())
+    result = _run_async(_run())
     assert result["user_intent"] == "tool:get_order_status", (
         f"Expected tool:get_order_status, got {result['user_intent']} for '{text}'"
     )
@@ -88,7 +96,7 @@ def test_address_update_routes_to_tool(address, prefix):
         ):
             return await router_node(state)
 
-    result = asyncio.new_event_loop().run_until_complete(_run())
+    result = _run_async(_run())
     assert result["user_intent"] == "tool:update_shipping_address", (
         f"Expected tool:update_shipping_address, got {result['user_intent']} for '{text}'"
     )
@@ -116,7 +124,7 @@ def test_knowledge_question_routes_to_rag(topic):
         ):
             return await router_node(state)
 
-    result = asyncio.new_event_loop().run_until_complete(_run())
+    result = _run_async(_run())
     assert result["user_intent"] == "rag", (
         f"Expected rag, got {result['user_intent']} for '{topic}'"
     )

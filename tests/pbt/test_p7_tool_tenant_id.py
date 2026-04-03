@@ -60,7 +60,11 @@ def test_tool_tenant_id_passthrough(tenant_id, order_id):
             result = await tool_executor_node(state)
             return result
 
-    result = asyncio.new_event_loop().run_until_complete(_run())
+    loop = asyncio.new_event_loop()
+    try:
+        result = loop.run_until_complete(_run())
+    finally:
+        loop.close()
 
     # Assert tenant_id was passed through to the tool
     assert len(captured_tenant_ids) == 1, "Tool should be called exactly once"

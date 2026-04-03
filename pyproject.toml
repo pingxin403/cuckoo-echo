@@ -58,6 +58,8 @@ filterwarnings = [
     "ignore::RuntimeWarning:unittest.mock",
     # PBT tests use asyncio.new_event_loop() in sync wrappers for Hypothesis compatibility
     "ignore::DeprecationWarning:asyncio",
+    # Suppress unclosed event loop warnings from PBT sync wrappers
+    "ignore::pytest.PytestUnraisableExceptionWarning",
 ]
 
 [tool.ruff]
