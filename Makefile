@@ -1,4 +1,4 @@
-.PHONY: install test lint format up down migrate dev pre-commit test-e2e dev-all seed logs clean
+.PHONY: install test lint format up down migrate dev pre-commit test-e2e dev-all seed logs clean verify-e2e
 
 install:
 	uv sync
@@ -51,6 +51,9 @@ seed:
 
 logs:
 	docker compose logs -f api-gateway chat-service admin-service knowledge-pipeline
+
+verify-e2e:
+	bash scripts/verify_e2e.sh
 
 clean:
 	docker compose down -v

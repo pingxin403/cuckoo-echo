@@ -297,11 +297,11 @@
 
 **任务列表**：
 
-- [ ] 26. Real LLM Integration & E2E Verification
-  - [ ] 26.1 Create `scripts/verify_e2e.sh`: 自动化端到端验证脚本 — `docker compose up -d` → wait for health → `make migrate` → `make seed` → curl chat endpoint → assert SSE response contains tokens → `docker compose down`; 可在 CI 中运行（需要 LLM_API_KEY secret）
-  - [ ] 26.2 Add `LLM_API_KEY` and `LLM_API_BASE` to `shared/config.py` Settings; update `ai_gateway/client.py` to pass `api_key` and `api_base` to LiteLLM `acompletion()`; document in `.env.example`
-  - [ ] 26.3 Update `chat_service/main.py` `_wire_dependencies()`: handle graceful degradation when embedding model / reranker / Milvus not available — log warning and set `rag_engine.embedding_service = None` (RAG disabled, chat-only mode still works)
-  - [ ] 26.4 Write `docs/deployment.md`: 生产部署指南 — 环境变量清单、LLM API Key 配置、PgBouncer 配置、Milvus 集群配置、Redis Cluster 配置、K8s 部署步骤
+- [x] 26. Real LLM Integration & E2E Verification
+  - [x] 26.1 Create `scripts/verify_e2e.sh`: 自动化端到端验证脚本 — `docker compose up -d` → wait for health → `make migrate` → `make seed` → curl chat endpoint → assert SSE response contains tokens → `docker compose down`; 可在 CI 中运行（需要 LLM_API_KEY secret）
+  - [x] 26.2 Add `LLM_API_KEY` and `LLM_API_BASE` to `shared/config.py` Settings; update `ai_gateway/client.py` to pass `api_key` and `api_base` to LiteLLM `acompletion()`; document in `.env.example`
+  - [x] 26.3 Update `chat_service/main.py` `_wire_dependencies()`: handle graceful degradation when embedding model / reranker / Milvus not available — log warning and set `rag_engine.embedding_service = None` (RAG disabled, chat-only mode still works)
+  - [x] 26.4 Write `docs/deployment.md`: 生产部署指南 — 环境变量清单、LLM API Key 配置、PgBouncer 配置、Milvus 集群配置、Redis Cluster 配置、K8s 部署步骤
 
 - [ ] 27. Tool System Extensibility
   - [ ] 27.1 Refactor `chat_service/agent/tools/order_tools.py`: extract `OrderServiceClient` class with configurable `base_url` from Settings; support both real HTTP API calls (`httpx.AsyncClient`) and mock mode (`TOOL_MOCK_MODE=true` returns stub data); add `TOOL_ORDER_SERVICE_URL` to Settings

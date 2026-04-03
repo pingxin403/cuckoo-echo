@@ -41,7 +41,11 @@ async def lifespan(app: FastAPI):
 
 
 def _wire_dependencies(app: FastAPI):
-    """Inject runtime dependencies into module-level placeholders."""
+    """Inject runtime dependencies into module-level placeholders.
+
+    Handles graceful degradation: if embedding/reranker/milvus fail to init,
+    log a warning but don't crash. Chat-only mode (no RAG) still works.
+    """
     import chat_service.agent.nodes.rag_engine as rag_mod
     import chat_service.agent.nodes.preprocess as pre_mod
     import chat_service.agent.nodes.llm_generate as llm_mod
@@ -53,20 +57,28 @@ def _wire_dependencies(app: FastAPI):
     # ASR client placeholder (wired when ASR service is available)
     pre_mod.asr_client = None
 
+    # Track RAG readiness
+    rag_ready = True
+
     # Embedding service
     try:
         from shared.embedding_service import get_embedding_service
         emb = get_embedding_service()
         rag_mod.embedding_service = emb
     except Exception as e:
-        log.warning("embedding_service_init_failed", error=str(e))
+        log.warning("embedding_service_init_failed", error=str(e),
+                    hint="RAG disabled — chat-only mode active")
+        rag_mod.embedding_service = None
+        rag_ready = False
 
     # BGE Reranker v2
     try:
         from FlagEmbedding import FlagReranker
         rag_mod.reranker = FlagReranker("BAAI/bge-reranker-v2-m3", use_fp16=True)
     except Exception as e:
-        log.warning("reranker_init_failed", error=str(e))
+        log.warning("reranker_init_failed", error=str(e),
+                    hint="Reranker unavailable — RAG will use RRF ranking only")
+        rag_mod.reranker = None
 
     # Milvus collection
     try:
@@ -75,14 +87,25 @@ def _wire_dependencies(app: FastAPI):
         client = get_milvus_client()
         rag_mod.collection = Collection(COLLECTION_NAME)
     except Exception as e:
-        log.warning("milvus_collection_init_failed", error=str(e))
+        log.warning("milvus_collection_init_failed", error=str(e),
+                    hint="Milvus unavailable — RAG disabled, chat-only mode active")
+        rag_mod.collection = None
+        rag_ready = False
 
     # OSS client for preprocess
     try:
         from shared.oss_client import get_oss_client
         pre_mod.oss_client = get_oss_client()
     except Exception as e:
-        log.warning("oss_client_init_failed", error=str(e))
+        log.warning("oss_client_init_failed", error=str(e),
+                    hint="OSS unavailable — file upload disabled")
+        pre_mod.oss_client = None
+
+    if rag_ready:
+        log.info("rag_engine_ready", mode="full")
+    else:
+        log.warning("rag_engine_degraded", mode="chat-only",
+                    hint="RAG features disabled due to missing dependencies")
 
 
 app = FastAPI(title="Cuckoo-Echo Chat Service", lifespan=lifespan)

@@ -36,26 +36,36 @@ async def stream_chat_completion(
     timeout = settings.llm_fallback_timeout  # 3.0s
 
     try:
+        kwargs = {
+            "model": primary_model,
+            "messages": messages,
+            "stream": True,
+            "stream_options": {"include_usage": True},
+            "temperature": temperature,
+        }
+        if settings.llm_api_key:
+            kwargs["api_key"] = settings.llm_api_key
+        if settings.llm_api_base:
+            kwargs["api_base"] = settings.llm_api_base
         response = await asyncio.wait_for(
-            acompletion(
-                model=primary_model,
-                messages=messages,
-                stream=True,
-                stream_options={"include_usage": True},
-                temperature=temperature,
-            ),
+            acompletion(**kwargs),
             timeout=timeout,
         )
         log.info("llm_primary_success", model=primary_model)
         return response
     except (asyncio.TimeoutError, Exception) as e:
         log.warning("llm_primary_failed", model=primary_model, error=str(e))
-        response = await acompletion(
-            model=fallback_model,
-            messages=messages,
-            stream=True,
-            stream_options={"include_usage": True},
-            temperature=temperature,
-        )
+        fallback_kwargs = {
+            "model": fallback_model,
+            "messages": messages,
+            "stream": True,
+            "stream_options": {"include_usage": True},
+            "temperature": temperature,
+        }
+        if settings.llm_api_key:
+            fallback_kwargs["api_key"] = settings.llm_api_key
+        if settings.llm_api_base:
+            fallback_kwargs["api_base"] = settings.llm_api_base
+        response = await acompletion(**fallback_kwargs)
         log.info("llm_fallback_success", model=fallback_model)
         return response

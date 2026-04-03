@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     llm_primary_model: str = "deepseek-chat"
     llm_fallback_model: str = "qwen-plus"
     llm_fallback_timeout: float = 3.0
+    llm_api_key: str = ""  # e.g. "sk-..." for OpenAI, or DeepSeek/Qwen API key
+    llm_api_base: str = ""  # e.g. "https://api.deepseek.com/v1" or empty for default
 
     # Langfuse
     langfuse_public_key: str = ""
