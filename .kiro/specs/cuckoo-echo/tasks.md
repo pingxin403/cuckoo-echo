@@ -401,3 +401,55 @@
   - [x] 39.2 创建 `scripts/restore.sh`：从备份恢复 PostgreSQL + 数据完整性验证
   - [x] 39.3 在 `docs/deployment.md` 中补充备份恢复操作指南，标注 RPO < 15min / RTO < 4h
   - [x] 39.4 创建 `scripts/healthcheck.sh`：一键检查所有服务健康状态
+
+---
+
+## Phase 10 — 技术债务清理与运行时完整性（Tech Debt & Runtime Completeness）
+
+**目标**：修复运行时未生效的功能、分离读写连接池、完善 CI 集成测试、接入 Ragas 自动化质量监控，确保所有已实现的代码在生产环境中真正工作。
+
+**验收标准**：
+- `llm_summarizer` 在 `chat_service/main.py` 中被正确 wire，消息数 ≥ 50 时摘要压缩真正触发
+- `admin_service` 使用独立的 `db_pool_ro` 只读连接池（可配置独立 DSN）
+- `langgraph-store-postgres` 集成或有明确的替代方案（跨 Thread 长期记忆）
+- CI workflow 中 integration test 使用 docker compose 启动基础设施并运行
+- `docker-compose.override.yml` 热重载验证通过
+- Ragas 质量门禁可在 CI 中自动运行并输出评分报告
+
+**任务列表**：
+
+- [ ] 40. Wire llm_summarizer 到 Preprocess
+  - [ ] 40.1 在 `chat_service/main.py` 的 `_wire_dependencies()` 中创建 `LLMSummarizer` 实例并赋值给 `pre_mod.llm_summarizer`；`LLMSummarizer` 封装 `ai_gateway.client.stream_chat_completion()` 调用，使用系统提示词 `"请将以下对话历史压缩为简洁的摘要，保留关键信息和用户意图"`，返回摘要文本
+  - [ ] 40.2 创建 `chat_service/agent/summarizer.py`：实现 `LLMSummarizer` 类，`async def summarize(messages: list[dict]) -> str`；调用 LLM 生成摘要；处理异常时返回空字符串（降级为不压缩）
+  - [ ] 40.3 写单元测试：验证 `_wire_dependencies()` 后 `pre_mod.llm_summarizer` 不为 None；验证 `LLMSummarizer.summarize()` 调用 LLM 并返回字符串；验证 LLM 调用失败时返回空字符串
+
+- [ ] 41. 分离 Admin Service 读写连接池
+  - [ ] 41.1 在 `shared/config.py` 中添加 `database_ro_url: str = ""` 配置项（空字符串时 fallback 到 `database_url`）
+  - [ ] 41.2 在 `shared/db.py` 中添加 `create_asyncpg_pool_ro()` 函数：读取 `Settings.database_ro_url`，如果为空则调用 `create_asyncpg_pool()` 复用主库连接池；否则创建独立的只读连接池（`statement_cache_size=0`，`max_size=10`）
+  - [ ] 41.3 在 `admin_service/main.py` 的 lifespan 中将 `app.state.db_pool_ro = await create_asyncpg_pool_ro()` 替换当前的 `app.state.db_pool_ro = app.state.db_pool`
+  - [ ] 41.4 写单元测试：`database_ro_url` 为空时 `create_asyncpg_pool_ro()` 返回主库 pool；`database_ro_url` 非空时创建独立 pool
+  - [ ] 41.5 更新 `.env.example` 和 `docs/deployment.md` 添加 `DATABASE_RO_URL` 说明
+
+- [ ] 42. LangGraph Store 跨 Thread 长期记忆
+  - [ ] 42.1 检查 `langgraph-store-postgres` 最新发布状态；如果已发布：取消 `pyproject.toml` 中的注释，`uv add langgraph-store-postgres`，在 `chat_service/agent/checkpointer.py` 中初始化 `AsyncPostgresStore` 并传入 `graph.compile(checkpointer=checkpointer, store=store)`
+  - [ ] 42.2 如果 `langgraph-store-postgres` 仍未发布：实现轻量级替代方案 `shared/memory_store.py`，使用 PostgreSQL `thread_memories` 表存储跨 Thread 的用户偏好和长期记忆（`tenant_id`, `user_id`, `key`, `value`, `updated_at`）；在 `preprocess_node` 中加载用户记忆，在 `postprocess_node` 中保存新记忆
+  - [ ] 42.3 添加 `thread_memories` 表到 Alembic 迁移
+  - [ ] 42.4 写单元测试：记忆存储和读取、跨 Thread 记忆共享、租户隔离
+
+- [ ] 43. CI Integration Test with Docker Compose
+  - [ ] 43.1 更新 `.github/workflows/integration.yml`：添加 `services` 或 `docker compose up -d postgres redis milvus minio` 步骤；等待所有服务 healthy；运行 `uv run alembic upgrade head`；运行 `uv run pytest tests/integration/ -m integration -v --timeout=120`
+  - [ ] 43.2 添加 CI 专用的 `.env.ci` 文件：使用 `localhost` 连接各服务（CI 中 docker compose 服务端口映射到 host）
+  - [ ] 43.3 确保 integration test 在无 LLM API Key 时也能运行（mock LLM 调用或跳过需要真实 LLM 的测试）
+  - [ ] 43.4 验证 CI workflow 在 GitHub Actions 中成功运行
+
+- [ ] 44. Docker Compose Override 热重载验证
+  - [ ] 44.1 检查 `docker-compose.override.yml` 中的 volume mount 路径是否正确（源码目录挂载到容器 `/app`）
+  - [ ] 44.2 确认 override 中使用 `uvicorn --reload` 替代 `granian`（granian 不支持热重载）
+  - [ ] 44.3 验证修改本地 Python 文件后，容器内服务自动重启；记录验证结果到 `docs/development.md`
+
+- [ ] 45. Ragas 自动化质量监控
+  - [ ] 45.1 创建 `scripts/ragas_quality_gate.py`：独立脚本，读取测试用例（JSON 格式：`[{"question": "...", "ground_truth": "...", "contexts": [...]}]`），调用 Ragas `evaluate()` 计算 `Faithfulness`、`ContextPrecision`、`ContextRecall`、`AnswerRelevancy` 四项指标；输出 JSON 报告 + pass/fail 判定（阈值：Faithfulness ≥ 0.85, ContextPrecision ≥ 0.80, ContextRecall ≥ 0.75, AnswerRelevancy ≥ 0.85）
+  - [ ] 45.2 创建 `tests/quality/test_cases.json`：包含 10-20 个标准测试用例（覆盖 FAQ、订单查询、退货政策等典型场景），每个用例包含 question、ground_truth、contexts 字段
+  - [ ] 45.3 添加 `make quality-gate` 到 Makefile：`uv run python scripts/ragas_quality_gate.py --test-cases tests/quality/test_cases.json --output reports/ragas_report.json`
+  - [ ] 45.4 在 `.github/workflows/ci.yml` 中添加可选的 quality gate step（需要 `LLM_API_KEY` secret，无 key 时跳过）
+  - [ ] 45.5 写单元测试：验证 `ragas_quality_gate.py` 的报告生成逻辑（mock Ragas evaluate）
