@@ -1,0 +1,4 @@
+# file: /Users/hanyunpeng/Projects/cuckoo-echo/shared/redis_client.py
+# hypothesis_version: 6.151.10
+
+['connecting_to_redis']

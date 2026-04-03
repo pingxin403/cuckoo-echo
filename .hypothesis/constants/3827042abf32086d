@@ -1,0 +1,4 @@
+# file: /Users/hanyunpeng/Projects/cuckoo-echo/admin_service/routes/__init__.py
+# hypothesis_version: 6.151.10
+
+['config_router', 'hitl_router', 'knowledge_router', 'metrics_router']

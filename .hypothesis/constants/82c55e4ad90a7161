@@ -1,0 +1,4 @@
+# file: /Users/hanyunpeng/Projects/cuckoo-echo/admin_service/routes/config.py
+# hypothesis_version: 6.151.10
+
+[0.7, 100, '/admin/v1/config', '/model', '/persona', '/rate-limit', 'model_updated', 'persona_name', 'persona_updated', 'rate_limit_updated', 'system_prompt', 'updated']

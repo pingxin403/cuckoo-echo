@@ -185,3 +185,71 @@
   - [x] 17.7 Implement Property 19 test `test_checkpointer_round_trip` in `tests/pbt/test_p19_checkpointer.py`: `@given(message_count=st.integers(1,50))`; build `AgentState` with random messages; `aput` via `AsyncPostgresSaver`; `aget` and compare `messages`, `user_intent`, `tool_calls` field-by-field. **Validates: Requirements 6.3**
   - [x] 17.8 Implement Property 23 test `test_concurrent_thread_safety` in `tests/pbt/test_p23_concurrency.py`: `@given(initial_count=st.integers(0,10), concurrent_n=st.integers(2,10))`; seed thread; `asyncio.gather` N concurrent `send_message` calls; assert `success_count + conflict_409_count == concurrent_n`; assert `final_message_count == initial_count + success_count`; assert no duplicate message IDs. **Validates: Requirements 6.8**
   - [x] 17.9 Implement Property 30 test `test_rate_limit_window` in `tests/pbt/test_p30_rate_limit.py`: `@given(limit=st.integers(1,20), extra=st.integers(1,10))`; configure tenant with `user_rps=limit`; send `limit + extra` requests in < 1s; assert first `limit` return 200, remaining `extra` return 429 with `Retry-After` header; sleep 1s; assert next `limit` requests return 200. **Validates: Requirements 11.1, 11.2, 11.3**
+
+---
+
+## Phase 5 — 服务连接与端到端可运行（Service Wiring & E2E）
+
+**目标**：将所有独立模块连接起来，实现端到端可运行的完整对话流程。当前所有模块的接口和逻辑已就位，但依赖注入未连接、服务入口缺失。
+
+**验收标准**：
+- `docker compose up` 后，通过 API Key 发送消息能收到 LLM 的 SSE 流式回复
+- RAG 检索能返回知识库中的相关内容
+- 工具调用（查订单）能返回结果
+- Admin 后台能上传文档、查看指标、接管对话
+- `.hypothesis/` 不再被 git 跟踪
+
+**任务列表**：
+
+- [ ] 18. Service Entry Points & Dependency Injection
+  - [ ] 18.1 Create `chat_service/main.py`: FastAPI app with `lifespan` from `checkpointer.py`; include `chat_router`; wire `db_pool`, `redis`, `agent` to `app.state`
+  - [ ] 18.2 Create `admin_service/main.py`: FastAPI app with lifespan; include `knowledge_router`, `hitl_router`, `config_router`, `metrics_router`; wire `db_pool`, `db_pool_ro`, `redis`, `milvus_client` to `app.state`
+  - [ ] 18.3 Implement real `llm_generate_node` in `chat_service/agent/nodes/llm_generate.py`: call `ai_gateway.client.stream_chat_completion()` with tenant LLM config; collect response tokens; set `llm_response` in state; replace the stub in `nodes/__init__.py`
+  - [ ] 18.4 Create `shared/oss_client.py`: MinIO SDK wrapper with `upload()`, `get_signed_url()`, `delete()` methods; read config from `pydantic-settings`
+  - [ ] 18.5 Create `shared/embedding_service.py`: wrapper for Embedding API (OpenAI Compatible); expose `embed(text) -> list[float]` and `embed_batch(texts) -> list[list[float]]`
+  - [ ] 18.6 Wire dependency injection in `chat_service/main.py` lifespan: initialize `embedding_service`, `reranker` (FlagEmbedding BGE Reranker v2), `milvus_collection`, `oss_client`; inject into `rag_engine` and `preprocess` module-level placeholders
+  - [ ] 18.7 Wire dependency injection in `admin_service/main.py` lifespan: initialize `db_pool_ro` (read-replica, fallback to main pool), `milvus_client`, `oss_client`
+  - [ ] 18.8 Add `pytest-timeout>=2.3.0` to dev dependencies; add `.hypothesis/` to `.gitignore`; remove `.hypothesis/` from git tracking
+
+- [ ] 19. End-to-End Smoke Tests
+  - [ ] 19.1 Write `tests/e2e/test_smoke.py`: `docker compose up` → apply migration → create test tenant → send chat message → assert SSE stream contains tokens and `[DONE]`; use `httpx` with SSE parsing; mark as `pytest.mark.e2e`
+  - [ ] 19.2 Write `tests/e2e/test_knowledge_flow.py`: upload document via Admin API → wait for Knowledge Pipeline to process → send RAG query → assert response references uploaded content
+  - [ ] 19.3 Write `tests/e2e/test_tool_call_flow.py`: send "查订单 12345" → assert tool_calls in response → assert natural language reply contains order info
+  - [ ] 19.4 Write `tests/e2e/test_hitl_flow.py`: trigger negative sentiment → assert HITL session created → take session → end session → verify thread status restored
+  - [ ] 19.5 Add `e2e` marker to `pyproject.toml`; add `make test-e2e` target to Makefile
+
+---
+
+## Phase 6 — 生产加固（Production Hardening）
+
+**目标**：补齐生产环境所需的功能完整性、可观测性和性能验证。
+
+**验收标准**：
+- Ragas 质量门禁能真实运行并返回评分
+- 多模态 Credits 计费逻辑正确
+- Prometheus metrics 可被 Grafana 采集
+- 负载测试验证 TTFT SLA
+
+**任务列表**：
+
+- [ ] 20. Feature Completeness
+  - [ ] 20.1 Implement Ragas quality gate in `admin_service/routes/metrics.py` sandbox endpoint: replace stub with real `run_rag_quality_gate()` calling Ragas `evaluate()` with `Faithfulness`, `ContextPrecision`, `ContextRecall`, `AnswerRelevancy` metrics
+  - [ ] 20.2 Implement multimodal Credits billing in `shared/billing.py`: audio credits = `ceil(audio_seconds / 15) * AUDIO_CREDIT_RATE`; image credits = resolution-based tier (SD/HD/4K); update `messages` table with `credits_used` field
+  - [ ] 20.3 Implement WebSocket chat protocol in `chat_service/routes/ws_chat.py`: bidirectional WebSocket for real-time chat as alternative to SSE; reuse `event_generator` logic
+  - [ ]* 20.4 Implement semantic cache using Milvus `semantic_cache` collection: on query, search cache with similarity ≥ 0.95; if hit, return cached answer without LLM call; on miss, cache the new Q&A pair after LLM response
+
+- [ ] 21. Observability & Monitoring
+  - [ ] 21.1 Add Prometheus metrics via `prometheus-fastapi-instrumentator`: request latency, TTFT histogram, token usage counter, error rate by endpoint
+  - [ ] 21.2 Create `k8s/prometheus-servicemonitor.yaml` for auto-discovery
+  - [ ] 21.3 Add structured log correlation: inject `trace_id`, `span_id` into structlog context for Langfuse + ELK cross-referencing
+  - [ ] 21.4 Implement TTFT alerting: log warning when P95 exceeds 2x SLA threshold per scenario
+
+- [ ] 22. Database & Migration Tooling
+  - [ ] 22.1 Add `alembic` for database migration management; convert `migrations/001_initial.sql` to Alembic revision
+  - [ ] 22.2 Add `hitl_escalation_tasks` and `tickets` tables to migration (referenced in HITL code but missing from DDL)
+  - [ ] 22.3 Update Makefile: `make migrate-up`, `make migrate-down`, `make migrate-new`
+
+- [ ]* 23. Performance & Load Testing
+  - [ ]* 23.1 Create `tests/load/locustfile.py`: simulate 1000 concurrent users sending chat messages; measure TTFT P50/P95/P99
+  - [ ]* 23.2 Create `tests/load/rag_load.py`: simulate RAG queries with varying document sizes; verify TTFT < 1200ms P95
+  - [ ]* 23.3 Document performance baseline in `docs/performance.md`

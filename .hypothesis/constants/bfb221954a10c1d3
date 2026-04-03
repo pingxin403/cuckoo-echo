@@ -1,0 +1,4 @@
+# file: /Users/hanyunpeng/Projects/cuckoo-echo/admin_service/routes/hitl.py
+# hypothesis_version: 6.151.10
+
+[5.0, 404, 409, 4001, '/admin/v1', '/ws/hitl', 'Session not found', 'active', 'admin_user_id', 'hitl_escalated', 'hitl_request', 'hitl_request_created', 'hitl_session_ended', 'hitl_session_taken', 'hitl_ws_connected', 'hitl_ws_disconnected', 'id', 'pending', 'reason', 'resolved', 'session_id', 'status', 'tenant_id', 'tenant_id required', 'thread_id', 'type', 'unresolved_turns']
