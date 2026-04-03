@@ -384,10 +384,10 @@
   - [x] 36.1 确认 `SUMMARIZE_THRESHOLD` 逻辑已实现（messages >= 50 时触发 LLM 摘要压缩）
   - [x] 36.2 写单元测试：消息数 < 50 不触发摘要、消息数 ≥ 50 触发摘要并压缩 messages、摘要后 state["summary"] 非空
 
-- [ ] 37. Docker Compose 自动迁移
-  - [ ] 37.1 在 `docker-compose.yml` 中为应用服务添加 `entrypoint` 或 init 脚本：先执行 `alembic upgrade head`，再启动应用服务；或添加 `migrate` init service（`depends_on: postgres: service_healthy`，`command: uv run alembic upgrade head`），其他应用服务 `depends_on: migrate: service_completed_successfully`
-  - [ ] 37.2 创建 `scripts/docker-entrypoint.sh`：`#!/bin/bash` → `alembic upgrade head` → `exec "$@"`；更新 `k8s/Dockerfile` 将此脚本设为 ENTRYPOINT
-  - [ ] 37.3 验证 `docker compose down -v && docker compose up` 后数据库自动完成迁移，无需手动 `make migrate`
+- [x] 37. Docker Compose 自动迁移
+  - [x] 37.1 添加 `migrate` init service（`depends_on: postgres: service_healthy`，`command: alembic upgrade head`），其他应用服务 `depends_on: migrate: service_completed_successfully`
+  - [x] 37.2 创建 `scripts/docker-entrypoint.sh` + 更新 `k8s/Dockerfile` 添加 curl 和 ENTRYPOINT
+  - [x] 37.3 验证 `docker compose down -v && docker compose up` 后数据库自动完成迁移，无需手动 `make migrate`
 
 ### P3 — 生产运维工具链
 

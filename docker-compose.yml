@@ -66,6 +66,19 @@ services:
       start_period: 10s
 
   # ============================================================
+  # Database Migration (runs once, then exits)
+  # ============================================================
+  migrate:
+    build:
+      context: .
+      dockerfile: k8s/Dockerfile
+    command: ["alembic", "upgrade", "head"]
+    env_file: .env.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ============================================================
   # Application Services
   # ============================================================
   api-gateway:
@@ -81,6 +94,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
   chat-service:
     build:
@@ -97,6 +112,8 @@ services:
         condition: service_healthy
       milvus:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
   admin-service:
     build:
@@ -113,6 +130,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
   knowledge-pipeline:
     build:
@@ -127,6 +146,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   pgdata:
