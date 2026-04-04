@@ -100,7 +100,7 @@
     - 处理删除文档 `{doc_id, deleted: true}` 响应（非 HTTP 204）
     - _需求: 7.5, 7.6, 7.7, 6.4_
 
-  - [~] 4.3 修改 `frontend/src/stores/chatStore.ts`，集成 SSE 适配和线程历史转换
+  - [x] 4.3 修改 `frontend/src/stores/chatStore.ts`，集成 SSE 适配和线程历史转换
     - SSE 发送请求体格式对齐后端：`{thread_id, user_id, messages: [{role, content}]}`
     - 集成 `extractTokenContent` 双格式解析
     - 线程历史加载集成 `convertLangGraphMessage` 转换

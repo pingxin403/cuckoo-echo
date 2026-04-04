@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { Message, ConnectionStatus, MediaAttachment } from '@/types';
 import apiClient from '@/network/axios';
 import { saveThread, loadThread as loadCachedThread } from '@/lib/cache';
+import { convertLangGraphMessages, type LangGraphMessage } from '@/lib/langGraphAdapter';
 
 interface ChatState {
   messages: Message[];
@@ -84,10 +85,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
 
     // Fetch from server and persist to cache
-    const res = await apiClient.get<{ messages: Message[] }>(
+    const res = await apiClient.get<{ messages: Message[] | LangGraphMessage[]; thread_id?: string }>(
       `/v1/threads/${threadId}`,
     );
-    const serverMessages = res.data.messages ?? [];
+    // Handle both frontend Message[] and backend LangGraph message formats
+    const rawMessages = res.data.messages ?? [];
+    const serverMessages: Message[] = rawMessages.length > 0 && 'type' in rawMessages[0]
+      ? convertLangGraphMessages(rawMessages as LangGraphMessage[], threadId)
+      : rawMessages as Message[];
     set({
       messages: serverMessages,
       activeThreadId: threadId,
