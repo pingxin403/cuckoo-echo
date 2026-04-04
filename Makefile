@@ -1,10 +1,16 @@
-.PHONY: install test lint format up down migrate migrate-down migrate-new migrate-status dev pre-commit test-e2e dev-all seed logs clean verify-e2e quality-gate
+.PHONY: install test lint format up down migrate migrate-down migrate-new migrate-status dev pre-commit test-e2e dev-all seed logs clean verify-e2e quality-gate test-pbt test-all test-frontend test-frontend-e2e
 
+# ── Setup ──
 install:
 	uv sync
+	cd frontend && pnpm install
 
+# ── Backend Tests ──
 test:
-	uv run pytest tests/unit/
+	uv run pytest tests/unit/ -v
+
+test-pbt:
+	uv run pytest tests/pbt/ -v
 
 test-integration:
 	uv run pytest tests/integration/ -m integration -v
@@ -12,21 +18,47 @@ test-integration:
 test-e2e:
 	uv run pytest tests/e2e/ -m e2e -v
 
+test-all:
+	uv run pytest tests/ -v
+
+# ── Frontend Tests ──
+test-frontend:
+	cd frontend && pnpm test
+
+test-frontend-e2e:
+	cd frontend && pnpm exec playwright test --config playwright.integration.config.ts
+
+# ── Code Quality ──
 lint:
 	uv run ruff check .
+	cd frontend && pnpm lint
 
 format:
 	uv run ruff format .
+	cd frontend && pnpm format
 
 pre-commit:
 	uv run pre-commit install
 
+# ── RAG Quality Gate (Ragas) ──
+quality-gate:
+	uv run python scripts/ragas_quality_gate.py --test-cases tests/quality/test_cases.json --output reports/ragas_report.json
+
+# ── Docker ──
 up:
 	docker compose up -d
 
 down:
 	docker compose down
 
+clean:
+	docker compose down -v
+	@echo "All Docker volumes removed."
+
+logs:
+	docker compose logs -f api-gateway chat-service admin-service knowledge-pipeline
+
+# ── Database ──
 migrate:
 	uv run alembic upgrade head
 
@@ -39,6 +71,7 @@ migrate-new:
 migrate-status:
 	uv run alembic current
 
+# ── Development ──
 dev:
 	uv run uvicorn api_gateway.main:app --reload --port 8000
 
@@ -51,17 +84,8 @@ dev-all:
 	docker compose up api-gateway chat-service admin-service knowledge-pipeline
 
 seed:
-	uv run python scripts/seed_tenant.py
+	uv run python -m scripts.seed
 
-logs:
-	docker compose logs -f api-gateway chat-service admin-service knowledge-pipeline
-
+# ── E2E Verification ──
 verify-e2e:
 	bash scripts/verify_e2e.sh
-
-clean:
-	docker compose down -v
-	@echo "All Docker volumes removed."
-
-quality-gate:
-	uv run python scripts/ragas_quality_gate.py --test-cases tests/quality/test_cases.json --output reports/ragas_report.json

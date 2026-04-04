@@ -70,31 +70,44 @@ graph TB
 
 ## Quick Start / 快速启动
 
-### Prerequisites / 前置条件
+> 📖 详细指南请参考 [docs/quickstart.md](docs/quickstart.md)
 
-- Python 3.11+
-- [uv](https://docs.astral.sh/uv/) (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
-- Docker & Docker Compose
+### Docker Compose 一键启动（推荐）
 
-### Setup / 启动步骤
+```bash
+# 1. 配置环境变量
+cp .env.example .env.docker
+# 编辑 .env.docker 配置 LLM（支持 Ollama 本地模型，见 quickstart 文档）
+
+# 2. 启动全部服务
+docker compose up -d
+
+# 3. 访问
+#   管理后台: http://localhost/login  (admin@test.com / test123456)
+#   C端聊天: http://localhost/chat?api_key=ck_test_integration_key
+```
+
+### 本地开发模式
 
 ```bash
 # 1. Install dependencies / 安装依赖
 uv sync
+cd frontend && pnpm install
 
-# 2. Start infrastructure (PostgreSQL, Redis, Milvus, MinIO) / 启动基础设施
-docker compose up -d
+# 2. Start infrastructure / 启动基础设施
+docker compose up -d postgres redis milvus minio
 
 # 3. Run database migrations / 执行数据库迁移
 make migrate
 
-# 4. Seed test tenant (optional) / 创建测试租户
+# 4. Seed test data / 创建测试数据
 make seed
 
-# 5. Start development server / 启动开发服务器
-make dev          # API Gateway only
-# or
-make dev-all      # All services with hot-reload
+# 5. Start backend services / 启动后端（3 个终端）
+make dev-all
+
+# 6. Start frontend / 启动前端
+cd frontend && pnpm dev
 ```
 
 
@@ -169,7 +182,22 @@ cuckoo-echo/
 │   └── load/                 # Load tests (Locust)
 ├── k8s/                      # Kubernetes manifests + Dockerfile
 ├── docs/                     # Documentation
+├── frontend/                 # Frontend — React + TypeScript + Vite
+│   ├── src/
+│   │   ├── pages/            # Page components (LoginPage, admin/*, chat/*)
+│   │   ├── stores/           # Zustand state management
+│   │   ├── network/          # Axios, SSE, WebSocket clients + field mapper
+│   │   ├── lib/              # Utilities (cache, analytics, error map, etc.)
+│   │   ├── components/       # Shared UI components (Toast, Skeleton, etc.)
+│   │   ├── hooks/            # Custom React hooks
+│   │   └── __tests__/        # Unit tests + PBT (Vitest + fast-check)
+│   ├── e2e/                  # Playwright E2E integration tests
+│   ├── nginx.conf            # Production Nginx config
+│   └── Dockerfile            # Multi-stage build (Node → Nginx)
 ├── scripts/                  # Utility scripts
+│   ├── seed.py               # Idempotent test data seeder
+│   ├── ragas_quality_gate.py # RAG quality evaluation
+│   └── verify_e2e.sh         # E2E smoke test script
 ├── docker-compose.yml        # Infrastructure + app services
 ├── docker-compose.override.yml  # Dev overrides (hot-reload)
 ├── Makefile                  # Development commands
@@ -182,20 +210,29 @@ cuckoo-echo/
 ## Testing / 测试
 
 ```bash
-# Unit tests / 单元测试
+# Backend unit tests / 后端单元测试
 make test
 
-# Property-based tests / 属性测试 (Hypothesis)
-uv run pytest tests/pbt/ -v
+# Backend property-based tests / 属性测试 (Hypothesis)
+make test-pbt
 
-# Integration tests (requires Docker infrastructure) / 集成测试
+# Backend integration tests (requires Docker) / 集成测试
 make test-integration
 
-# End-to-end tests / 端到端测试
+# Backend E2E tests / 后端端到端测试
 make test-e2e
 
-# All tests / 全部测试
-uv run pytest tests/ -v
+# Frontend unit tests + PBT / 前端单元测试
+make test-frontend
+
+# Frontend E2E integration tests (requires Docker Compose running) / 前端 E2E
+make test-frontend-e2e
+
+# RAG quality evaluation (Ragas) / RAG 质量评估
+make quality-gate
+
+# All backend tests / 全部后端测试
+make test-all
 
 # Lint / 代码检查
 make lint
@@ -223,9 +260,11 @@ make format
 
 ## Documentation / 文档
 
+- [Quick Start / 快速启动](docs/quickstart.md)
 - [API Reference / 接口文档](docs/api.md)
 - [Architecture / 架构设计](docs/architecture.md)
 - [Development Guide / 开发指南](docs/development.md)
+- [Deployment / 部署指南](docs/deployment.md)
 - [Performance Baseline / 性能基线](docs/performance.md)
 
 ---
