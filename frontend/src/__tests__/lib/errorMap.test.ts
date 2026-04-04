@@ -25,8 +25,15 @@ describe('ERROR_MAP', () => {
     expect(ERROR_MAP[503]).toBe('系统繁忙，请稍后重试');
   });
 
+  it('maps 404 to not found message', () => {
+    expect(ERROR_MAP[404]).toBe('请求的资源不存在');
+  });
+
+  it('maps 413 to file too large message', () => {
+    expect(ERROR_MAP[413]).toBe('文件过大（最大 50MB）');
+  });
+
   it('returns undefined for unknown status codes', () => {
-    expect(ERROR_MAP[404]).toBeUndefined();
     expect(ERROR_MAP[418]).toBeUndefined();
     expect(ERROR_MAP[502]).toBeUndefined();
   });
