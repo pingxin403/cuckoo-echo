@@ -2,6 +2,7 @@ import axios from 'axios';
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { showToast } from '@/components/Toast';
 import { analytics } from '@/lib/analytics';
+import { transformResponse, toSnakeCaseWithExplicit } from '@/network/fieldMapper';
 
 // ─── Token getter (callback pattern) ──────────────────────────
 // AuthStore doesn't exist yet; consumers call setTokenGetter()
@@ -23,7 +24,9 @@ export function setTokenRefresher(fn: () => Promise<string | null>) {
 // ─── Placeholder for error map (task 3.5) ──────────────────────
 const FALLBACK_ERROR_MAP: Record<number, string> = {
   401: '登录已过期，请重新登录',
+  404: '请求的资源不存在',
   409: 'AI 正在处理上一条消息，请稍候',
+  413: '文件过大（最大 50MB）',
   415: '不支持该文件格式',
   429: '请求过于频繁，请稍后重试',
   500: '服务器内部错误，请稍后重试',
@@ -43,11 +46,16 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-// ─── Request Interceptor: inject Bearer token ──────────────────
+// ─── Request Interceptor: inject Bearer token + camelCase → snake_case ──
 apiClient.interceptors.request.use((config) => {
   const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  // Convert request body from camelCase to snake_case (skip FormData)
+  if (config.data && typeof config.data === 'object' && !(config.data instanceof FormData)) {
+    const endpoint = config.url ?? '';
+    config.data = toSnakeCaseWithExplicit(config.data, endpoint);
   }
   return config;
 });
@@ -71,12 +79,26 @@ interface RetryableConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
 
-// ─── Response Interceptor: error handling + token refresh ──────
+// ─── Response Interceptor: snake_case → camelCase + error handling ──────
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Convert response data from snake_case to camelCase + structure adapters
+    const endpoint = response.config.url ?? '';
+    if (response.data && typeof response.data === 'object') {
+      response.data = transformResponse(response.data, endpoint);
+    }
+    return response;
+  },
   async (error: AxiosError) => {
     const config = error.config as RetryableConfig | undefined;
     const status = error.response?.status;
+
+    // Network Error (backend unavailable / ECONNREFUSED)
+    if (!error.response && error.code === 'ERR_NETWORK') {
+      showToast('error', '后端服务不可用，请检查服务状态');
+      analytics.track('error_occurred', { status_code: 0, endpoint: error.config?.url, error_type: 'NETWORK_ERROR' });
+      return Promise.reject(error);
+    }
 
     // 401 → attempt token refresh then retry
     if (status === 401 && config && !config._retry) {

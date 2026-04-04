@@ -86,7 +86,7 @@
     - **验证: 需求 4.5, 5.3**
 
 - [ ] 4. Axios Interceptor 集成与 Store 适配
-  - [~] 4.1 修改 `frontend/src/network/axios.ts`，注入 Field_Mapper Interceptor
+  - [x] 4.1 修改 `frontend/src/network/axios.ts`，注入 Field_Mapper Interceptor
     - Request Interceptor：对非 FormData 请求体执行 `toSnakeCaseWithExplicit(data, endpoint)` 转换
     - Response Interceptor：执行 `transformResponse(data, endpoint)` 转换（显式映射 → 通用 snake→camel → 结构适配）
     - 扩展错误处理：增加 `ECONNREFUSED` / Network Error 检测，展示"后端服务不可用"Toast
