@@ -59,7 +59,7 @@
     - **验证: 需求 4.6**
 
 - [ ] 3. JWT 解码与认证适配
-  - [~] 3.1 修改 `frontend/src/stores/authStore.ts`，适配后端 JWT payload
+  - [x] 3.1 修改 `frontend/src/stores/authStore.ts`，适配后端 JWT payload
     - 新增 `BackendJWTPayload` 接口（`admin_user_id`、`tenant_id`、`role`、`exp`、`iat`）
     - 实现 `userFromBackendPayload(payload)` 转换函数，处理缺失的 `email` 和 `tenant_name`（使用 `admin_user_id` 和 `tenant_id` 作为回退值）
     - 修改 `login` action 使用 `transformResponse` 处理登录响应

@@ -23,36 +23,45 @@ interface AuthState {
  * Decode the payload section of a JWT (base64url → JSON).
  * Returns the parsed payload object, or null on failure.
  */
-function decodeJwtPayload(
-  token: string,
-): {
-  sub: string;
-  email: string;
+/**
+ * Decode the payload section of a JWT (base64url → JSON).
+ * Supports both backend real format and mock format.
+ */
+interface JWTPayload {
+  // Backend real format
+  admin_user_id?: string;
   tenant_id: string;
-  tenant_name: string;
   role: string;
   exp: number;
-} | null {
+  iat?: number;
+  // Mock/legacy format (may also be present)
+  sub?: string;
+  email?: string;
+  tenant_name?: string;
+}
+
+function decodeJwtPayload(token: string): JWTPayload | null {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
-    // base64url → base64
     const base64 = parts[1]
       .replace(/-/g, '+')
       .replace(/_/g, '/');
     const json = atob(base64);
-    return JSON.parse(json) as ReturnType<typeof decodeJwtPayload> & object;
+    return JSON.parse(json) as JWTPayload;
   } catch {
     return null;
   }
 }
 
-function userFromPayload(payload: NonNullable<ReturnType<typeof decodeJwtPayload>>): AdminUser {
+function userFromPayload(payload: JWTPayload): AdminUser {
+  // Handle both backend real format (admin_user_id) and mock format (sub)
+  const id = payload.admin_user_id ?? payload.sub ?? '';
   return {
-    id: payload.sub,
-    email: payload.email,
+    id,
+    email: payload.email ?? id,                    // Fallback: use id as display name
     tenantId: payload.tenant_id,
-    tenantName: payload.tenant_name,
+    tenantName: payload.tenant_name ?? payload.tenant_id,  // Fallback: use tenant_id
     role: payload.role,
   };
 }
