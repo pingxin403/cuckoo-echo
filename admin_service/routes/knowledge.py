@@ -41,6 +41,37 @@ async def upload_document(
     return {"doc_id": doc_id, "status": "pending"}
 
 
+@router.get("/docs")
+async def list_documents(request: Request):
+    """List all knowledge documents for the tenant."""
+    db_pool = request.app.state.db_pool
+    tenant_id = request.state.tenant_id
+
+    async with db_pool.acquire() as conn:
+        async with tenant_db_context(conn, tenant_id):
+            rows = await conn.fetch(
+                """SELECT id, filename, oss_path, status, chunk_count, error_msg, created_at, updated_at
+                   FROM knowledge_docs
+                   WHERE tenant_id = $1 AND deleted_at IS NULL
+                   ORDER BY created_at DESC
+                   LIMIT 100""",
+                tenant_id,
+            )
+
+    return [
+        {
+            "doc_id": str(row["id"]),
+            "filename": row["filename"],
+            "status": row["status"],
+            "chunk_count": row["chunk_count"],
+            "error_msg": row["error_msg"],
+            "created_at": row["created_at"].isoformat() if row["created_at"] else None,
+            "updated_at": row["updated_at"].isoformat() if row["updated_at"] else None,
+        }
+        for row in rows
+    ]
+
+
 @router.get("/docs/{doc_id}")
 async def get_document_progress(doc_id: str, request: Request):
     """Query document processing progress."""
