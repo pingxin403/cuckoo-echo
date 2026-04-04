@@ -89,3 +89,17 @@ seed:
 # ── E2E Verification ──
 verify-e2e:
 	bash scripts/verify_e2e.sh
+
+# ── Load Testing ──
+load-test:
+	uv run locust -f tests/load/locustfile.py --headless -u 50 -r 10 --run-time 60s --html reports/load_report.html
+
+load-test-rag:
+	uv run locust -f tests/load/rag_load.py --headless -u 20 -r 5 --run-time 60s --html reports/rag_load_report.html
+
+# ── Monitoring ──
+monitoring-up:
+	docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d prometheus grafana loki
+
+monitoring-down:
+	docker compose -f docker-compose.yml -f docker-compose.monitoring.yml down prometheus grafana loki
