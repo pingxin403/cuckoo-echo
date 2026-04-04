@@ -139,7 +139,7 @@
     - _需求: 2.2, 2.3_
 
 - [ ] 7. Nginx 与 Docker Compose 基础设施
-  - [~] 7.1 修改 `frontend/nginx.conf`，增加 SSE/WS 优化配置
+  - [x] 7.1 修改 `frontend/nginx.conf`，增加 SSE/WS 优化配置
     - SSE 端点 `/v1/chat/completions`：`proxy_buffering off` + `X-Accel-Buffering no` + `proxy_read_timeout 300s`
     - WS 端点 `/v1/chat/ws` 和 `/admin/v1/ws/`：`Upgrade` + `Connection "upgrade"` + `proxy_read_timeout 300s`
     - 健康检查端点 `/nginx-health`
