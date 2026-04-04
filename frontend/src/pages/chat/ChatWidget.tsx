@@ -56,13 +56,11 @@ export default function ChatWidget({
     switchProtocol(shouldUseWebSocket ? 'websocket' : 'sse');
   }, [shouldUseWebSocket, switchProtocol]);
 
+  // ── Chat store actions for reconciliation ──
+  const loadThread = useChatStore((s) => s.loadThread);
+  const activeThreadId = useSessionStore((s) => s.activeThreadId);
+
   // ── SSE hook (active when NOT in HITL mode) ──
-  // TODO(SSE-reconciliation): After SSE reconnects, the useSSE hook's
-  // reconnection flow should call chatStore.reconcileMessages() with the
-  // latest server messages to compensate for any messages missed during
-  // the disconnection window. This is handled by the SSE reconnection
-  // flow in sseClient.ts (exponential backoff → reconnect → fetch latest
-  // thread → reconcile). See requirement 1.6.
   const sseUrl = `${API_BASE}/v1/chat/completions`;
   const {
     connectionStatus: sseStatus,
@@ -74,6 +72,12 @@ export default function ChatWidget({
       // 401 from SSE means invalid API key
       if (error.code === 'HTTP_ERROR' && error.message.includes('401')) {
         setApiKeyError(true);
+      }
+    },
+    onReconnected() {
+      // SSE reconnected — fetch latest messages and reconcile (Req 1.6)
+      if (activeThreadId) {
+        loadThread(activeThreadId);
       }
     },
   });

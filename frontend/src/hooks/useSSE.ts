@@ -8,6 +8,7 @@ interface UseSSEOptions {
   onToken?: (token: string, messageId?: string) => void;
   onDone?: (messageId: string) => void;
   onError?: (error: SSEError) => void;
+  onReconnected?: () => void;
 }
 
 interface UseSSEReturn {
@@ -22,13 +23,15 @@ export function useSSE({
   onToken,
   onDone,
   onError,
+  onReconnected,
 }: UseSSEOptions): UseSSEReturn {
   const clientRef = useRef<SSEClient | null>(null);
-  const callbacksRef = useRef({ onToken, onDone, onError });
+  const callbacksRef = useRef({ onToken, onDone, onError, onReconnected });
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>('disconnected');
+  const wasDisconnectedRef = useRef(false);
 
-  callbacksRef.current = { onToken, onDone, onError };
+  callbacksRef.current = { onToken, onDone, onError, onReconnected };
 
   useEffect(() => {
     const client = new SSEClient();
@@ -51,7 +54,13 @@ export function useSSE({
           body,
           apiKey,
           onToken(token: string, messageId?: string) {
+            const wasDisconnected = wasDisconnectedRef.current;
             setConnectionStatus('connected');
+            wasDisconnectedRef.current = false;
+            // Fire onReconnected when transitioning from disconnected → connected
+            if (wasDisconnected) {
+              callbacksRef.current.onReconnected?.();
+            }
             callbacksRef.current.onToken?.(token, messageId);
           },
           onDone(messageId: string) {
@@ -59,6 +68,7 @@ export function useSSE({
             callbacksRef.current.onDone?.(messageId);
           },
           onError(error: SSEError) {
+            wasDisconnectedRef.current = true;
             setConnectionStatus('disconnected');
             callbacksRef.current.onError?.(error);
           },

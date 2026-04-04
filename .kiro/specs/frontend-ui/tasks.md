@@ -538,7 +538,7 @@
     - 展示 WaveformIndicator 组件（"语音识别中…"）
     - _需求: 2.4, 补充-语音波形指示器_
 
-  - [~] 21.4 实现 SSE 重连消息补偿
+  - [x] 21.4 实现 SSE 重连消息补偿
     - 在 useSSE hook 或 ChatWidget 中，SSE 重连成功后调用 `chatStore.loadThread()` 拉取最新消息
     - 调用 `chatStore.reconcileMessages()` 合并本地与服务端消息
     - 移除 ChatWidget.tsx 中的 TODO 注释
