@@ -121,7 +121,7 @@
 - [x] 5. 检查点 — 核心适配层验证
   - 确保所有测试通过，ask the user if questions arise.
 
-- [ ] 6. 环境配置与 MSW 条件加载
+- [x] 6. 环境配置与 MSW 条件加载
   - [x] 6.1 修改 `frontend/src/main.tsx`，实现 MSW 条件加载
     - 根据 `import.meta.env.VITE_ENABLE_MSW` 决定是否启用 MSW
     - MSW 禁用时清理残留 Service Worker（`navigator.serviceWorker.getRegistrations` + `unregister`）
@@ -132,7 +132,7 @@
     - 修改 `frontend/.env.development`（如存在）：确保 `VITE_ENABLE_MSW=true`
     - _需求: 8.4, 2.4_
 
-  - [~] 6.3 修改 `frontend/vite.config.ts`，新增开发代理配置
+  - [x] 6.3 修改 `frontend/vite.config.ts`，新增开发代理配置
     - 添加 `/admin/v1/` → `http://localhost:8002` 代理（含 `ws: true`）
     - 添加 `/v1/` → `http://localhost:8000` 代理（含 `ws: true`）
     - 确保 `/admin/v1/` 在 `/v1/` 之前声明（优先匹配）

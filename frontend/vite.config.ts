@@ -7,6 +7,22 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    proxy: {
+      // Admin API — must be before /v1/ for priority matching
+      '/admin/v1/': {
+        target: 'http://localhost:8002',
+        changeOrigin: true,
+        ws: true,
+      },
+      // C-side API
+      '/v1/': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        ws: true,
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
