@@ -158,11 +158,11 @@
     - 所有操作使用 `IF NOT EXISTS` 保证幂等性
     - _需求: 3.6, 9.4, 10.2_
 
-- [ ] 8. 检查点 — 基础设施验证
+- [x] 8. 检查点 — 基础设施验证
   - 确保所有测试通过，ask the user if questions arise.
 
 - [ ] 9. E2E 集成测试配置与场景
-  - [~] 9.1 创建 `frontend/playwright.integration.config.ts`
+  - [x] 9.1 创建 `frontend/playwright.integration.config.ts`
     - `testMatch: '**/*.integration.spec.ts'`
     - `baseURL` 指向 `http://localhost`（Docker Compose 环境）
     - `webServer: undefined`（不启动 Vite dev server）
