@@ -72,7 +72,7 @@
     - 使用 fast-check 生成随机 `admin_user_id`、`tenant_id`、`role`，验证转换后 `AdminUser` 所有必需字段非空
     - **验证: 需求 3.2**
 
-  - [~] 3.3 实现 LangGraph 消息格式转换
+  - [x] 3.3 实现 LangGraph 消息格式转换
     - 在 `frontend/src/network/fieldMapper.ts` 或新建 `frontend/src/lib/langGraphAdapter.ts` 中实现 `convertLangGraphMessage(msg, threadId)` 函数
     - 处理 `type` → `role` 映射（human→user, ai→assistant）
     - 处理 `tool_calls` 字段转换
