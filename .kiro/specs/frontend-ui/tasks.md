@@ -419,14 +419,14 @@
   - 确保 embed.js 构建成功，Web Component 可嵌入测试页面，主题定制生效，样式隔离正常。如有问题请向用户确认。
 
 - [ ] 17. PBT 属性测试与 E2E 测试
-  - [~]* 17.1 编写属性测试 — P1: SSE Token 流渲染完整性
+  - [x]* 17.1 编写属性测试 — P1: SSE Token 流渲染完整性
     - **Property 1: SSE Token 流渲染完整性（Round-Trip）**
     - 使用 Playwright + fast-check 生成随机 Token 序列（1~500 个，含中文/英文/Markdown/特殊字符）
     - 模拟 SSE 事件流逐个推送 Token
     - 断言最终 Message_Bubble 的纯文本内容等于所有 Token 的拼接（Markdown 渲染后提取纯文本）
     - **验证: 需求 1.1, 1.2**
 
-  - [~]* 17.2 编写属性测试 — P6: 流式 Markdown 渲染 XSS 防御
+  - [x]* 17.2 编写属性测试 — P6: 流式 Markdown 渲染 XSS 防御
     - **Property 6: 流式 Markdown 渲染 XSS 防御不变量**
     - 使用 Playwright + fast-check 生成随机恶意 payload（`<script>`、`onclick=`、`javascript:`、`onerror=`、不闭合标签）
     - 模拟 SSE 推送恶意 Token 序列
