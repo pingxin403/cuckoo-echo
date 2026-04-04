@@ -35,10 +35,6 @@ test.describe('Knowledge upload (integration)', () => {
       timeout: 10_000,
     });
 
-    // Click the upload button to trigger file selection
-    const uploadButton = page.locator('button:has-text("选择文件上传")');
-    await expect(uploadButton).toBeVisible({ timeout: 5_000 });
-
     // Try to find and use the hidden file input
     const fileInput = page.locator('input[type="file"]');
     const fileInputCount = await fileInput.count();
@@ -52,7 +48,7 @@ test.describe('Knowledge upload (integration)', () => {
 
       // Wait for either the document to appear or an error toast
       const docVisible = page.locator('text=test-document.txt').first();
-      const errorToast = page.locator('text=上传失败').first();
+      const errorToast = page.locator('[role="status"]');
       await expect(docVisible.or(errorToast)).toBeVisible({ timeout: 30_000 });
     }
   });

@@ -135,6 +135,15 @@ def _wire_dependencies(app: FastAPI):
 
 app = FastAPI(title="Cuckoo-Echo Chat Service", lifespan=lifespan)
 setup_prometheus(app, service_name="chat-service")
+
+
+@app.on_event("startup")
+async def _wire_chat_middleware():
+    """Add tenant auth middleware once db_pool is available."""
+    from api_gateway.middleware.auth import TenantAuthMiddleware
+    app.add_middleware(TenantAuthMiddleware, db_pool=app.state.db_pool)
+
+
 app.include_router(chat_router)
 app.include_router(ws_chat_router)
 
