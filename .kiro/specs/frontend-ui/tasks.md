@@ -409,7 +409,7 @@
     - 确保 embed.js gzip 后 < 150KB
     - _需求: 10.5, 设计-性能SLA_
 
-  - [~]* 15.4 编写 Web Component 测试
+  - [x]* 15.4 编写 Web Component 测试
     - 测试 `<cuckoo-chat>` 自定义元素注册和渲染
     - 测试 data-* 属性读取和主题注入
     - 测试 Shadow DOM 样式隔离
