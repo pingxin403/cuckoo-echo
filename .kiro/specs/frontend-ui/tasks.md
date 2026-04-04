@@ -500,7 +500,7 @@
     - Docker 构建推送到容器仓库
     - _需求: 全局（自动化构建测试）_
 
-  - [~]* 19.8 编写无障碍测试
+  - [x]* 19.8 编写无障碍测试
     - 集成 axe-core 到 Playwright E2E 测试
     - 测试键盘导航（Tab 顺序、Enter 激活、Escape 关闭）
     - 测试 aria-label 覆盖率
