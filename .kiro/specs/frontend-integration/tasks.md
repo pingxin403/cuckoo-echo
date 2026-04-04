@@ -146,7 +146,7 @@
     - 配置 API 代理路由（`/admin/v1/` → admin-service:8002，`/v1/` → api-gateway:8000）
     - _需求: 2.5, 2.6, 9.3_
 
-  - [~] 7.2 修改 `docker-compose.yml`，新增 frontend 和 seed 服务
+  - [x] 7.2 修改 `docker-compose.yml`，新增 frontend 和 seed 服务
     - 新增 `frontend` 服务：构建 `./frontend`，暴露 80 端口，依赖 api-gateway 和 admin-service，健康检查 `/nginx-health`
     - 新增 `seed` 服务：运行 `python -m scripts.seed`，依赖 migrate 完成，幂等创建测试数据
     - _需求: 9.1, 9.2, 9.4, 9.5, 9.6_

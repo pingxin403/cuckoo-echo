@@ -149,6 +149,41 @@ services:
       migrate:
         condition: service_completed_successfully
 
+  # ============================================================
+  # Frontend Service
+  # ============================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      api-gateway:
+        condition: service_started
+      admin-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/nginx-health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ============================================================
+  # Seed Script (runs once, creates test data)
+  # ============================================================
+  seed:
+    build:
+      context: .
+      dockerfile: k8s/Dockerfile
+    command: ["python", "-m", "scripts.seed"]
+    env_file: .env.docker
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+
 volumes:
   pgdata:
   milvusdata:
