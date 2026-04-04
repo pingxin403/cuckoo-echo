@@ -1,9 +1,39 @@
-import type { SSEClientOptions } from '@/types';
+import type { SSEClientOptions, SSEError } from '@/types';
 
 const STREAM_TIMEOUT_MS = 60_000;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+/**
+ * Extract token content from an SSE JSON payload.
+ * Supports two formats:
+ * - Backend format: { content: "token_text" }
+ * - OpenAI format: { choices: [{ delta: { content: "token_text" } }] }
+ */
+export function extractTokenContent(parsed: Record<string, unknown>): string | undefined {
+  // Priority 1: Backend actual format { content: "..." }
+  if (typeof parsed.content === 'string') {
+    return parsed.content;
+  }
+  // Priority 2: OpenAI format { choices: [{ delta: { content: "..." } }] }
+  const choices = parsed.choices as { delta?: { content?: string } }[] | undefined;
+  return choices?.[0]?.delta?.content ?? undefined;
+}
+
+/**
+ * Extract error from an SSE JSON payload.
+ * Backend sends: { error: "CONCURRENT_REQUEST", message: "..." }
+ */
+export function extractError(parsed: Record<string, unknown>): SSEError | null {
+  if (typeof parsed.error === 'string') {
+    return {
+      code: parsed.error,
+      message: (typeof parsed.message === 'string' ? parsed.message : '') as string,
+    };
+  }
+  return null;
 }
 
 export class SSEClient {
@@ -128,19 +158,22 @@ export class SSEClient {
 
           // Parse the JSON chunk
           try {
-            const parsed: {
-              id?: string;
-              choices?: { delta?: { content?: string }; index?: number }[];
-            } = JSON.parse(payload) as {
-              id?: string;
-              choices?: { delta?: { content?: string }; index?: number }[];
-            };
+            const parsed = JSON.parse(payload) as Record<string, unknown>;
 
-            if (parsed.id) {
+            if (typeof parsed.id === 'string') {
               lastMessageId = parsed.id;
             }
 
-            const content = parsed.choices?.[0]?.delta?.content;
+            // Check for SSE error events (e.g., CONCURRENT_REQUEST)
+            const sseError = extractError(parsed);
+            if (sseError) {
+              this.clearTimeout();
+              options.onError(sseError);
+              return;
+            }
+
+            // Dual-format token extraction
+            const content = extractTokenContent(parsed);
             if (content !== undefined && content !== null) {
               this.resetTimeout(options);
               options.onToken(content, lastMessageId);

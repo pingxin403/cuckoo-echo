@@ -33,7 +33,7 @@
     - _需求: 1.1, 1.4_
 
 - [ ] 2. SSE 与 WebSocket 适配层
-  - [~] 2.1 修改 `frontend/src/network/sseClient.ts`，实现 SSE 双格式解析
+  - [x] 2.1 修改 `frontend/src/network/sseClient.ts`，实现 SSE 双格式解析
     - 新增 `extractTokenContent(parsed)` 函数：优先检测 `content` 字段（后端格式），回退到 `choices[0].delta.content`（OpenAI 格式）
     - 新增 `extractError(parsed)` 函数：检测 `CONCURRENT_REQUEST` 等 SSE 错误事件
     - 在 `parseStream` 中替换现有 Token 提取逻辑为 `extractTokenContent`
