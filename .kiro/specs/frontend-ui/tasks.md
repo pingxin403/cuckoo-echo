@@ -419,35 +419,35 @@
   - 确保 embed.js 构建成功，Web Component 可嵌入测试页面，主题定制生效，样式隔离正常。如有问题请向用户确认。
 
 - [ ] 17. PBT 属性测试与 E2E 测试
-  - [ ]* 17.1 编写属性测试 — P1: SSE Token 流渲染完整性
+  - [~]* 17.1 编写属性测试 — P1: SSE Token 流渲染完整性
     - **Property 1: SSE Token 流渲染完整性（Round-Trip）**
     - 使用 Playwright + fast-check 生成随机 Token 序列（1~500 个，含中文/英文/Markdown/特殊字符）
     - 模拟 SSE 事件流逐个推送 Token
     - 断言最终 Message_Bubble 的纯文本内容等于所有 Token 的拼接（Markdown 渲染后提取纯文本）
     - **验证: 需求 1.1, 1.2**
 
-  - [ ]* 17.2 编写属性测试 — P6: 流式 Markdown 渲染 XSS 防御
+  - [~]* 17.2 编写属性测试 — P6: 流式 Markdown 渲染 XSS 防御
     - **Property 6: 流式 Markdown 渲染 XSS 防御不变量**
     - 使用 Playwright + fast-check 生成随机恶意 payload（`<script>`、`onclick=`、`javascript:`、`onerror=`、不闭合标签）
     - 模拟 SSE 推送恶意 Token 序列
     - 断言渲染后 DOM 中不存在 `<script>` 元素、`on*` 事件处理器属性或 `javascript:` 协议链接
     - **验证: 需求 1.2**
 
-  - [ ]* 17.3 编写 E2E 测试 — 登录流程
+  - [~]* 17.3 编写 E2E 测试 — 登录流程
     - Playwright 测试：输入邮箱密码 → 登录成功 → 跳转 Dashboard
     - 测试未登录访问 /admin → 重定向 /login
     - _需求: 4.1, 10.3_
 
-  - [ ]* 17.4 编写 E2E 测试 — 聊天流程
+  - [~]* 17.4 编写 E2E 测试 — 聊天流程
     - Playwright 测试：发送消息 → SSE 流式接收 → 消息完成展示
     - 测试文件上传 → 预压缩 → 展示缩略图
     - _需求: 1.1, 2.1_
 
-  - [ ]* 17.5 编写 E2E 测试 — HITL 流程
+  - [~]* 17.5 编写 E2E 测试 — HITL 流程
     - Playwright 测试：接收介入请求 → 接管 → 发送消息 → 结束介入
     - _需求: 6.3, 6.4, 6.5_
 
-  - [ ]* 17.6 编写 E2E 测试 — 知识库管理
+  - [~]* 17.6 编写 E2E 测试 — 知识库管理
     - Playwright 测试：上传文档 → 轮询状态 → 完成
     - _需求: 5.1, 5.3_
 
@@ -480,7 +480,7 @@
     - 配置 Husky pre-commit hook：lint-staged
     - _需求: 技术栈-代码规范_
 
-  - [~]* 19.5 编写构建验证测试
+  - [x]* 19.5 编写构建验证测试
     - 验证 `pnpm build` 产物：main 入口 + embed.js 单文件
     - 验证 embed.js gzip 体积 < 150KB
     - 验证 Nginx 配置语法正确
@@ -493,7 +493,7 @@
     - 在 Vitest 中集成 MSW 作为测试 Mock 层
     - _需求: 全局（前端独立开发支持）_
 
-  - [~]* 19.7 配置 CI/CD（GitHub Actions）
+  - [x]* 19.7 配置 CI/CD（GitHub Actions）
     - 创建 `.github/workflows/frontend-ci.yml`
     - 流水线：`pnpm install` → `pnpm lint` → `pnpm test` → `pnpm build`
     - 属性测试（P1-P8）在 CI 中运行
