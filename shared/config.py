@@ -54,6 +54,9 @@ class Settings(BaseSettings):
     asr_api_url: str = "http://localhost:9000"
     asr_model: str = "whisper-1"
 
+    # Embedding
+    embedding_model: str = "text-embedding-3-small"  # e.g. "ollama/qwen3-embedding" for local Ollama
+
     # Vision LLM
     vision_model: str = "gpt-4o-mini"  # Model supporting image input (OpenAI Vision API format)
 
