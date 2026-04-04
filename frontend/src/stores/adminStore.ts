@@ -167,7 +167,7 @@ export const useMetricsStore = create<MetricsState>((set, get) => ({
     set({ isLoading: true, metricsPeriod: p });
     try {
       const res = await apiClient.get<MetricsOverview>(
-        `/admin/v1/metrics/overview?period=${p}`,
+        `/admin/v1/metrics/overview?range=${p}`,
       );
       set({ metricsOverview: res.data });
     } finally {
@@ -197,7 +197,7 @@ export const useSandboxStore = create<SandboxState>((set) => ({
     set({ isRunning: true });
     try {
       const res = await apiClient.post<SandboxResult[]>(
-        '/admin/v1/sandbox/run',
+        '/admin/v1/metrics/sandbox/run',
         { testCases },
       );
       set({ sandboxResults: res.data });

@@ -112,7 +112,7 @@ export default function ConfigPanel() {
   const handleClearCache = useCallback(async () => {
     setClearing(true);
     try {
-      await apiClient.post('/admin/v1/cache/clear');
+      await apiClient.post('/admin/v1/config/cache/clear');
       showToast('success', '语义缓存已清除');
     } catch {
       showToast('error', '清除缓存失败');

@@ -86,14 +86,14 @@
     - **验证: 需求 4.5, 5.3**
 
 - [ ] 4. Axios Interceptor 集成与 Store 适配
-  - [x] 4.1 修改 `frontend/src/network/axios.ts`，注入 Field_Mapper Interceptor
+  - [ ] 4.1 修改 `frontend/src/network/axios.ts`，注入 Field_Mapper Interceptor
     - Request Interceptor：对非 FormData 请求体执行 `toSnakeCaseWithExplicit(data, endpoint)` 转换
     - Response Interceptor：执行 `transformResponse(data, endpoint)` 转换（显式映射 → 通用 snake→camel → 结构适配）
     - 扩展错误处理：增加 `ECONNREFUSED` / Network Error 检测，展示"后端服务不可用"Toast
     - 增加 HTTP 413、429 错误码处理
     - _需求: 1.2, 1.3, 2.7, 6.6_
 
-  - [~] 4.2 修改 `frontend/src/stores/adminStore.ts`，适配后端实际响应和路径
+  - [x] 4.2 修改 `frontend/src/stores/adminStore.ts`，适配后端实际响应和路径
     - 修正缓存清除路径：`/admin/v1/cache/clear` → `/admin/v1/config/cache/clear`
     - 修正沙盒路径：`/admin/v1/sandbox/run` → `/admin/v1/metrics/sandbox/run`
     - 处理配置接口 `{updated: true}` 响应（非 HTTP 204）
