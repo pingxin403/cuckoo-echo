@@ -527,7 +527,7 @@
     - 传递 onLoadMore 回调用于分页加载
     - _需求: 1.9, 3.4, 3.5_
 
-  - [~] 21.2 ChatInput 集成 MediaUploader
+  - [x] 21.2 ChatInput 集成 MediaUploader
     - 在 ChatInput 中 import MediaUploader
     - 点击图片/语音按钮时展开 MediaUploader 面板
     - MediaUploader 上传完成后将 MediaAttachment 传递给 sendMessage

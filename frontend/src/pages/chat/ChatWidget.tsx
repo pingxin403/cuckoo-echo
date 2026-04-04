@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import type { ChatWidgetProps, ConnectionStatus } from '@/types';
+import type { ChatWidgetProps, ConnectionStatus, MediaAttachment } from '@/types';
 import { useSSE } from '@/hooks/useSSE';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useSessionStore } from '@/stores/sessionStore';
@@ -39,8 +39,8 @@ export default function ChatWidget({
   const setConnectionStatus = useChatStore((s) => s.setConnectionStatus);
 
   const handleSend = useCallback(
-    (content: string) => {
-      sendMessage(content);
+    (content: string, media?: MediaAttachment[]) => {
+      sendMessage(content, media);
     },
     [sendMessage],
   );

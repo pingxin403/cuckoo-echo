@@ -6,11 +6,13 @@ import {
   type KeyboardEvent,
   type ChangeEvent,
 } from 'react';
+import type { MediaAttachment } from '@/types';
+import MediaUploader from '@/pages/chat/MediaUploader';
 
 // ── Props ──────────────────────────────────────────────────────
 
 export interface ChatInputProps {
-  onSend: (content: string) => void;
+  onSend: (content: string, media?: MediaAttachment[]) => void;
   disabled?: boolean;
 }
 
@@ -24,8 +26,15 @@ const PADDING_PX = 16; // py-2 = 8px * 2
 
 export default function ChatInput({ onSend, disabled = false }: ChatInputProps) {
   const [text, setText] = useState('');
+  const [showUploader, setShowUploader] = useState(false);
+  const [pendingMedia, setPendingMedia] = useState<MediaAttachment[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMediaUpload = useCallback((attachment: MediaAttachment) => {
+    setPendingMedia((prev) => [...prev, attachment]);
+    setShowUploader(false);
+  }, []);
 
   // ── Auto-resize textarea (up to MAX_ROWS lines) ──
   const resizeTextarea = useCallback(() => {
@@ -51,9 +60,10 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
         e.preventDefault();
         if (disabled) return;
         const trimmed = text.trim();
-        if (!trimmed) return;
-        onSend(trimmed);
+        if (!trimmed && pendingMedia.length === 0) return;
+        onSend(trimmed, pendingMedia.length > 0 ? pendingMedia : undefined);
         setText('');
+        setPendingMedia([]);
         // Reset height after clearing
         requestAnimationFrame(() => {
           if (textareaRef.current) {
@@ -68,9 +78,10 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
   const handleSendClick = useCallback(() => {
     if (disabled) return;
     const trimmed = text.trim();
-    if (!trimmed) return;
-    onSend(trimmed);
+    if (!trimmed && pendingMedia.length === 0) return;
+    onSend(trimmed, pendingMedia.length > 0 ? pendingMedia : undefined);
     setText('');
+    setPendingMedia([]);
     requestAnimationFrame(() => {
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
@@ -100,7 +111,7 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
     };
   }, []);
 
-  const canSend = text.trim().length > 0 && !disabled;
+  const canSend = (text.trim().length > 0 || pendingMedia.length > 0) && !disabled;
 
   return (
     <div
@@ -116,13 +127,16 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
       )}
 
       <div className="flex items-end gap-2">
-        {/* Media upload placeholders */}
+        {/* Media upload toggle */}
         <button
           type="button"
-          className="flex-shrink-0 rounded p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-40"
+          onClick={() => setShowUploader((v) => !v)}
+          className={`flex-shrink-0 rounded p-1.5 transition-colors disabled:opacity-40 ${
+            showUploader ? 'text-[var(--ce-primary-color,#4f46e5)]' : 'text-gray-400 hover:text-gray-600'
+          }`}
           disabled={disabled}
           aria-label="上传图片"
-          title="上传图片"
+          title="上传图片/语音"
         >
           {/* Image icon (SVG) */}
           <svg
@@ -136,25 +150,6 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
               d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 9.5c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.3l-2.72-2.72a.75.75 0 0 0-1.06 0L9.5 13.19l-2.22-2.22a.75.75 0 0 0-1.06 0L2.5 14.69v.06ZM12 8.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"
               clipRule="evenodd"
             />
-          </svg>
-        </button>
-
-        <button
-          type="button"
-          className="flex-shrink-0 rounded p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-40"
-          disabled={disabled}
-          aria-label="语音输入"
-          title="语音输入"
-        >
-          {/* Microphone icon (SVG) */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="h-5 w-5"
-          >
-            <path d="M7 4a3 3 0 0 1 6 0v6a3 3 0 1 1-6 0V4Z" />
-            <path d="M5.5 9.643a.75.75 0 0 0-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-1.5v-1.546A6.001 6.001 0 0 0 16 10v-.357a.75.75 0 0 0-1.5 0V10a4.5 4.5 0 0 1-9 0v-.357Z" />
           </svg>
         </button>
 
@@ -191,6 +186,36 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
           </svg>
         </button>
       </div>
+
+      {/* Pending media preview */}
+      {pendingMedia.length > 0 && (
+        <div className="mt-2 flex gap-2">
+          {pendingMedia.map((m, i) => (
+            <div key={i} className="relative">
+              {m.type === 'image' ? (
+                <img src={m.thumbnailUrl ?? m.url} alt="待发送图片" className="h-12 w-12 rounded object-cover" />
+              ) : (
+                <span className="inline-block rounded bg-gray-100 px-2 py-1 text-xs text-gray-600">🎤 语音</span>
+              )}
+              <button
+                type="button"
+                onClick={() => setPendingMedia((prev) => prev.filter((_, j) => j !== i))}
+                className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-red-500 text-[10px] leading-4 text-white"
+                aria-label="移除附件"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* MediaUploader panel */}
+      {showUploader && (
+        <div className="mt-2">
+          <MediaUploader onUploadComplete={handleMediaUpload} disabled={disabled} />
+        </div>
+      )}
     </div>
   );
 }
