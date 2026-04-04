@@ -31,25 +31,29 @@ async def lifespan(app: FastAPI):
     settings = get_settings()
     conn_string = settings.database_url
 
-    # Initialize checkpointer
-    checkpointer = AsyncPostgresSaver.from_conn_string(conn_string)
-    await checkpointer.setup()
-    log.info("checkpointer_initialized")
+    # Initialize checkpointer (v3 API: from_conn_string is an async context manager)
+    async with AsyncPostgresSaver.from_conn_string(conn_string) as checkpointer:
+        await checkpointer.setup()
+        log.info("checkpointer_initialized")
 
-    # Initialize store (optional)
-    store = None
-    if HAS_STORE:
-        store = AsyncPostgresStore.from_conn_string(conn_string)
-        await store.setup()
-        log.info("store_initialized")
+        # Initialize store (optional)
+        store = None
+        if HAS_STORE:
+            try:
+                async with AsyncPostgresStore.from_conn_string(conn_string) as _store:
+                    await _store.setup()
+                    store = _store
+                    log.info("store_initialized")
+            except Exception as e:
+                log.warning("store_init_failed", error=str(e))
 
-    # Build and compile graph
-    agent = build_agent_graph(checkpointer=checkpointer)
-    app.state.agent = agent
-    app.state.checkpointer = checkpointer
-    app.state.store = store
+        # Build and compile graph
+        agent = build_agent_graph(checkpointer=checkpointer)
+        app.state.agent = agent
+        app.state.checkpointer = checkpointer
+        app.state.store = store
 
-    log.info("agent_graph_compiled")
-    yield
+        log.info("agent_graph_compiled")
+        yield
 
     log.info("shutting_down_agent")
