@@ -72,11 +72,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
 
   async login(email: string, password: string) {
-    const res = await apiClient.post<{ access_token: string }>(
+    const res = await apiClient.post<{ accessToken: string; access_token?: string }>(
       '/admin/v1/auth/login',
       { email, password },
     );
-    const token = res.data.access_token;
+    // After Axios interceptor camelCase conversion, field is accessToken
+    // Fallback to access_token for MSW compatibility
+    const token = res.data.accessToken ?? res.data.access_token ?? '';
     const payload = decodeJwtPayload(token);
     set({
       accessToken: token,
@@ -87,8 +89,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout() {
     set({ accessToken: null, user: null, isAuthenticated: false });
-    // Fire-and-forget: tell backend to clear the refresh cookie
-    apiClient.post('/admin/v1/auth/logout').catch(() => {});
+    // Fire-and-forget: use raw axios to avoid interceptor 401 loop
+    import('axios').then(({ default: rawAxios }) => {
+      rawAxios.post('/admin/v1/auth/logout', null, { withCredentials: true }).catch(() => {});
+    });
     window.location.href = '/login';
   },
 
