@@ -554,7 +554,7 @@
     - 使用 `analytics.track(event, params)` 接口
     - _需求: 13.1_
 
-  - [~] 22.2 安装配置 Husky + lint-staged
+  - [x] 22.2 安装配置 Husky + lint-staged
     - `pnpm add -D husky lint-staged`
     - `pnpm exec husky init`
     - 配置 `.husky/pre-commit` 运行 lint-staged
