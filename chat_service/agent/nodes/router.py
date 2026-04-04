@@ -43,6 +43,15 @@ NEGATIVE_KEYWORDS = [
     "complaint", "terrible", "awful", "angry", "furious", "disgusting",
     "scam", "fraud", "worst", "horrible", "unacceptable",
 ]
+
+# Explicit human transfer request keywords
+HUMAN_TRANSFER_KEYWORDS = [
+    "转人工", "人工客服", "人工服务", "找人工", "真人客服", "真人服务",
+    "human agent", "talk to human", "real person", "speak to agent",
+]
+HUMAN_TRANSFER_PATTERN = re.compile(
+    "|".join(re.escape(kw) for kw in HUMAN_TRANSFER_KEYWORDS), re.IGNORECASE
+)
 NEGATIVE_PATTERN = re.compile(
     "|".join(re.escape(kw) for kw in NEGATIVE_KEYWORDS), re.IGNORECASE
 )
@@ -121,6 +130,11 @@ async def router_node(state: AgentState) -> AgentState:
         if any(p.search(text) for p in patterns):
             log.info("router_rule_hit", tool=tool_name)
             return {**state, "user_intent": f"tool:{tool_name}"}
+
+    # 1.5. Explicit human transfer request
+    if HUMAN_TRANSFER_PATTERN.search(text):
+        log.info("router_hitl_triggered", reason="explicit_request")
+        return {**state, "user_intent": "hitl", "hitl_requested": True}
 
     # 2. Sentiment / HITL check
     if detect_negative_sentiment(state):
