@@ -108,9 +108,16 @@ def _wire_dependencies(app: FastAPI):
     # Milvus collection
     try:
         from shared.milvus_client import get_milvus_client, COLLECTION_NAME
-        from pymilvus import Collection
         client = get_milvus_client()
-        rag_mod.collection = Collection(COLLECTION_NAME)
+        # Verify collection exists
+        if client.has_collection(COLLECTION_NAME):
+            rag_mod.collection = client  # Pass MilvusClient directly
+            log.info("milvus_collection_ready", collection=COLLECTION_NAME)
+        else:
+            log.warning("milvus_collection_not_found", collection=COLLECTION_NAME,
+                        hint="Run 'python -m scripts.init_milvus' to create the collection")
+            rag_mod.collection = None
+            rag_ready = False
     except Exception as e:
         log.warning("milvus_collection_init_failed", error=str(e),
                     hint="Milvus unavailable — RAG disabled, chat-only mode active")

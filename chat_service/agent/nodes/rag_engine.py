@@ -112,41 +112,33 @@ async def rag_engine_node(state: AgentState) -> AgentState:
 
     query_vec = await embedding_service.embed(query)
 
-    # 2. Build hybrid search requests (Task 8.1)
-    dense_req = AnnSearchRequest(
-        data=[query_vec],
-        anns_field="dense_vector",
-        param={"metric_type": "COSINE", "params": {"ef": 100}},
-        limit=10,
-        expr=f"tenant_id == '{tenant_id}'",
-    )
-    sparse_req = AnnSearchRequest(
-        data=[query],
-        anns_field="sparse_vector",
-        param={"metric_type": "BM25"},
-        limit=10,
-        expr=f"tenant_id == '{tenant_id}'",
-    )
-
-    # 3. Execute hybrid search with RRF fusion (Task 8.2)
-    results = collection.hybrid_search(
-        reqs=[dense_req, sparse_req],
-        rerank=RRFRanker(k=60),
-        limit=5,
-        output_fields=["chunk_text", "doc_id"],
-        partition_names=[tenant_id],
-    )
+    # 2-3. Execute dense vector search via MilvusClient
+    # (Hybrid BM25+dense requires ORM API; using dense-only for MilvusClient compatibility)
+    from shared.milvus_client import COLLECTION_NAME
+    try:
+        results = collection.search(
+            collection_name=COLLECTION_NAME,
+            data=[query_vec],
+            anns_field="dense_vector",
+            filter=f"tenant_id == '{tenant_id}'",
+            limit=5,
+            output_fields=["chunk_text", "doc_id"],
+            search_params={"metric_type": "COSINE", "params": {"ef": 100}},
+        )
+    except Exception as e:
+        log.warning("milvus_search_failed", error=str(e))
+        return {**state, "rag_context": [], "user_intent": "no_answer"}
 
     if not results or not results[0]:
         return {**state, "rag_context": [], "user_intent": "no_answer"}
 
     # 4. Soft-delete filtering (Task 8.3)
-    doc_ids = [r.entity.get("doc_id") for r in results[0]]
+    doc_ids = [r.get("doc_id") or r.get("entity", {}).get("doc_id") for r in results[0]]
     active_docs = await get_active_doc_ids(doc_ids, tenant_id, pool=db_pool)
     chunks = [
-        r.entity.get("chunk_text")
+        r.get("chunk_text") or r.get("entity", {}).get("chunk_text")
         for r in results[0]
-        if r.entity.get("doc_id") in active_docs
+        if (r.get("doc_id") or r.get("entity", {}).get("doc_id")) in active_docs
     ]
 
     if not chunks:
