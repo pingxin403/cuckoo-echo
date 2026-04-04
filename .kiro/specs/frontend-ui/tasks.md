@@ -516,6 +516,62 @@
 - [x] 20. 最终检查点 — 全量验证
   - 确保 `pnpm build` 成功，所有单元测试、属性测试（P1-P8）、E2E 测试通过。Docker 构建成功。如有问题请向用户确认。
 
+---
+
+## 修复阶段（代码审查后发现的集成缺口）
+
+- [ ] 21. 组件集成修复（P0 — 阻塞可用性）
+  - [x] 21.1 ChatWidget 集成真正的 MessageList
+    - 替换 `ChatWidget.tsx` 中 `<div>消息列表（待实现）</div>` 占位符为真正的 `<MessageList />` 组件
+    - import MessageList from `@/pages/chat/MessageList`
+    - 传递 onLoadMore 回调用于分页加载
+    - _需求: 1.9, 3.4, 3.5_
+
+  - [~] 21.2 ChatInput 集成 MediaUploader
+    - 在 ChatInput 中 import MediaUploader
+    - 点击图片/语音按钮时展开 MediaUploader 面板
+    - MediaUploader 上传完成后将 MediaAttachment 传递给 sendMessage
+    - _需求: 2.1, 2.2, 2.3_
+
+  - [~] 21.3 集成 WaveformIndicator 到 ChatWidget
+    - 在 ChatWidget 中监听 ASR 阶段状态
+    - 展示 WaveformIndicator 组件（"语音识别中…"）
+    - _需求: 2.4, 补充-语音波形指示器_
+
+  - [~] 21.4 实现 SSE 重连消息补偿
+    - 在 useSSE hook 或 ChatWidget 中，SSE 重连成功后调用 `chatStore.loadThread()` 拉取最新消息
+    - 调用 `chatStore.reconcileMessages()` 合并本地与服务端消息
+    - 移除 ChatWidget.tsx 中的 TODO 注释
+    - _需求: 1.6_
+
+- [ ] 22. 埋点与基础设施补全（P1）
+  - [~] 22.1 在各页面组件中集成埋点事件
+    - ChatWidget: `message_sent`, `message_received`, `file_upload`
+    - HITLPanel: `hitl_requested`
+    - ConfigPanel: `config_changed`
+    - SandboxRunner: `sandbox_run`
+    - Axios interceptor: `error_occurred`
+    - 使用 `analytics.track(event, params)` 接口
+    - _需求: 13.1_
+
+  - [~] 22.2 安装配置 Husky + lint-staged
+    - `pnpm add -D husky lint-staged`
+    - `pnpm exec husky init`
+    - 配置 `.husky/pre-commit` 运行 lint-staged
+    - 在 package.json 中添加 lint-staged 配置
+    - _需求: 技术栈-代码规范_
+
+  - [~] 22.3 修复 Vitest exclude 配置
+    - 在 `vite.config.ts` 的 test 配置中添加 `exclude: ['e2e/**', 'node_modules/**']`
+    - 确保 `pnpm test` 不再扫描 e2e/*.spec.ts 文件
+    - 验证 136 个 Vitest 测试全部通过，0 个失败
+
+- [ ] 23. 检查点 — 集成修复验证
+  - 确保 ChatWidget 中 MessageList 正常渲染消息
+  - 确保 ChatInput 中 MediaUploader 可打开并上传
+  - 确保 `pnpm test` 全部通过（0 failures）
+  - 确保 `pnpm build` 成功
+
 ## 备注
 
 - 标记 `*` 的子任务为可选测试任务，可跳过以加速 MVP 交付

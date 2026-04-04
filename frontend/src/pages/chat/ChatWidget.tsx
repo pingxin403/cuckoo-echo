@@ -5,6 +5,7 @@ import { useWebSocket } from '@/hooks/useWebSocket';
 import { useSessionStore } from '@/stores/sessionStore';
 import { useChatStore } from '@/stores/chatStore';
 import ChatInput from '@/pages/chat/ChatInput';
+import MessageList from '@/pages/chat/MessageList';
 import ThreadList from '@/pages/chat/ThreadList';
 import HITLStatus from '@/pages/chat/HITLStatus';
 
@@ -201,14 +202,8 @@ export default function ChatWidget({
           {/* HITL status banner */}
           <HITLStatus />
 
-          {/* MessageList — placeholder */}
-          <div
-            className="ce-message-list"
-            style={{ flex: 1, overflowY: 'auto', padding: 16 }}
-            aria-label="消息列表"
-          >
-            <div style={{ color: '#9ca3af', fontSize: 13 }}>消息列表（待实现）</div>
-          </div>
+          {/* MessageList */}
+          <MessageList />
 
           {/* ChatInput */}
           <ChatInput onSend={handleSend} disabled={isStreaming} />
