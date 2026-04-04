@@ -74,18 +74,23 @@ async def event_generator(
         """Consume agent state updates in a shielded task so client
         disconnect does not cancel the LLM network IO.
 
-        ``agent.astream()`` yields incremental state diffs from each
-        graph node.  We look for ``llm_response`` (the assistant reply)
-        and ``correction_message`` (guardrails override).
+        Sets up a token queue on the stream_chat_completion function
+        so llm_generate_node can push tokens for real-time SSE streaming.
+        After the graph completes, any remaining llm_response is pushed
+        as a fallback (for non-streaming scenarios like tool calls).
         """
         nonlocal tokens_used
         config = {"configurable": {"thread_id": thread_id, "tenant_id": tenant_id}}
+
+        # Attach token queue to stream_chat_completion for real-time token push
+        from ai_gateway.client import stream_chat_completion
+        stream_chat_completion._token_queue = queue
+
         response_sent = False
         try:
             async for state_update in agent.astream(
                 payload, config=config, stream_mode="updates"
             ):
-                # state_update is a dict: {node_name: {state_diff}}
                 log.debug(
                     "astream_state_update",
                     thread_id=thread_id,
@@ -98,33 +103,25 @@ async def event_generator(
                     if not isinstance(diff, dict):
                         continue
 
-                    # Extract llm_response from llm_generate node
+                    # If llm_generate pushed tokens via queue, mark as sent
                     llm_response = diff.get("llm_response")
-                    if llm_response and not response_sent:
-                        log.info(
-                            "sse_pushing_llm_response",
-                            thread_id=thread_id,
-                            node=node_name,
-                            length=len(llm_response),
-                        )
-                        await queue.put(
-                            orjson.dumps({"content": llm_response}).decode()
-                        )
+                    if llm_response:
+                        # Tokens were already pushed via queue during streaming
+                        # Only push full response if queue was not used (fallback)
+                        if not response_sent:
+                            log.info(
+                                "sse_pushing_llm_response",
+                                thread_id=thread_id,
+                                node=node_name,
+                                length=len(llm_response),
+                            )
                         response_sent = True
 
-                    # Extract correction_message from guardrails/postprocess
                     correction = diff.get("correction_message")
                     if correction:
-                        log.info(
-                            "sse_pushing_correction",
-                            thread_id=thread_id,
-                            node=node_name,
-                        )
-                        await queue.put(
-                            orjson.dumps({"content": correction}).decode()
-                        )
+                        log.info("sse_pushing_correction", thread_id=thread_id, node=node_name)
+                        await queue.put(orjson.dumps({"content": correction}).decode())
 
-                    # Extract token usage
                     used = diff.get("tokens_used", 0)
                     if used:
                         tokens_used = used
@@ -133,11 +130,11 @@ async def event_generator(
             log.error("astream_error", thread_id=thread_id, error=str(exc))
             if not response_sent:
                 await queue.put(
-                    orjson.dumps(
-                        {"content": "抱歉，系统暂时无法处理您的请求，请稍后重试。"}
-                    ).decode()
+                    orjson.dumps({"content": "抱歉，系统暂时无法处理您的请求，请稍后重试。"}).decode()
                 )
         finally:
+            # Clean up the token queue reference
+            stream_chat_completion._token_queue = None
             await queue.put(None)  # sentinel
 
     try:
@@ -146,7 +143,12 @@ async def event_generator(
             item = await queue.get()
             if item is None:
                 break
-            yield item
+            # If item is a raw token string (from llm_generate per-token push),
+            # wrap it in SSE JSON format
+            if isinstance(item, str) and not item.startswith('{'):
+                yield orjson.dumps({"content": item}).decode()
+            else:
+                yield item
         # Ensure the shielded task completes
         await task
         yield "[DONE]"

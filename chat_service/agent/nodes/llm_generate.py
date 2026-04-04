@@ -54,29 +54,36 @@ async def llm_generate_node(state: AgentState) -> AgentState:
 
     # Call LLM
     try:
+        # Get the token streaming queue from config (if available)
+        # This allows the event_generator to push tokens to SSE in real-time
+        token_queue = None
+        if hasattr(stream_chat_completion, '_token_queue'):
+            token_queue = stream_chat_completion._token_queue
+
         response_stream = await stream_chat_completion(
             messages=llm_messages,
             tenant_llm_config=tenant_config,
             thread_id=state.get("thread_id"),
         )
-        # Collect full response
+        # Collect full response while also pushing tokens to queue
         full_response = ""
         tokens_used = 0
         async for chunk in response_stream:
             if hasattr(chunk, "choices") and chunk.choices:
                 delta = chunk.choices[0].delta
                 if delta:
-                    # Primary: normal content field
                     content = getattr(delta, "content", None) or ""
-                    # Fallback: qwen3 thinking mode puts tokens in
-                    # additional_kwargs.reasoning_content when thinking
-                    # is enabled.  We capture it as a safety net even
-                    # though ai_gateway now disables thinking mode.
                     if not content:
                         extra = getattr(delta, "additional_kwargs", None) or {}
                         content = extra.get("reasoning_content", "")
                     if content:
                         full_response += content
+                        # Push token to SSE queue for real-time streaming
+                        if token_queue:
+                            try:
+                                token_queue.put_nowait(content)
+                            except Exception:
+                                pass
             if hasattr(chunk, "usage") and chunk.usage:
                 tokens_used = getattr(chunk.usage, "total_tokens", 0)
 
