@@ -191,6 +191,25 @@
 
 - [ ] 10. 最终检查点 — 全部测试通过
   - 确保所有测试通过，ask the user if questions arise.
+  - **验证命令**：
+    - 单元测试 + PBT：`pnpm test`
+    - 构建验证：`pnpm build`
+    - E2E 集成测试：`pnpm exec playwright test --config playwright.integration.config.ts`
+
+- [ ] 11. 联调验证 Checklist
+  - [ ] 11.1 验证 C 端 API Key 鉴权：使用 Seed 中的 API Key 发送消息
+  - [ ] 11.2 验证 SSE 流式：观察逐字输出效果，确认 Token 实时推送
+  - [ ] 11.3 验证 WebSocket HITL：触发人工介入，Admin 端接管会话
+  - [ ] 11.4 验证文件上传：上传图片/文档，观察处理状态轮询
+  - [ ] 11.5 验证 Admin 登录：JWT 签发、Token 刷新、过期重定向
+  - [ ] 11.6 验证指标接口：数据看板展示正确（字段映射 + 计算字段）
+  - [ ] 11.7 验证错误处理：后端不可用时前端展示"后端服务不可用"提示
+
+- [ ] 12. 故障排查指南
+  - [ ] 12.1 SSE 无输出：检查 Nginx `proxy_buffering off` 和 `X-Accel-Buffering: no`
+  - [ ] 12.2 WS 连接失败：检查 Vite proxy `ws: true` 和 Nginx `Upgrade` 头
+  - [ ] 12.3 字段映射错误：在 `transformResponse` 中添加 `console.debug` 日志，对比后端原始响应与转换结果
+  - [ ] 12.4 认证失败：检查 JWT payload 字段名（`admin_user_id` vs `sub`）和 Token 过期时间
 
 ## 备注
 
