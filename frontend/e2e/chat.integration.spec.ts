@@ -11,9 +11,9 @@ test.describe('Chat flow (integration)', () => {
     await page.goto(`/chat?api_key=${API_KEY}`);
 
     // Type and send a message
-    const input = page.locator('textarea[aria-label="消息输入"]');
+    const input = page.locator('textarea[aria-label="消息输入框"]');
     await input.fill('Hello, can you help me?');
-    await page.click('button[aria-label="发送"]');
+    await page.click('button[aria-label="发送消息"]');
 
     // Optimistic user message should appear
     await expect(page.locator('text=Hello, can you help me?')).toBeVisible({
@@ -29,12 +29,12 @@ test.describe('Chat flow (integration)', () => {
   test('SSE stream completes and message is finalized', async ({ page }) => {
     await page.goto(`/chat?api_key=${API_KEY}`);
 
-    const input = page.locator('textarea[aria-label="消息输入"]');
+    const input = page.locator('textarea[aria-label="消息输入框"]');
     await input.fill('What is 2+2?');
-    await page.click('button[aria-label="发送"]');
+    await page.click('button[aria-label="发送消息"]');
 
     // Wait for streaming to complete — the send button should become enabled again
-    await expect(page.locator('button[aria-label="发送"]')).toBeEnabled({
+    await expect(page.locator('button[aria-label="发送消息"]')).toBeEnabled({
       timeout: 30_000,
     });
 
@@ -47,7 +47,7 @@ test.describe('Chat flow (integration)', () => {
     await page.goto(`/chat?api_key=${API_KEY}`);
 
     // Chat input should be visible and ready
-    await expect(page.locator('textarea[aria-label="消息输入"]')).toBeVisible({
+    await expect(page.locator('textarea[aria-label="消息输入框"]')).toBeVisible({
       timeout: 10_000,
     });
   });
