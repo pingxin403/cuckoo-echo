@@ -4,16 +4,20 @@ import { BrowserRouter } from 'react-router-dom';
 import { server } from '@/mocks/server';
 import { useMetricsStore } from '@/stores/adminStore';
 
-// Mock recharts to avoid jsdom measurement issues
-vi.mock('recharts', () => {
-  const Original = vi.importActual('recharts');
-  return {
-    ...Original,
-    ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
-      <div data-testid="responsive-container">{children}</div>
-    ),
-  };
-});
+// Mock recharts — return simple divs to avoid jsdom measurement issues
+vi.mock('recharts', () => ({
+  LineChart: ({ children }: { children: React.ReactNode }) => <div data-testid="line-chart">{children}</div>,
+  BarChart: ({ children }: { children: React.ReactNode }) => <div data-testid="bar-chart">{children}</div>,
+  Line: () => <div data-testid="line" />,
+  Bar: () => <div data-testid="bar" />,
+  XAxis: () => <div data-testid="x-axis" />,
+  YAxis: () => <div data-testid="y-axis" />,
+  CartesianGrid: () => <div data-testid="cartesian-grid" />,
+  Tooltip: () => <div data-testid="tooltip" />,
+  ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="responsive-container">{children}</div>
+  ),
+}));
 
 // Lazy import after mock is set up
 const { default: MetricsDashboard } = await import('@/pages/admin/MetricsDashboard');

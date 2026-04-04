@@ -376,7 +376,7 @@
     - 测试用例集保存到 localStorage（最多 10 个），按名称加载历史用例集
     - _需求: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 补充-沙盒对比视图_
 
-  - [~]* 13.6 编写 Admin_Dashboard 页面测试
+  - [x]* 13.6 编写 Admin_Dashboard 页面测试
     - 测试 MetricsDashboard：指标卡片渲染、时间范围切换、图表渲染
     - 测试 KnowledgeManager：上传流程、列表渲染、删除确认、搜索筛选
     - 测试 HITLPanel：WebSocket 消息接收、接管/结束操作
