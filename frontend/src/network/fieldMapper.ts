@@ -87,7 +87,19 @@ const STRUCTURE_ADAPTERS: Record<string, (data: unknown) => unknown> = {
   },
   '/admin/v1/metrics/missed-queries': (data) => {
     const d = data as Record<string, unknown>;
-    return (d.missed_queries ?? d.missedQueries ?? data) as unknown;
+    const items = (d.missedQueries ?? d.missed_queries ?? data) as unknown[];
+    // If it's an array, rename queryPrefix → query in each item
+    if (Array.isArray(items)) {
+      return items.map((item) => {
+        const obj = item as Record<string, unknown>;
+        if ('queryPrefix' in obj && !('query' in obj)) {
+          const { queryPrefix, ...rest } = obj;
+          return { query: queryPrefix, ...rest };
+        }
+        return obj;
+      });
+    }
+    return items;
   },
   '/admin/v1/knowledge/docs/*': (data) => {
     const d = data as Record<string, unknown>;

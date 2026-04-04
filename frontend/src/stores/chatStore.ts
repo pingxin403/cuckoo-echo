@@ -85,7 +85,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
 
     // Fetch from server and persist to cache
-    const res = await apiClient.get<{ messages: Message[] | LangGraphMessage[]; thread_id?: string }>(
+    const res = await apiClient.get<{ messages: Message[] | LangGraphMessage[]; threadId?: string }>(
       `/v1/threads/${threadId}`,
     );
     // Handle both frontend Message[] and backend LangGraph message formats
