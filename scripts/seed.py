@@ -33,8 +33,8 @@ ADMIN_PASSWORD_HASH = bcrypt.hashpw(ADMIN_PASSWORD.encode(), bcrypt.gensalt()).d
 DEFAULT_LLM_CONFIG = {
     "system_prompt": "You are a helpful customer service assistant for integration testing.",
     "persona_name": "Test Bot",
-    "model": "gpt-4o-mini",
-    "fallback_model": "gpt-3.5-turbo",
+    "model": os.environ.get("LLM_PRIMARY_MODEL", "ollama/qwen3:8b"),
+    "fallback_model": os.environ.get("LLM_FALLBACK_MODEL", "ollama/qwen3:8b"),
     "temperature": 0.7,
 }
 
