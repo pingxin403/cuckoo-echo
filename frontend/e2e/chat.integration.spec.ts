@@ -21,7 +21,7 @@ test.describe('Chat flow (integration)', () => {
     });
 
     // Should show "AI 正在思考" or an assistant response
-    const thinking = page.locator('text=AI 正在思考');
+    const thinking = page.locator('text=AI 正在思考').first();
     const assistantBubble = page.locator('[data-testid="message-bubble"]').nth(1);
     await expect(thinking.or(assistantBubble)).toBeVisible({ timeout: 15_000 });
   });
