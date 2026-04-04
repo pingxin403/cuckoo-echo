@@ -174,7 +174,9 @@ export interface SSEClientOptions {
 
 export interface WSClientOptions {
   url: string;
+  queryParams?: Record<string, string>;
   onMessage: (data: WSMessage) => void;
+  onOpen?: () => void;
   onClose: () => void;
   onError: (error: Event) => void;
 }

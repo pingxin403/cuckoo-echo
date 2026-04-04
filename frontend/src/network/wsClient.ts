@@ -2,6 +2,10 @@ import type { WSClientOptions, WSMessage } from '@/types';
 
 const HEARTBEAT_INTERVAL_MS = 30_000;
 
+// ─── WS Close Code Handling ─────────────────────────────────────
+
+const WS_NO_RECONNECT_CODES = new Set([1000, 4001]);
+
 export class WSClient {
   private ws: WebSocket | null = null;
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
@@ -13,11 +17,22 @@ export class WSClient {
   connect(options: WSClientOptions): void {
     this.intentionalClose = false;
 
-    this.ws = new WebSocket(options.url);
+    // Build URL with queryParams
+    let wsUrl = options.url;
+    if (options.queryParams && Object.keys(options.queryParams).length > 0) {
+      const url = new URL(options.url);
+      for (const [key, value] of Object.entries(options.queryParams)) {
+        url.searchParams.set(key, value);
+      }
+      wsUrl = url.toString();
+    }
+
+    this.ws = new WebSocket(wsUrl);
 
     this.ws.onopen = () => {
       this.reconnectDelay = 1000;
       this.startHeartbeat();
+      options.onOpen?.();
     };
 
     this.ws.onmessage = (event: MessageEvent) => {
@@ -29,10 +44,11 @@ export class WSClient {
       }
     };
 
-    this.ws.onclose = () => {
+    this.ws.onclose = (event: CloseEvent) => {
       this.stopHeartbeat();
       options.onClose();
-      if (!this.intentionalClose) {
+      // Don't reconnect for intentional close or specific close codes
+      if (!this.intentionalClose && !WS_NO_RECONNECT_CODES.has(event.code)) {
         this.scheduleReconnect(options);
       }
     };

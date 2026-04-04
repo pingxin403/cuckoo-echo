@@ -45,7 +45,7 @@
     - 使用 fast-check 生成随机 Token 序列（含中文/英文/特殊字符），随机选择后端/OpenAI 格式编码，验证解析拼接结果一致
     - **验证: 需求 4.2**
 
-  - [~] 2.3 修改 `frontend/src/network/wsClient.ts`，增加 queryParams 和 onOpen 支持
+  - [x] 2.3 修改 `frontend/src/network/wsClient.ts`，增加 queryParams 和 onOpen 支持
     - 在 `WSClientOptions` 接口中新增 `queryParams?: Record<string, string>` 和 `onOpen?: () => void`
     - `connect` 方法中使用 `URL` + `searchParams.set` 拼接查询参数
     - `ws.onopen` 中调用 `options.onOpen?.()` 回调
