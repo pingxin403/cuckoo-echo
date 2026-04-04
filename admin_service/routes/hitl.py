@@ -109,6 +109,41 @@ async def notify_hitl_request(
 
 
 # ---------------------------------------------------------------------------
+# GET /admin/v1/hitl/sessions — list HITL sessions for tenant
+# ---------------------------------------------------------------------------
+
+@router.get("/hitl/sessions")
+async def list_sessions(request: Request):
+    """List HITL sessions for the authenticated tenant."""
+    db_pool = request.app.state.db_pool
+    tenant_id = request.state.tenant_id
+
+    async with db_pool.acquire() as conn:
+        async with tenant_db_context(conn, tenant_id):
+            rows = await conn.fetch(
+                """SELECT id AS session_id, thread_id, status, admin_user_id,
+                          created_at, ended_at
+                   FROM hitl_sessions
+                   WHERE tenant_id = $1
+                   ORDER BY created_at DESC
+                   LIMIT 50""",
+                tenant_id,
+            )
+
+    return [
+        {
+            "session_id": str(row["session_id"]),
+            "thread_id": str(row["thread_id"]),
+            "status": row["status"],
+            "admin_user_id": str(row["admin_user_id"]) if row["admin_user_id"] else None,
+            "created_at": row["created_at"].isoformat() if row["created_at"] else None,
+            "ended_at": row["ended_at"].isoformat() if row["ended_at"] else None,
+        }
+        for row in rows
+    ]
+
+
+# ---------------------------------------------------------------------------
 # POST /admin/v1/hitl/{session_id}/take
 # ---------------------------------------------------------------------------
 
@@ -183,6 +218,52 @@ async def end_session(session_id: str, request: Request):
 
     log.info("hitl_session_ended", session_id=session_id)
     return {"session_id": session_id, "thread_id": thread_id, "status": "resolved"}
+
+
+# ---------------------------------------------------------------------------
+# POST /admin/v1/hitl/{session_id}/message — admin sends message in HITL
+# ---------------------------------------------------------------------------
+
+@router.post("/hitl/{session_id}/message")
+async def send_hitl_message(session_id: str, request: Request):
+    """Admin sends a message in an active HITL session."""
+    db_pool = request.app.state.db_pool
+    tenant_id = request.state.tenant_id
+    body = await request.json()
+    content = body.get("content", "").strip()
+
+    if not content:
+        raise HTTPException(status_code=400, detail="Message content is required")
+
+    async with db_pool.acquire() as conn:
+        async with tenant_db_context(conn, tenant_id):
+            row = await conn.fetchrow(
+                "SELECT thread_id, status FROM hitl_sessions WHERE id = $1",
+                session_id,
+            )
+            if not row:
+                raise HTTPException(status_code=404, detail="Session not found")
+            if row["status"] != "active":
+                raise HTTPException(status_code=409, detail=f"Session is {row['status']}, not active")
+
+            thread_id = row["thread_id"]
+            message_id = str(uuid4())
+            now = datetime.now(timezone.utc)
+
+            await conn.execute(
+                """INSERT INTO messages (id, thread_id, role, content, created_at)
+                   VALUES ($1, $2, 'admin', $3, $4)""",
+                message_id, thread_id, content, now,
+            )
+
+    log.info("hitl_message_sent", session_id=session_id, message_id=message_id)
+    return {
+        "id": message_id,
+        "thread_id": thread_id,
+        "role": "admin",
+        "content": content,
+        "created_at": now.isoformat(),
+    }
 
 
 # ---------------------------------------------------------------------------
