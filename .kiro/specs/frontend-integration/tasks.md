@@ -398,28 +398,28 @@
     - 补充 nginx → chat-service 直连路由变更（`/v1/chat/*` 和 `/v1/threads/*`）
     - 补充 ChatTenantAuthMiddleware 在 chat-service 中的位置
 
-- [ ] 27. 测试补全
-  - [-] 27.1 运行后端单元测试并修复失败项
+- [x] 27. 测试补全
+  - [x] 27.1 运行后端单元测试并修复失败项
     - `make test` — 运行 `tests/unit/`
     - 修复因本 spec 代码变更导致的测试失败（如 rag_engine 接口变更）
-  - [~] 27.2 运行后端 PBT 测试
+  - [x] 27.2 运行后端 PBT 测试
     - `make test-pbt` — 运行 `tests/pbt/`
     - 修复因 embedding_service 构造函数变更导致的测试失败
-  - [~] 27.3 Tenant B seed 并验证隔离 E2E
+  - [x] 27.3 Tenant B seed 并验证隔离 E2E
     - 重新运行 seed 脚本创建 tenant B
     - 运行 `isolation.integration.spec.ts` 验证 tenant B API key 返回 200
-  - [~]* 27.4 Ragas 质量门禁本地运行
+  - [x]* 27.4 Ragas 质量门禁本地运行
     - `make quality-gate` — 需要 LLM API 可用
     - 验证 20 个测试用例的评分是否达到阈值
 
-- [ ] 28. E2E 视觉检查
-  - [~] 28.1 添加 Playwright 截图对比测试
+- [x] 28. E2E 视觉检查
+  - [x] 28.1 添加 Playwright 截图对比测试
     - 为每个主要页面（Login、Metrics、Knowledge、HITL、Config、Sandbox、Chat）添加截图快照
     - 使用 `expect(page).toHaveScreenshot()` 进行视觉回归检测
-  - [~] 28.2 添加响应式布局检查
+  - [x] 28.2 添加响应式布局检查
     - 在 1920x1080（桌面）和 375x812（移动端）两种视口下截图
     - 验证侧边栏在移动端正确折叠
-  - [~]* 28.3 Lighthouse 审计
+  - [x]* 28.3 Lighthouse 审计
     - 对 Login 和 Chat 页面运行 Lighthouse
     - 记录 Performance、Accessibility、Best Practices 分数
 
