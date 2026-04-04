@@ -211,6 +211,117 @@
   - [ ] 12.3 字段映射错误：在 `transformResponse` 中添加 `console.debug` 日志，对比后端原始响应与转换结果
   - [ ] 12.4 认证失败：检查 JWT payload 字段名（`admin_user_id` vs `sub`）和 Token 过期时间
 
+---
+
+## 阶段二：SSE Token 流修复与 RAG 完整链路
+
+- [ ] 13. SSE Token 流修复
+  - [ ] 13.1 调试 LangGraph `astream_events` 在 Ollama 模型下的 token 输出格式
+    - 检查 `on_chat_model_stream` 事件的 `chunk.content` 是否为空（qwen3 thinking 模式可能将 token 放在 `additional_kwargs`）
+    - 在 `chat_service/routes/chat.py` 的 `event_generator` 中添加调试日志，记录每个 chunk 的完整结构
+    - 确认 LiteLLM `acompletion(stream=True)` 对 Ollama 模型的 chunk 格式
+  - [ ] 13.2 修复 `event_generator` 确保 token 正确提取并通过 SSE 推送
+    - 如果 `chunk.content` 为空但 `chunk.additional_kwargs` 有内容，提取 thinking token
+    - 对 Ollama 模型添加 `stream_options` 兼容处理（Ollama 可能不支持 `include_usage`）
+    - 确保 `[DONE]` 标记在所有 token 发送完毕后才发出
+  - [ ] 13.3 前端验证：确认 ChatWidget 能显示逐字流式效果
+    - 通过 Chrome DevTools 或 E2E 测试验证 SSE token 实时显示
+    - 验证 `appendToken` → `finishStreaming` 完整链路
+    - 更新 E2E chat 测试：验证 assistant 消息 bubble 出现且包含文本内容
+
+- [ ] 14. 知识库完整 RAG 链路
+  - [ ] 14.1 初始化 Milvus collection 和索引
+    - 创建 `scripts/init_milvus.py`：创建 `knowledge_chunks` collection（dense_vector COSINE + sparse_vector BM25 + doc_id + tenant_id + chunk_text 字段）
+    - 在 Docker Compose 中添加 `init-milvus` 服务（依赖 milvus healthy）
+    - 确保 collection 创建幂等（`has_collection` 检查）
+  - [ ] 14.2 配置 Embedding 服务连接
+    - 验证 `shared/embedding_service.py` 能通过 `ollama/qwen3-embedding` 模型生成向量
+    - 在 `chat_service/main.py` 的 `_wire_dependencies` 中确认 embedding_service 初始化成功
+    - 测试：`curl` 调用 Ollama embedding API 确认返回向量维度
+  - [ ] 14.3 验证文档上传→处理→向量化完整流程
+    - 通过 Admin 界面上传测试文档（TXT/PDF）
+    - 检查 `knowledge_pipeline` worker 日志：parse → chunk → embed → insert
+    - 验证 Milvus 中有对应的向量数据（`pymilvus` query 检查）
+    - 验证文档状态从 `pending` → `processing` → `completed`
+  - [ ] 14.4 验证 RAG 检索链路
+    - 发送与上传文档内容相关的聊天消息
+    - 检查 chat-service 日志：`rag_engine_node` 是否返回 `rag_context`
+    - 验证 LLM 回复中包含知识库内容（非纯 chitchat 回复）
+  - [ ]* 14.5 E2E 测试：知识库上传后 RAG 检索
+    - 上传测试文档 → 等待处理完成 → 发送相关问题 → 验证回复包含文档内容
+
+- [ ] 15. HITL 完整流程
+  - [ ] 15.1 验证 chat-service router 节点的 `human_transfer` 意图触发条件
+    - 检查 `chat_service/agent/nodes/router.py` 的路由逻辑
+    - 确认哪些用户输入会触发 `human_transfer`（如"转人工"、"人工客服"）
+    - 如果 router 不支持，添加关键词匹配规则
+  - [ ] 15.2 验证 HITL WebSocket 事件推送
+    - 在 C 端发送"转人工"消息
+    - 检查 Admin HITL WebSocket 是否收到 `hitl_request` 事件
+    - 验证 HITLPanel 显示待处理会话
+  - [ ] 15.3 验证会话接管和消息发送
+    - Admin 点击"接管"按钮
+    - 验证会话状态变为 `active`
+    - Admin 发送消息，验证 C 端收到
+  - [ ] 15.4 验证结束介入
+    - Admin 点击"结束介入"
+    - 验证会话状态恢复，C 端回到 AI 对话模式
+  - [ ]* 15.5 E2E 测试：HITL 完整流程
+    - C 端发送"转人工" → Admin 接管 → Admin 发消息 → Admin 结束介入
+
+- [ ] 16. 检查点 — 核心功能验证
+  - 确保 SSE 流式、RAG 检索、HITL 流程均可正常工作
+  - **验证命令**：
+    - 前端测试：`cd frontend && pnpm test`
+    - E2E 测试：`cd frontend && pnpm exec playwright test --config playwright.integration.config.ts`
+
+---
+
+## 阶段三：产品化与 CI/CD
+
+- [ ] 17. 性能优化
+  - [ ] 17.1 SSE 首 token 延迟优化
+    - 测量当前 SSE 首 token 延迟（从发送到第一个 token 到达前端的时间）
+    - 如果 > 5s，检查 Ollama 模型加载时间、LangGraph 图执行开销
+    - 考虑添加 SSE `ping` 事件让前端知道连接已建立
+  - [ ] 17.2 Nginx 静态资源缓存策略
+    - 验证 `/assets/` 路径的 `Cache-Control: immutable` 生效
+    - 添加 gzip 压缩配置（`gzip on; gzip_types text/plain application/json application/javascript text/css;`）
+  - [ ]* 17.3 前端 bundle 分析
+    - 运行 `vite-bundle-visualizer` 分析 chunk 大小
+    - 确认 vendor 分包合理（react、recharts、radix 独立 chunk）
+
+- [ ] 18. 多租户隔离 E2E 验证
+  - [ ] 18.1 创建第二个测试租户（seed.py 扩展）
+    - 新增 tenant-002 + 独立 API Key + 独立 Admin 用户
+  - [ ] 18.2 E2E 测试：租户 A 的数据对租户 B 不可见
+    - 租户 A 上传文档 → 租户 B 查询知识库 → 验证看不到租户 A 的文档
+    - 租户 A 的聊天历史对租户 B 不可见
+  - [ ]* 18.3 E2E 测试：API Key 隔离
+    - 使用租户 A 的 API Key 无法访问租户 B 的数据
+
+- [ ] 19. CI/CD 集成
+  - [ ] 19.1 创建 `.github/workflows/ci.yml` GitHub Actions 工作流
+    - 后端：`uv sync` → `make test` → `make test-pbt`
+    - 前端：`pnpm install` → `pnpm test` → `pnpm build`
+    - 触发条件：push to main、PR
+  - [ ] 19.2 创建 `.github/workflows/e2e.yml` E2E 测试工作流
+    - `docker compose up -d` → 等待健康检查 → `pnpm exec playwright test --config playwright.integration.config.ts`
+    - 上传 Playwright 报告为 artifact
+    - 触发条件：PR（手动触发或 label 触发）
+  - [ ] 19.3 Ragas 质量门禁集成
+    - 在 CI 中运行 `make quality-gate`
+    - 阈值不通过时 CI 失败
+    - 生成质量报告并上传为 artifact
+
+- [ ] 20. 最终检查点 — 产品化验证
+  - 确保所有测试通过，CI/CD 流水线正常运行
+  - **验证命令**：
+    - 全部后端测试：`make test-all`
+    - 全部前端测试：`cd frontend && pnpm test`
+    - E2E 集成测试：`cd frontend && pnpm exec playwright test --config playwright.integration.config.ts`
+    - Ragas 质量门禁：`make quality-gate`
+
 ## 备注
 
 - 标记 `*` 的子任务为可选，可跳过以加速 MVP
@@ -218,3 +329,6 @@
 - 属性测试验证设计文档中的正确性属性（P1-P6）
 - 现有 PBT 文件（`p1-sse-token-roundtrip.test.ts` 等）属于 frontend-ui spec，本 spec 的 PBT 使用独立文件名（`p1-field-mapper-roundtrip.test.ts` 等）避免冲突
 - Seed 脚本已有 `scripts/seed_tenant.py`，新建 `scripts/seed.py` 整合完整测试数据创建
+- 阶段一（Task 1-12）：前后端联调适配层 — 已完成核心实现
+- 阶段二（Task 13-16）：SSE Token 流修复 + RAG 完整链路 + HITL 完整流程
+- 阶段三（Task 17-20）：性能优化 + 多租户隔离验证 + CI/CD 集成
