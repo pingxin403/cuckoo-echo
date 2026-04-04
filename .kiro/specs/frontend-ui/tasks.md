@@ -582,7 +582,7 @@
     - 导致用户添加附件后按 Enter 发送时，可能发送空附件（stale closure）
     - 修复：在两个 useCallback 的依赖数组中添加 `pendingMedia`
 
-  - [ ] 24.2 修复 ChatWidget ASR 消息处理缺少 null check
+  - [x] 24.2 修复 ChatWidget ASR 消息处理缺少 null check
     - WebSocket onMessage 中 `(msg.data as { stage?: string })?.stage` 未检查 msg.data 是否存在
     - 如果后端发送 `{ type: 'processing' }` 但没有 data 字段，会导致运行时错误
     - 修复：添加 `msg.data != null` 前置检查

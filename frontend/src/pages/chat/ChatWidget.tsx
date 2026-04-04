@@ -95,7 +95,7 @@ export default function ChatWidget({
     url: wsUrl,
     onMessage(msg) {
       // Detect ASR processing stage from backend
-      if (msg.type === 'processing' && (msg.data as { stage?: string })?.stage === 'asr') {
+      if (msg.type === 'processing' && msg.data != null && (msg.data as { stage?: string }).stage === 'asr') {
         setIsAsrProcessing(true);
       } else if (msg.type === 'token' || msg.type === 'done') {
         setIsAsrProcessing(false);
