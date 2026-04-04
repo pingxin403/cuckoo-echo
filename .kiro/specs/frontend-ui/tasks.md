@@ -520,7 +520,7 @@
 
 ## 修复阶段（代码审查后发现的集成缺口）
 
-- [ ] 21. 组件集成修复（P0 — 阻塞可用性）
+- [x] 21. 组件集成修复（P0 — 阻塞可用性）
   - [x] 21.1 ChatWidget 集成真正的 MessageList
     - 替换 `ChatWidget.tsx` 中 `<div>消息列表（待实现）</div>` 占位符为真正的 `<MessageList />` 组件
     - import MessageList from `@/pages/chat/MessageList`
@@ -545,7 +545,7 @@
     - _需求: 1.6_
 
 - [ ] 22. 埋点与基础设施补全（P1）
-  - [~] 22.1 在各页面组件中集成埋点事件
+  - [x] 22.1 在各页面组件中集成埋点事件
     - ChatWidget: `message_sent`, `message_received`, `file_upload`
     - HITLPanel: `hitl_requested`
     - ConfigPanel: `config_changed`

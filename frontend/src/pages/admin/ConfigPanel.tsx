@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useConfigStore } from '@/stores/adminStore';
 import { useToast } from '@/components/Toast';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { analytics } from '@/lib/analytics';
 import apiClient from '@/network/axios';
 import type { PersonaConfig, ModelConfig, RateLimitConfig } from '@/types';
 
@@ -72,6 +73,7 @@ export default function ConfigPanel() {
     setSaving('persona');
     try {
       await savePersona(personaForm);
+      analytics.track('config_changed', { config_type: 'persona' });
       showToast('success', 'Persona 配置已保存');
     } catch {
       showToast('error', 'Persona 配置保存失败');
@@ -84,6 +86,7 @@ export default function ConfigPanel() {
     setSaving('model');
     try {
       await saveModelConfig(modelForm);
+      analytics.track('config_changed', { config_type: 'model' });
       showToast('success', '模型配置已保存');
     } catch {
       showToast('error', '模型配置保存失败');
@@ -96,6 +99,7 @@ export default function ConfigPanel() {
     setSaving('rate');
     try {
       await saveRateLimitConfig(rateForm);
+      analytics.track('config_changed', { config_type: 'rate_limit' });
       showToast('success', '限流配置已保存');
     } catch {
       showToast('error', '限流配置保存失败');

@@ -4,6 +4,7 @@ import { useSSE } from '@/hooks/useSSE';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useSessionStore } from '@/stores/sessionStore';
 import { useChatStore } from '@/stores/chatStore';
+import { analytics } from '@/lib/analytics';
 import ChatInput from '@/pages/chat/ChatInput';
 import MessageList from '@/pages/chat/MessageList';
 import ThreadList from '@/pages/chat/ThreadList';
@@ -40,11 +41,16 @@ export default function ChatWidget({
   const isStreaming = useChatStore((s) => s.isStreaming);
   const setConnectionStatus = useChatStore((s) => s.setConnectionStatus);
 
+  // ── Chat store actions for reconciliation ──
+  const loadThread = useChatStore((s) => s.loadThread);
+  const activeThreadId = useSessionStore((s) => s.activeThreadId);
+
   const handleSend = useCallback(
     (content: string, media?: MediaAttachment[]) => {
+      analytics.track('message_sent', { thread_id: activeThreadId, has_media: !!media?.length, media_type: media?.[0]?.type });
       sendMessage(content, media);
     },
-    [sendMessage],
+    [sendMessage, activeThreadId],
   );
 
   // ── Determine active protocol from session status ──
@@ -56,10 +62,6 @@ export default function ChatWidget({
     switchProtocol(shouldUseWebSocket ? 'websocket' : 'sse');
   }, [shouldUseWebSocket, switchProtocol]);
 
-  // ── Chat store actions for reconciliation ──
-  const loadThread = useChatStore((s) => s.loadThread);
-  const activeThreadId = useSessionStore((s) => s.activeThreadId);
-
   // ── SSE hook (active when NOT in HITL mode) ──
   const sseUrl = `${API_BASE}/v1/chat/completions`;
   const {
@@ -68,6 +70,9 @@ export default function ChatWidget({
   } = useSSE({
     url: sseUrl,
     apiKey,
+    onDone() {
+      analytics.track('message_received', { thread_id: activeThreadId });
+    },
     onError(error) {
       // 401 from SSE means invalid API key
       if (error.code === 'HTTP_ERROR' && error.message.includes('401')) {

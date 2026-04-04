@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { showToast } from '@/components/Toast';
+import { analytics } from '@/lib/analytics';
 
 // ─── Token getter (callback pattern) ──────────────────────────
 // AuthStore doesn't exist yet; consumers call setTokenGetter()
@@ -110,6 +111,8 @@ apiClient.interceptors.response.use(
       const message = errorMap[status] ?? '未知错误，请稍后重试';
       showToast('error', message);
     }
+
+    analytics.track('error_occurred', { status_code: status, endpoint: error.config?.url });
 
     return Promise.reject(error);
   },

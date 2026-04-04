@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useSandboxStore } from '@/stores/adminStore';
 import { useToast } from '@/components/Toast';
+import { analytics } from '@/lib/analytics';
 import type { TestCase, SandboxResult } from '@/types';
 
 // ─── localStorage helpers ──────────────────────────────────────
@@ -78,8 +79,10 @@ export default function SandboxRunner() {
     if (sandboxResults.length > 0) {
       setPreviousResults(sandboxResults);
     }
+    const validCases = testCases.filter((tc) => tc.query.trim());
+    analytics.track('sandbox_run', { test_case_count: validCases.length });
     try {
-      await runSandbox(testCases.filter((tc) => tc.query.trim()));
+      await runSandbox(validCases);
     } catch {
       showToast('error', '运行测试失败');
     }

@@ -3,6 +3,7 @@ import { useWebSocket } from '@/hooks/useWebSocket';
 import { useHitlStore } from '@/stores/adminStore';
 import { Skeleton } from '@/components/Skeleton';
 import { showToast } from '@/components/Toast';
+import { analytics } from '@/lib/analytics';
 import apiClient from '@/network/axios';
 import type { HITLSession, WSMessage, Message } from '@/types';
 
@@ -121,6 +122,7 @@ export default function HITLPanel() {
       await takeHitlSession(sessionId);
       const session = useHitlStore.getState().activeHitlSession;
       if (session) {
+        analytics.track('hitl_requested', { thread_id: session.threadId, reason: session.reason });
         const res = await apiClient.get<Message[]>(`/v1/threads/${session.threadId}`);
         setMessages(res.data);
       }
