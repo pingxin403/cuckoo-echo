@@ -64,7 +64,7 @@ def create_knowledge_chunks_collection(client: MilvusClient | None = None) -> No
             enable_analyzer=True,
             analyzer_params={"type": "chinese"},
         ),
-        FieldSchema("dense_vector", DataType.FLOAT_VECTOR, dim=1536),
+        FieldSchema("dense_vector", DataType.FLOAT_VECTOR, dim=int(get_settings().embedding_dim if hasattr(get_settings(), 'embedding_dim') else 4096)),
         FieldSchema("sparse_vector", DataType.SPARSE_FLOAT_VECTOR),
         FieldSchema("created_at", DataType.INT64),
     ])

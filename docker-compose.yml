@@ -172,6 +172,19 @@ services:
       retries: 3
 
   # ============================================================
+  # Milvus Collection Initialization (runs once)
+  # ============================================================
+  init-milvus:
+    build:
+      context: .
+      dockerfile: scripts/Dockerfile.seed
+    command: ["python", "-m", "scripts.init_milvus"]
+    env_file: .env.docker
+    depends_on:
+      milvus:
+        condition: service_healthy
+
+  # ============================================================
   # Seed Script (runs once, creates test data)
   # ============================================================
   seed:

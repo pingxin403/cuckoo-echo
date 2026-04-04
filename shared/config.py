@@ -56,6 +56,7 @@ class Settings(BaseSettings):
 
     # Embedding
     embedding_model: str = "text-embedding-3-small"  # e.g. "ollama/qwen3-embedding" for local Ollama
+    embedding_dim: int = 4096  # Vector dimension (qwen3-embedding=4096, OpenAI=1536)
 
     # Vision LLM
     vision_model: str = "gpt-4o-mini"  # Model supporting image input (OpenAI Vision API format)
