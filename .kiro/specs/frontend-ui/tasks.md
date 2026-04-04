@@ -544,7 +544,7 @@
     - 移除 ChatWidget.tsx 中的 TODO 注释
     - _需求: 1.6_
 
-- [ ] 22. 埋点与基础设施补全（P1）
+- [x] 22. 埋点与基础设施补全（P1）
   - [x] 22.1 在各页面组件中集成埋点事件
     - ChatWidget: `message_sent`, `message_received`, `file_upload`
     - HITLPanel: `hitl_requested`
@@ -566,7 +566,7 @@
     - 确保 `pnpm test` 不再扫描 e2e/*.spec.ts 文件
     - 验证 136 个 Vitest 测试全部通过，0 个失败
 
-- [ ] 23. 检查点 — 集成修复验证
+- [x] 23. 检查点 — 集成修复验证
   - 确保 ChatWidget 中 MessageList 正常渲染消息
   - 确保 ChatInput 中 MediaUploader 可打开并上传
   - 确保 `pnpm test` 全部通过（0 failures）
