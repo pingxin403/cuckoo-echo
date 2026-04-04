@@ -153,7 +153,34 @@ curl -X POST http://localhost:8002/admin/v1/knowledge/docs \
 }
 ```
 
-Supported formats: PDF, Word (.docx), HTML, plain text. Max file size: 50MB.
+Supported formats: PDF, Word (.docx), HTML, plain text. Max file size: 200MB.
+
+---
+
+### GET /admin/v1/knowledge/docs — 列出知识库文档
+
+List all knowledge documents for the authenticated tenant.
+
+```bash
+curl http://localhost:8002/admin/v1/knowledge/docs \
+  -H "Authorization: Bearer ck_admin_api_key"
+```
+
+**Response:**
+
+```json
+[
+  {
+    "doc_id": "doc_abc123",
+    "filename": "product_faq.pdf",
+    "status": "completed",
+    "chunk_count": 42,
+    "error_msg": null,
+    "created_at": "2024-01-15T10:00:00Z",
+    "updated_at": "2024-01-15T10:02:30Z"
+  }
+]
+```
 
 ---
 
@@ -204,10 +231,63 @@ Admin user takes over a conversation from the AI agent.
 
 ```bash
 curl -X POST http://localhost:8002/admin/v1/hitl/sess_xyz789/take \
+  -H "Authorization: Bearer ck_admin_api_key"
+```
+
+---
+
+### GET /admin/v1/hitl/sessions — 列出 HITL 会话
+
+List all HITL sessions for the authenticated tenant.
+
+```bash
+curl http://localhost:8002/admin/v1/hitl/sessions \
+  -H "Authorization: Bearer ck_admin_api_key"
+```
+
+**Response:**
+
+```json
+[
+  {
+    "session_id": "sess_xyz789",
+    "thread_id": "550e8400-e29b-41d4-a716-446655440000",
+    "status": "pending",
+    "admin_user_id": null,
+    "created_at": "2024-01-15T10:30:00Z",
+    "ended_at": null
+  }
+]
+```
+
+---
+
+### POST /admin/v1/hitl/{session_id}/message — 发送 HITL 消息
+
+Admin sends a message in an active HITL session.
+
+```bash
+curl -X POST http://localhost:8002/admin/v1/hitl/sess_xyz789/message \
   -H "Authorization: Bearer ck_admin_api_key" \
   -H "Content-Type: application/json" \
-  -d '{"admin_user_id": "admin_001"}'
+  -d '{"content": "您好，我来帮您处理这个问题。"}'
 ```
+
+**Response:**
+
+```json
+{
+  "id": "msg_abc123",
+  "thread_id": "550e8400-e29b-41d4-a716-446655440000",
+  "role": "admin",
+  "content": "您好，我来帮您处理这个问题。",
+  "created_at": "2024-01-15T10:35:00Z"
+}
+```
+
+---
+
+### POST /admin/v1/hitl/{session_id}/take — 接管会话（详细）
 
 **Response:**
 

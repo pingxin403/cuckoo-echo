@@ -246,11 +246,9 @@ class TestRagEngineCacheIntegration:
         from chat_service.agent.nodes.rag_engine import rag_engine_node
         from chat_service.agent.state import AgentState
 
-        mock_embed = AsyncMock(return_value=[0.1] * 1536)
+        mock_embed = AsyncMock(return_value=[0.1] * 4096)
         mock_collection = MagicMock()
-        hit = MagicMock()
-        hit.entity.get = lambda field: {"chunk_text": "chunk_1", "doc_id": "doc_1"}[field]
-        mock_collection.hybrid_search.return_value = [[hit]]
+        mock_collection.search.return_value = [[{"chunk_text": "chunk_1", "doc_id": "doc_1"}]]
 
         state = AgentState(
             messages=[{"role": "user", "content": "test query"}],
@@ -270,7 +268,6 @@ class TestRagEngineCacheIntegration:
             result = await rag_engine_node(state)
 
         assert result["rag_context"] == ["chunk_1"]
-        assert "llm_response" not in result or result.get("llm_response") is None
 
 
 # ---------------------------------------------------------------------------

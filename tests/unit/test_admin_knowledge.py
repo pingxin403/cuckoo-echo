@@ -57,7 +57,7 @@ class TestUploadDocument:
         app = _build_app(pool)
         client = TestClient(app)
 
-        big_content = b"x" * (50 * 1024 * 1024 + 1)
+        big_content = b"x" * (200 * 1024 * 1024 + 1)
         resp = client.post(
             "/admin/v1/knowledge/docs",
             files={"file": ("big.pdf", big_content, "application/pdf")},

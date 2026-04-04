@@ -17,11 +17,9 @@ from chat_service.agent.state import AgentState
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _make_hit(chunk_text: str, doc_id: str) -> MagicMock:
-    """Create a mock Milvus search hit with entity fields."""
-    hit = MagicMock()
-    hit.entity.get = lambda field: {"chunk_text": chunk_text, "doc_id": doc_id}[field]
-    return hit
+def _make_hit(chunk_text: str, doc_id: str) -> dict:
+    """Create a mock Milvus MilvusClient search result dict."""
+    return {"chunk_text": chunk_text, "doc_id": doc_id}
 
 
 # ---------------------------------------------------------------------------
@@ -59,7 +57,7 @@ class TestRagEngineNode:
     async def test_returns_no_answer_on_empty_search_results(self):
         mock_embed = AsyncMock(return_value=[0.1] * 1536)
         mock_collection = MagicMock()
-        mock_collection.hybrid_search.return_value = [[]]  # empty results
+        mock_collection.search.return_value = [[]]  # empty results
 
         state = AgentState(messages=[{"role": "user", "content": "test"}], tenant_id="t1")
         with patch.multiple(
@@ -79,7 +77,7 @@ class TestRagEngineNode:
         mock_embed = AsyncMock(return_value=[0.1] * 1536)
         mock_collection = MagicMock()
         hits = [_make_hit(f"chunk_{i}", f"doc_{i}") for i in range(5)]
-        mock_collection.hybrid_search.return_value = [hits]
+        mock_collection.search.return_value = [hits]
 
         state = AgentState(
             messages=[{"role": "user", "content": "test query"}],
@@ -107,7 +105,7 @@ class TestRagEngineNode:
             _make_hit("deleted", "doc_2"),
             _make_hit("active_2", "doc_3"),
         ]
-        mock_collection.hybrid_search.return_value = [hits]
+        mock_collection.search.return_value = [hits]
 
         state = AgentState(
             messages=[{"role": "user", "content": "test"}],
@@ -133,7 +131,7 @@ class TestRagEngineNode:
         mock_embed = AsyncMock(return_value=[0.1] * 1536)
         mock_collection = MagicMock()
         hits = [_make_hit("gone", "doc_1")]
-        mock_collection.hybrid_search.return_value = [hits]
+        mock_collection.search.return_value = [hits]
 
         state = AgentState(
             messages=[{"role": "user", "content": "test"}],

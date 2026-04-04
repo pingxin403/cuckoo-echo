@@ -96,7 +96,7 @@ class TestCreateKnowledgeChunksCollection:
         schema = mock_client.create_collection.call_args.kwargs["schema"]
         dense_field = next(f for f in schema.fields if f.name == "dense_vector")
         assert dense_field.dtype == DataType.FLOAT_VECTOR
-        assert dense_field.params.get("dim") == 1536
+        assert dense_field.params.get("dim") == 4096
 
     def test_sparse_vector_field(self) -> None:
         mock_client = MagicMock()

@@ -326,100 +326,100 @@
 
 ## 阶段四：SSE 逐 token 流式 + 端到端功能验证
 
-- [ ] 21. SSE 逐 token 流式推送
-  - [ ] 21.1 修改 `chat_service/agent/nodes/llm_generate.py`，将 LLM 响应改为逐 token yield
+- [x] 21. SSE 逐 token 流式推送
+  - [x] 21.1 修改 `chat_service/agent/nodes/llm_generate.py`，将 LLM 响应改为逐 token yield
     - 当前 `llm_generate_node` 收集完整 `llm_response` 后一次性返回
     - 改为在 `async for chunk in response_stream` 循环中，将每个 token 通过 state 的 `streaming_tokens` 字段逐个 yield
     - 或者：在 `event_generator` 中直接调用 `stream_chat_completion` 绕过 LangGraph 图（仅对 chitchat/rag 意图）
-  - [ ] 21.2 修改 `chat_service/routes/chat.py` 的 `event_generator`，支持逐 token SSE 推送
+  - [x] 21.2 修改 `chat_service/routes/chat.py` 的 `event_generator`，支持逐 token SSE 推送
     - 对于 `streaming_tokens` 状态更新，每个 token 立即 yield `data: {"content": "token"}`
     - 保留 `llm_response` 全量推送作为回退（tool_call 等非流式场景）
-  - [ ] 21.3 前端验证：确认逐字流式效果
+  - [x] 21.3 前端验证：确认逐字流式效果
     - 通过 Chrome DevTools 观察 SSE 事件间隔（应为 50-200ms 每 token）
     - 验证 MessageList 的 `streamingContent` 逐字增长
     - 更新 E2E chat 测试：验证流式过程中 streaming indicator 可见
 
-- [ ] 22. RAG 端到端验证
-  - [ ] 22.1 修复 knowledge_pipeline Docker 依赖
+- [x] 22. RAG 端到端验证
+  - [x] 22.1 修复 knowledge_pipeline Docker 依赖
     - 检查 `knowledge_pipeline/worker.py` 在 Docker 中的启动日志
     - 修复 Docling 依赖问题（可能需要额外的系统包：`libgl1-mesa-glx`、`poppler-utils`）
     - 验证 worker 能正常 poll `knowledge_docs` 表
-  - [ ] 22.2 验证文档上传→处理→向量化完整流程
+  - [x] 22.2 验证文档上传→处理→向量化完整流程
     - 通过 Admin 界面上传 TXT 测试文档
     - 检查 knowledge_pipeline 日志：parse → chunk → embed → Milvus insert
     - 验证文档状态从 `pending` → `processing` → `completed`
     - 查询 Milvus 确认向量数据已插入
-  - [ ] 22.3 验证 RAG 检索增强回复
+  - [x] 22.3 验证 RAG 检索增强回复
     - 发送与上传文档内容相关的聊天消息
     - 检查 chat-service 日志：router 分类为 `rag`，`rag_engine_node` 返回 `rag_context`
     - 验证 LLM 回复中引用了知识库内容（非纯 chitchat）
-  - [ ]* 22.4 E2E 测试：RAG 完整链路
+  - [x]* 22.4 E2E 测试：RAG 完整链路
     - 上传文档 → 等待处理完成 → 发送相关问题 → 验证回复包含文档内容
 
-- [ ] 23. HITL 端到端验证
-  - [ ] 23.1 验证"转人工"触发 HITL 流程
+- [x] 23. HITL 端到端验证
+  - [x] 23.1 验证"转人工"触发 HITL 流程
     - C 端发送"转人工"消息
     - 检查 chat-service 日志：router 分类为 `hitl`，`hitl_requested=True`
     - 检查 admin-service 日志：`hitl_request_created`
     - 验证 Admin HITL WebSocket 收到 `hitl_request` 事件
-  - [ ] 23.2 验证 Admin 接管→对话→结束完整流程
+  - [x] 23.2 验证 Admin 接管→对话→结束完整流程
     - Admin 在 HITLPanel 点击"接管"
     - Admin 发送消息，验证 C 端收到
     - Admin 点击"结束介入"，验证会话恢复
-  - [ ]* 23.3 E2E 测试：HITL 完整流程（双浏览器）
+  - [x]* 23.3 E2E 测试：HITL 完整流程（双浏览器）
     - 使用 Playwright 的 `browser.newContext()` 模拟 C 端和 Admin 端
     - C 端发送"转人工" → Admin 端接管 → Admin 发消息 → Admin 结束
 
-- [ ] 24. 配置保存后端验证
-  - [ ] 24.1 验证 Persona 配置保存和读取
+- [x] 24. 配置保存后端验证
+  - [x] 24.1 验证 Persona 配置保存和读取
     - 通过 ConfigPanel 修改 systemPrompt 和 personaName
     - 刷新页面后验证配置已持久化
     - 检查后端 `PUT /admin/v1/config/persona` 响应格式
-  - [ ] 24.2 验证模型配置保存
+  - [x] 24.2 验证模型配置保存
     - 修改 primaryModel 和 temperature
     - 验证下次聊天使用新模型
-  - [ ] 24.3 验证限流配置保存
+  - [x] 24.3 验证限流配置保存
     - 修改 tenantRps 和 userRps
     - 验证配置已持久化
 
-- [ ] 25. 检查点 — 端到端功能验证
+- [x] 25. 检查点 — 端到端功能验证
   - 确保 SSE 逐字流式、RAG 检索、HITL 完整流程、配置保存均正常工作
 
 ---
 
 ## 阶段五：文档更新 + 测试补全 + 视觉检查
 
-- [ ] 26. API 文档更新
-  - [ ] 26.1 更新 `docs/api.md`，补充新增的 3 个端点
+- [x] 26. API 文档更新
+  - [x] 26.1 更新 `docs/api.md`，补充新增的 3 个端点
     - `GET /admin/v1/hitl/sessions` — 列出 HITL 会话
     - `POST /admin/v1/hitl/{session_id}/message` — Admin 发送 HITL 消息
     - `GET /admin/v1/knowledge/docs` — 列出知识库文档
-  - [ ] 26.2 更新 `docs/architecture.md`
+  - [x] 26.2 更新 `docs/architecture.md`
     - 补充 nginx → chat-service 直连路由变更（`/v1/chat/*` 和 `/v1/threads/*`）
     - 补充 ChatTenantAuthMiddleware 在 chat-service 中的位置
 
 - [ ] 27. 测试补全
-  - [ ] 27.1 运行后端单元测试并修复失败项
+  - [-] 27.1 运行后端单元测试并修复失败项
     - `make test` — 运行 `tests/unit/`
     - 修复因本 spec 代码变更导致的测试失败（如 rag_engine 接口变更）
-  - [ ] 27.2 运行后端 PBT 测试
+  - [~] 27.2 运行后端 PBT 测试
     - `make test-pbt` — 运行 `tests/pbt/`
     - 修复因 embedding_service 构造函数变更导致的测试失败
-  - [ ] 27.3 Tenant B seed 并验证隔离 E2E
+  - [~] 27.3 Tenant B seed 并验证隔离 E2E
     - 重新运行 seed 脚本创建 tenant B
     - 运行 `isolation.integration.spec.ts` 验证 tenant B API key 返回 200
-  - [ ]* 27.4 Ragas 质量门禁本地运行
+  - [~]* 27.4 Ragas 质量门禁本地运行
     - `make quality-gate` — 需要 LLM API 可用
     - 验证 20 个测试用例的评分是否达到阈值
 
 - [ ] 28. E2E 视觉检查
-  - [ ] 28.1 添加 Playwright 截图对比测试
+  - [~] 28.1 添加 Playwright 截图对比测试
     - 为每个主要页面（Login、Metrics、Knowledge、HITL、Config、Sandbox、Chat）添加截图快照
     - 使用 `expect(page).toHaveScreenshot()` 进行视觉回归检测
-  - [ ] 28.2 添加响应式布局检查
+  - [~] 28.2 添加响应式布局检查
     - 在 1920x1080（桌面）和 375x812（移动端）两种视口下截图
     - 验证侧边栏在移动端正确折叠
-  - [ ]* 28.3 Lighthouse 审计
+  - [~]* 28.3 Lighthouse 审计
     - 对 Login 和 Chat 页面运行 Lighthouse
     - 记录 Performance、Accessibility、Best Practices 分数
 
