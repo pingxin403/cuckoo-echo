@@ -273,7 +273,7 @@
     - 将反馈数据（thread_id, message_id, rating, reason）上报后端
     - _需求: 15.1, 15.2, 15.3_
 
-  - [~]* 9.8 编写 Chat_Widget 组件测试
+  - [x]* 9.8 编写 Chat_Widget 组件测试
     - 测试 MessageBubble：不同 role 渲染、Markdown 渲染、反馈按钮交互
     - 测试 ChatInput：Enter 发送、Shift+Enter 换行、禁用状态
     - 测试 ThreadList：会话列表渲染、新建/切换会话
