@@ -18,7 +18,7 @@ describe('ChatInput', () => {
     fireEvent.change(textarea, { target: { value: '  hello world  ' } });
     fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: false });
 
-    expect(onSend).toHaveBeenCalledWith('hello world');
+    expect(onSend).toHaveBeenCalledWith('hello world', undefined);
   });
 
   it('Shift+Enter does NOT call onSend', () => {

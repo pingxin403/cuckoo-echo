@@ -561,7 +561,7 @@
     - 在 package.json 中添加 lint-staged 配置
     - _需求: 技术栈-代码规范_
 
-  - [~] 22.3 修复 Vitest exclude 配置
+  - [x] 22.3 修复 Vitest exclude 配置
     - 在 `vite.config.ts` 的 test 配置中添加 `exclude: ['e2e/**', 'node_modules/**']`
     - 确保 `pnpm test` 不再扫描 e2e/*.spec.ts 文件
     - 验证 136 个 Vitest 测试全部通过，0 个失败

@@ -19,8 +19,6 @@
     "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
     "*.{css,json}": ["prettier --write"]
   },
-    "prepare": "husky"
-  },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-toast": "^1.2.15",
