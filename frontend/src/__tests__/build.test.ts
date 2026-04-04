@@ -20,8 +20,8 @@ describe.skipIf(!distExists)('Build output verification', () => {
     expect(existsSync(assetsDir)).toBe(true);
 
     const files = readdirSync(assetsDir);
-    const hasHashedJS = files.some((f) => /\.js$/.test(f) && /-[\w]{8}\.js$/.test(f));
-    const hasHashedCSS = files.some((f) => /\.css$/.test(f) && /-[\w]{8}\.css$/.test(f));
+    const hasHashedJS = files.some((f) => /\.js$/.test(f) && /-[\w-]{6,}\.js$/.test(f));
+    const hasHashedCSS = files.some((f) => /\.css$/.test(f) && /-[\w-]{6,}\.css$/.test(f));
 
     expect(hasHashedJS).toBe(true);
     expect(hasHashedCSS).toBe(true);

@@ -423,7 +423,7 @@
     - 对 Login 和 Chat 页面运行 Lighthouse
     - 记录 Performance、Accessibility、Best Practices 分数
 
-- [ ] 29. 最终检查点 — 全部完成
+- [x] 29. 最终检查点 — 全部完成
   - 确保所有测试通过，文档已更新，视觉检查无回归
   - **验证命令**：
     - 后端测试：`make test && make test-pbt`
