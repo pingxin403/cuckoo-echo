@@ -507,7 +507,7 @@
     - 测试颜色对比度 ≥ 4.5:1（WCAG 2.1 AA）
     - _需求: 10.7_
 
-  - [~]* 19.9 配置 Lighthouse CI
+  - [x]* 19.9 配置 Lighthouse CI
     - 集成 Lighthouse CI 到 GitHub Actions
     - 设置性能回归检测阈值：FCP < 1.5s、INP < 200ms、LCP < 2.5s
     - 构建失败条件：任一核心指标低于阈值
