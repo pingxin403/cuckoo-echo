@@ -38,20 +38,14 @@ export default function ChatWidget({
 
   // ── Chat store ──
   const sendMessage = useChatStore((s) => s.sendMessage);
+  const appendToken = useChatStore((s) => s.appendToken);
+  const finishStreaming = useChatStore((s) => s.finishStreaming);
   const isStreaming = useChatStore((s) => s.isStreaming);
   const setConnectionStatus = useChatStore((s) => s.setConnectionStatus);
 
   // ── Chat store actions for reconciliation ──
   const loadThread = useChatStore((s) => s.loadThread);
   const activeThreadId = useSessionStore((s) => s.activeThreadId);
-
-  const handleSend = useCallback(
-    (content: string, media?: MediaAttachment[]) => {
-      analytics.track('message_sent', { thread_id: activeThreadId, has_media: !!media?.length, media_type: media?.[0]?.type });
-      sendMessage(content, media);
-    },
-    [sendMessage, activeThreadId],
-  );
 
   // ── Determine active protocol from session status ──
   const shouldUseWebSocket =
@@ -65,12 +59,17 @@ export default function ChatWidget({
   // ── SSE hook (active when NOT in HITL mode) ──
   const sseUrl = `${API_BASE}/v1/chat/completions`;
   const {
+    send: sseSend,
     connectionStatus: sseStatus,
     disconnect: disconnectSSE,
   } = useSSE({
     url: sseUrl,
     apiKey,
-    onDone() {
+    onToken(token: string, _messageId?: string) {
+      appendToken(token);
+    },
+    onDone(messageId: string) {
+      finishStreaming(messageId);
       analytics.track('message_received', { thread_id: activeThreadId });
     },
     onError(error) {
@@ -86,6 +85,23 @@ export default function ChatWidget({
       }
     },
   });
+
+  // ── handleSend — triggers optimistic update + SSE request ──
+  const handleSend = useCallback(
+    (content: string, media?: MediaAttachment[]) => {
+      analytics.track('message_sent', { thread_id: activeThreadId, has_media: !!media?.length, media_type: media?.[0]?.type });
+      sendMessage(content, media);
+
+      // Trigger SSE request to backend (only when not in HITL/WebSocket mode)
+      if (!shouldUseWebSocket) {
+        sseSend({
+          thread_id: activeThreadId ?? undefined,
+          messages: [{ role: 'user', content }],
+        });
+      }
+    },
+    [sendMessage, activeThreadId, sseSend, shouldUseWebSocket],
+  );
 
   // ── WebSocket hook (active when in HITL mode) ──
   const wsUrl = shouldUseWebSocket
