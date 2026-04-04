@@ -136,13 +136,43 @@ def _wire_dependencies(app: FastAPI):
 app = FastAPI(title="Cuckoo-Echo Chat Service", lifespan=lifespan)
 setup_prometheus(app, service_name="chat-service")
 
+# Tenant auth middleware — validates API key and sets request.state.tenant_id
+from starlette.middleware.base import BaseHTTPMiddleware  # noqa: E402
+from starlette.responses import JSONResponse  # noqa: E402
+import hashlib  # noqa: E402
 
-@app.on_event("startup")
-async def _wire_chat_middleware():
-    """Add tenant auth middleware once db_pool is available."""
-    from api_gateway.middleware.auth import TenantAuthMiddleware
-    app.add_middleware(TenantAuthMiddleware, db_pool=app.state.db_pool)
 
+class ChatTenantAuthMiddleware(BaseHTTPMiddleware):
+    """Authenticate C-side requests via API key. Uses app.state.db_pool at request time."""
+
+    async def dispatch(self, request, call_next):
+        if request.url.path == "/health":
+            return await call_next(request)
+
+        auth = request.headers.get("Authorization", "")
+        if not auth.startswith("Bearer "):
+            return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
+        api_key = auth.removeprefix("Bearer ")
+        if not api_key:
+            return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
+        key_hash = hashlib.sha256(api_key.encode()).hexdigest()
+        db_pool = request.app.state.db_pool
+
+        async with db_pool.acquire() as conn:
+            tenant = await conn.fetchrow(
+                "SELECT id, status FROM tenants WHERE api_key_hash = $1", key_hash,
+            )
+
+        if not tenant or tenant["status"] != "active":
+            return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
+        request.state.tenant_id = str(tenant["id"])
+        return await call_next(request)
+
+
+app.add_middleware(ChatTenantAuthMiddleware)
 
 app.include_router(chat_router)
 app.include_router(ws_chat_router)
