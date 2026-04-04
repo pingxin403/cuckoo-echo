@@ -51,17 +51,37 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   finishStreaming(messageId: string) {
-    const { streamingContent, messages } = get();
-    const updatedMessages = messages.map((msg) =>
-      msg.id === messageId
-        ? { ...msg, content: streamingContent || msg.content }
-        : msg,
-    );
-    set({
-      messages: updatedMessages,
-      isStreaming: false,
-      streamingContent: '',
-    });
+    const { streamingContent, messages, activeThreadId } = get();
+
+    // If messageId matches an existing message, update it
+    const existingIdx = messages.findIndex((msg) => msg.id === messageId);
+    if (existingIdx >= 0) {
+      const updatedMessages = messages.map((msg) =>
+        msg.id === messageId
+          ? { ...msg, content: streamingContent || msg.content }
+          : msg,
+      );
+      set({ messages: updatedMessages, isStreaming: false, streamingContent: '' });
+      return;
+    }
+
+    // Otherwise, create a new assistant message from the streamed content
+    if (streamingContent) {
+      const assistantMessage: Message = {
+        id: messageId || `assistant_${uuidv4()}`,
+        threadId: activeThreadId ?? '',
+        role: 'assistant',
+        content: streamingContent,
+        createdAt: new Date().toISOString(),
+      };
+      set({
+        messages: [...messages, assistantMessage],
+        isStreaming: false,
+        streamingContent: '',
+      });
+    } else {
+      set({ isStreaming: false, streamingContent: '' });
+    }
   },
 
   replaceTempId(tempId: string, realId: string) {
