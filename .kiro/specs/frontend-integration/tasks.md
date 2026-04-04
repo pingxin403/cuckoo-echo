@@ -106,7 +106,7 @@
     - 线程历史加载集成 `convertLangGraphMessage` 转换
     - _需求: 4.1, 4.5_
 
-  - [~] 4.4 扩展错误码映射表
+  - [x] 4.4 扩展错误码映射表
     - 修改 `frontend/src/lib/errorMap.ts`（或对应文件），增加 `ERROR_MAP`（401/404/409/413/415/429/500/503）
     - 增加 `SSE_ERROR_MAP`（CONCURRENT_REQUEST/STREAM_TIMEOUT/NETWORK_ERROR）
     - 增加 `WS_CLOSE_MAP`（1000/1006/4001 关闭码处理）
