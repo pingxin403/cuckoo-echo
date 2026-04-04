@@ -72,7 +72,7 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
         });
       }
     },
-    [disabled, text, onSend],
+    [disabled, text, onSend, pendingMedia],
   );
 
   const handleSendClick = useCallback(() => {
@@ -87,7 +87,7 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
         textareaRef.current.style.height = 'auto';
       }
     });
-  }, [disabled, text, onSend]);
+  }, [disabled, text, onSend, pendingMedia]);
 
   // ── Mobile: visualViewport handling for soft keyboard ──
   useEffect(() => {

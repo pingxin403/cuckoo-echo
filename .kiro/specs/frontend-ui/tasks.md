@@ -572,6 +572,30 @@
   - 确保 `pnpm test` 全部通过（0 failures）
   - 确保 `pnpm build` 成功
 
+---
+
+## Bug 修复阶段（代码审查发现的运行时缺陷）
+
+- [ ] 24. Bug 修复
+  - [x] 24.1 修复 ChatInput useCallback 依赖数组缺失 pendingMedia
+    - `handleKeyDown` 和 `handleSendClick` 的 useCallback 依赖数组缺少 `pendingMedia`
+    - 导致用户添加附件后按 Enter 发送时，可能发送空附件（stale closure）
+    - 修复：在两个 useCallback 的依赖数组中添加 `pendingMedia`
+
+  - [ ] 24.2 修复 ChatWidget ASR 消息处理缺少 null check
+    - WebSocket onMessage 中 `(msg.data as { stage?: string })?.stage` 未检查 msg.data 是否存在
+    - 如果后端发送 `{ type: 'processing' }` 但没有 data 字段，会导致运行时错误
+    - 修复：添加 `msg.data != null` 前置检查
+
+  - [ ] 24.3 Admin 懒加载路由添加 ErrorBoundary 包裹
+    - App.tsx 中 `<Suspense>` 包裹的懒加载组件没有 ErrorBoundary
+    - 如果懒加载 chunk 加载失败（网络问题），整个 Admin 区域会白屏
+    - 修复：在每个 `<Suspense>` 外层包裹 `<ErrorBoundary>`
+
+- [ ] 25. 检查点 — Bug 修复验证
+  - 确保 `pnpm test` 全部通过
+  - 确保 `pnpm build` 成功
+
 ## 备注
 
 - 标记 `*` 的子任务为可选测试任务，可跳过以加速 MVP 交付
