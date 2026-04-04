@@ -2,6 +2,18 @@
 
 Implements the core SSE event generator with Redis distributed lock
 protection and the HTTP endpoints for chat completions and thread history.
+
+Streaming approach: Uses LangGraph ``agent.astream()`` which yields
+incremental state updates.  The ``llm_response`` field produced by the
+``llm_generate`` node contains the full assistant reply.  We push it as
+a single SSE content chunk followed by ``[DONE]``.
+
+Previous implementation used ``astream_events(version="v2")`` and listened
+for ``on_chat_model_stream`` events, but those events are only emitted
+when a *LangChain* ChatModel is invoked inside the graph.  Because the
+LLM call goes through ``litellm.acompletion()`` (not a LangChain model),
+no ``on_chat_model_stream`` events were ever fired — resulting in
+``ping`` + ``[DONE]`` with zero token content.
 """
 
 from __future__ import annotations
@@ -38,6 +50,11 @@ async def event_generator(
     EventSourceResponse before the generator starts executing —
     acquiring in the endpoint's context manager would release the lock
     before any tokens are generated.
+
+    Uses ``agent.astream()`` to receive incremental state diffs from
+    each graph node.  When the ``llm_response`` key appears (from the
+    ``llm_generate`` node) we push it as SSE content.  A ``correction_message``
+    from the guardrails/postprocess nodes is also forwarded if present.
     """
     key = lock_key(thread_id)
     lock = redis.lock(key, timeout=LOCK_TTL)
@@ -54,21 +71,74 @@ async def event_generator(
     queue: asyncio.Queue = asyncio.Queue()
 
     async def _consume_stream():
-        """Consume agent stream in a shielded task so client disconnect
-        does not cancel the LLM network IO."""
+        """Consume agent state updates in a shielded task so client
+        disconnect does not cancel the LLM network IO.
+
+        ``agent.astream()`` yields incremental state diffs from each
+        graph node.  We look for ``llm_response`` (the assistant reply)
+        and ``correction_message`` (guardrails override).
+        """
         nonlocal tokens_used
         config = {"configurable": {"thread_id": thread_id, "tenant_id": tenant_id}}
-        async for chunk in agent.astream_events(payload, config=config, version="v2"):
-            if chunk["event"] == "on_chat_model_stream":
-                token = chunk["data"]["chunk"].content
-                if token:
-                    await queue.put(orjson.dumps({"content": token}).decode())
-            elif chunk["event"] == "on_llm_end":
-                usage = chunk["data"].get("output", {}).get("usage_metadata", {})
-                tokens_used = (
-                    usage.get("input_tokens", 0) + usage.get("output_tokens", 0)
+        response_sent = False
+        try:
+            async for state_update in agent.astream(
+                payload, config=config, stream_mode="updates"
+            ):
+                # state_update is a dict: {node_name: {state_diff}}
+                log.debug(
+                    "astream_state_update",
+                    thread_id=thread_id,
+                    node=list(state_update.keys()),
+                    keys={k: list(v.keys()) if isinstance(v, dict) else type(v).__name__
+                          for k, v in state_update.items()},
                 )
-        await queue.put(None)  # sentinel
+
+                for node_name, diff in state_update.items():
+                    if not isinstance(diff, dict):
+                        continue
+
+                    # Extract llm_response from llm_generate node
+                    llm_response = diff.get("llm_response")
+                    if llm_response and not response_sent:
+                        log.info(
+                            "sse_pushing_llm_response",
+                            thread_id=thread_id,
+                            node=node_name,
+                            length=len(llm_response),
+                        )
+                        await queue.put(
+                            orjson.dumps({"content": llm_response}).decode()
+                        )
+                        response_sent = True
+
+                    # Extract correction_message from guardrails/postprocess
+                    correction = diff.get("correction_message")
+                    if correction:
+                        log.info(
+                            "sse_pushing_correction",
+                            thread_id=thread_id,
+                            node=node_name,
+                        )
+                        await queue.put(
+                            orjson.dumps({"content": correction}).decode()
+                        )
+
+                    # Extract token usage
+                    used = diff.get("tokens_used", 0)
+                    if used:
+                        tokens_used = used
+
+        except Exception as exc:
+            log.error("astream_error", thread_id=thread_id, error=str(exc))
+            if not response_sent:
+                await queue.put(
+                    orjson.dumps(
+                        {"content": "抱歉，系统暂时无法处理您的请求，请稍后重试。"}
+                    ).decode()
+                )
+        finally:
+            await queue.put(None)  # sentinel
 
     try:
         task = asyncio.ensure_future(asyncio.shield(_consume_stream()))
