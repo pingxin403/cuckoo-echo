@@ -138,7 +138,7 @@
     - 确保 `/admin/v1/` 在 `/v1/` 之前声明（优先匹配）
     - _需求: 2.2, 2.3_
 
-- [ ] 7. Nginx 与 Docker Compose 基础设施
+- [x] 7. Nginx 与 Docker Compose 基础设施
   - [x] 7.1 修改 `frontend/nginx.conf`，增加 SSE/WS 优化配置
     - SSE 端点 `/v1/chat/completions`：`proxy_buffering off` + `X-Accel-Buffering no` + `proxy_read_timeout 300s`
     - WS 端点 `/v1/chat/ws` 和 `/admin/v1/ws/`：`Upgrade` + `Connection "upgrade"` + `proxy_read_timeout 300s`
@@ -151,7 +151,7 @@
     - 新增 `seed` 服务：运行 `python -m scripts.seed`，依赖 migrate 完成，幂等创建测试数据
     - _需求: 9.1, 9.2, 9.4, 9.5, 9.6_
 
-  - [~] 7.3 创建 `scripts/seed.py` 幂等种子脚本
+  - [x] 7.3 创建 `scripts/seed.py` 幂等种子脚本
     - 创建测试租户（`test-tenant-001`，API Key `ck_test_integration_key`）
     - 创建 Admin 用户（`admin@test.com`，bcrypt 密码）
     - 初始化默认配置（LLM config、rate limit）
