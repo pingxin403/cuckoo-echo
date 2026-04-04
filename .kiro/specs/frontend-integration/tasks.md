@@ -122,7 +122,7 @@
   - 确保所有测试通过，ask the user if questions arise.
 
 - [ ] 6. 环境配置与 MSW 条件加载
-  - [~] 6.1 修改 `frontend/src/main.tsx`，实现 MSW 条件加载
+  - [x] 6.1 修改 `frontend/src/main.tsx`，实现 MSW 条件加载
     - 根据 `import.meta.env.VITE_ENABLE_MSW` 决定是否启用 MSW
     - MSW 禁用时清理残留 Service Worker（`navigator.serviceWorker.getRegistrations` + `unregister`）
     - _需求: 8.1, 8.2, 8.3_
