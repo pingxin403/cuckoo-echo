@@ -189,7 +189,7 @@
     - 验证 WebSocket 连接、HITL 事件接收、会话接管
     - _需求: 10.3_
 
-- [ ] 10. 最终检查点 — 全部测试通过
+- [x] 10. 最终检查点 — 全部测试通过
   - 确保所有测试通过，ask the user if questions arise.
   - **验证命令**：
     - 单元测试 + PBT：`pnpm test`
