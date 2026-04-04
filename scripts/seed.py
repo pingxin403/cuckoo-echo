@@ -80,6 +80,37 @@ async def seed() -> None:
         )
         print(f"✅ Admin User: {ADMIN_EMAIL}")
 
+        # ─── Tenant B (for multi-tenant isolation testing) ──────────
+        tenant_b_id = str(uuid.UUID("00000000-0000-4000-a000-000000000002"))
+        tenant_b_name = "Isolation Test Tenant B"
+        tenant_b_key = "ck_test_tenant_b_key"
+        tenant_b_hash = hashlib.sha256(tenant_b_key.encode()).hexdigest()
+        tenant_b_prefix = tenant_b_key[:8]
+        admin_b_email = "admin-b@test.com"
+        admin_b_hash = bcrypt.hashpw(b"test123456", bcrypt.gensalt()).decode()
+
+        await conn.execute(
+            """
+            INSERT INTO tenants (id, name, api_key_prefix, api_key_hash, status, llm_config, rate_limit, created_at)
+            VALUES ($1::uuid, $2, $3, $4, 'active', $5::jsonb, $6::jsonb, NOW())
+            ON CONFLICT (api_key_hash) DO NOTHING
+            """,
+            tenant_b_id, tenant_b_name, tenant_b_prefix, tenant_b_hash,
+            __import__("json").dumps(DEFAULT_LLM_CONFIG),
+            __import__("json").dumps(DEFAULT_RATE_LIMIT),
+        )
+        await conn.execute(
+            """
+            INSERT INTO admin_users (tenant_id, email, password_hash, role, created_at)
+            VALUES ($1::uuid, $2, $3, 'admin', NOW())
+            ON CONFLICT (email) DO NOTHING
+            """,
+            tenant_b_id, admin_b_email, admin_b_hash,
+        )
+        print(f"✅ Tenant B: {tenant_b_id} ({tenant_b_name})")
+        print(f"   API Key B: {tenant_b_key}")
+        print(f"   Admin B:   {admin_b_email} / test123456")
+
         print("\n🎉 Seed completed successfully!")
         print(f"   Tenant ID:  {TENANT_ID}")
         print(f"   API Key:    {API_KEY}")
