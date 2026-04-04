@@ -177,8 +177,7 @@ services:
   seed:
     build:
       context: .
-      dockerfile: k8s/Dockerfile
-    command: ["python", "-m", "scripts.seed"]
+      dockerfile: scripts/Dockerfile.seed
     env_file: .env.docker
     depends_on:
       migrate:
