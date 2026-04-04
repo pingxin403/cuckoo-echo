@@ -127,7 +127,7 @@
     - MSW 禁用时清理残留 Service Worker（`navigator.serviceWorker.getRegistrations` + `unregister`）
     - _需求: 8.1, 8.2, 8.3_
 
-  - [~] 6.2 创建环境配置文件
+  - [x] 6.2 创建环境配置文件
     - 创建 `frontend/.env.integration`：`VITE_ENABLE_MSW=false`
     - 修改 `frontend/.env.development`（如存在）：确保 `VITE_ENABLE_MSW=true`
     - _需求: 8.4, 2.4_
