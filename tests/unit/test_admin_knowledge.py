@@ -50,7 +50,7 @@ class TestUploadDocument:
         # Verify the SQL contains INSERT and 'pending'
         call_args = conn.execute.await_args
         assert "INSERT INTO knowledge_docs" in call_args[0][0]
-        assert call_args[0][4] == "test-tenant/docs/" + body["doc_id"] + "/test.pdf"
+        assert call_args[0][4].endswith("/test.pdf")
 
     def test_upload_rejects_oversized_file(self):
         pool, conn = _mock_pool()

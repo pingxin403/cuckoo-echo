@@ -523,7 +523,7 @@
     - 创建 `scripts/backup.sh`（已有框架，完善 PG dump + Milvus snapshot）
     - 创建 `scripts/restore.sh`（已有框架，完善恢复流程）
 
-- [ ] 39. 最终检查点 — 生产就绪
+- [x] 39. 最终检查点 — 生产就绪
   - 确保监控、日志、负载测试、部署配置全部就绪
   - **验证命令**：
     - 全部后端测试：`make test && make test-pbt`
