@@ -103,3 +103,31 @@ class KnowledgePipelineWorker:
                     status,
                     doc_id,
                 )
+
+
+# ── Entry point ──────────────────────────────────────────────────
+
+async def main():
+    """Initialize dependencies and start the poll loop."""
+    from shared.db import create_asyncpg_pool
+    from shared.embedding_service import get_embedding_service
+    from shared.milvus_client import get_milvus_client
+    from shared.logging import setup_logging
+    from shared.config import get_settings
+
+    settings = get_settings()
+    setup_logging(settings.log_level)
+
+    db_pool = await create_asyncpg_pool()
+    milvus_client = get_milvus_client()
+    embedding_service = get_embedding_service()
+
+    worker = KnowledgePipelineWorker(db_pool, milvus_client, embedding_service)
+    try:
+        await worker.run()
+    finally:
+        await db_pool.close()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
