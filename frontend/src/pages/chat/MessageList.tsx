@@ -18,6 +18,8 @@ export interface MessageListProps {
  */
 export default function MessageList({ onLoadMore }: MessageListProps) {
   const messages = useChatStore((s) => s.messages);
+  const isStreaming = useChatStore((s) => s.isStreaming);
+  const streamingContent = useChatStore((s) => s.streamingContent);
   const { isAtBottom, scrollToBottom, virtuosoRef, virtuosoProps } =
     useVirtualScroll();
 
@@ -70,6 +72,23 @@ export default function MessageList({ onLoadMore }: MessageListProps) {
         )}
         className="h-full"
       />
+
+      {/* Streaming assistant response (shown during SSE) */}
+      {isStreaming && streamingContent && (
+        <div className="px-4 py-2">
+          <div className="mr-auto max-w-[80%] rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-900">
+            {streamingContent}
+            <span className="ml-1 inline-block animate-pulse">▌</span>
+          </div>
+        </div>
+      )}
+
+      {/* "AI 正在思考" indicator */}
+      {isStreaming && !streamingContent && (
+        <p className="px-4 py-2 text-sm text-gray-400" aria-live="polite">
+          AI 正在思考…
+        </p>
+      )}
 
       {/* "有新消息" floating button */}
       {hasNewMessages && (
