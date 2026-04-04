@@ -13,7 +13,7 @@ export const FILE_RULES: Record<string, ValidationRule> = {
     allowedTypes: ['audio/wav', 'audio/mpeg', 'audio/mp4'],
   },
   document: {
-    maxSizeMb: 50,
+    maxSizeMb: 200,
     allowedTypes: [
       'application/pdf',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

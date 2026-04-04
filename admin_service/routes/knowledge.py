@@ -9,7 +9,7 @@ from shared.db import tenant_db_context
 log = structlog.get_logger()
 router = APIRouter(prefix="/admin/v1/knowledge")
 
-MAX_UPLOAD_SIZE = 50 * 1024 * 1024  # 50MB
+MAX_UPLOAD_SIZE = 200 * 1024 * 1024  # 200MB
 
 
 @router.post("/docs")
@@ -18,10 +18,10 @@ async def upload_document(
     file: UploadFile = File(...),
     background_tasks: BackgroundTasks = None,
 ):
-    """Upload a document for processing. Max 50MB."""
+    """Upload a document for processing. Max 200MB."""
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
-        raise HTTPException(status_code=413, detail="File too large (max 50MB)")
+        raise HTTPException(status_code=413, detail="File too large (max 200MB)")
 
     tenant_id = request.state.tenant_id
     doc_id = str(uuid4())

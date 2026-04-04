@@ -7,6 +7,14 @@ import apiClient from '@/network/axios';
 import type { PersonaConfig, ModelConfig, RateLimitConfig } from '@/types';
 
 const MODEL_OPTIONS = [
+  // Ollama local models
+  'ollama/qwen3:8b',
+  'ollama/qwen3:14b',
+  'ollama/qwen3-vl',
+  'ollama/gemma3:12b',
+  'ollama/deepseek-r1:14b',
+  'ollama/llama3.2',
+  // Cloud models
   'gpt-4o',
   'gpt-4o-mini',
   'gpt-4-turbo',

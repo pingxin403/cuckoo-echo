@@ -30,7 +30,7 @@ describe('ERROR_MAP', () => {
   });
 
   it('maps 413 to file too large message', () => {
-    expect(ERROR_MAP[413]).toBe('文件过大（最大 50MB）');
+    expect(ERROR_MAP[413]).toBe('文件过大（最大 200MB）');
   });
 
   it('returns undefined for unknown status codes', () => {

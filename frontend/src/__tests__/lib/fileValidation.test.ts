@@ -38,11 +38,11 @@ describe('validateFile', () => {
       expect(result.error).toContain('5');
     });
 
-    it('rejects document > 50MB', () => {
-      const file = makeFile('big.pdf', 51 * 1024 * 1024, 'application/pdf');
+    it('rejects document > 200MB', () => {
+      const file = makeFile('big.pdf', 201 * 1024 * 1024, 'application/pdf');
       const result = validateFile(file, 'document');
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('50');
+      expect(result.error).toContain('200');
     });
   });
 
@@ -78,8 +78,8 @@ describe('validateFile', () => {
       expect(validateFile(file, 'audio')).toEqual({ isValid: true });
     });
 
-    it('accepts document exactly at 50MB limit', () => {
-      const file = makeFile('exact.pdf', 50 * 1024 * 1024, 'application/pdf');
+    it('accepts document exactly at 200MB limit', () => {
+      const file = makeFile('exact.pdf', 200 * 1024 * 1024, 'application/pdf');
       expect(validateFile(file, 'document')).toEqual({ isValid: true });
     });
   });

@@ -231,7 +231,7 @@ export default function KnowledgeManager() {
           选择文件
         </button>
         <p className="mt-2 text-xs text-gray-400">
-          支持 PDF、DOCX、HTML、TXT，最大 50MB
+          支持 PDF、DOCX、HTML、TXT，最大 200MB
         </p>
         <input
           ref={fileInputRef}
