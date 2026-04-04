@@ -65,8 +65,18 @@ async def llm_generate_node(state: AgentState) -> AgentState:
         async for chunk in response_stream:
             if hasattr(chunk, "choices") and chunk.choices:
                 delta = chunk.choices[0].delta
-                if delta and hasattr(delta, "content") and delta.content:
-                    full_response += delta.content
+                if delta:
+                    # Primary: normal content field
+                    content = getattr(delta, "content", None) or ""
+                    # Fallback: qwen3 thinking mode puts tokens in
+                    # additional_kwargs.reasoning_content when thinking
+                    # is enabled.  We capture it as a safety net even
+                    # though ai_gateway now disables thinking mode.
+                    if not content:
+                        extra = getattr(delta, "additional_kwargs", None) or {}
+                        content = extra.get("reasoning_content", "")
+                    if content:
+                        full_response += content
             if hasattr(chunk, "usage") and chunk.usage:
                 tokens_used = getattr(chunk.usage, "total_tokens", 0)
 
