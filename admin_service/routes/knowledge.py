@@ -27,7 +27,35 @@ async def upload_document(
     doc_id = str(uuid4())
     oss_path = f"{tenant_id}/docs/{doc_id}/{file.filename}"
 
-    # TODO: Upload to OSS in production
+    # Upload to MinIO/OSS
+    try:
+        oss_client = getattr(request.app.state, "oss_client", None)
+        if oss_client:
+            from io import BytesIO
+            oss_client.put_object(
+                bucket_name=oss_client._bucket_name if hasattr(oss_client, '_bucket_name') else "cuckoo-echo",
+                object_name=oss_path,
+                data=BytesIO(content),
+                length=len(content),
+                content_type=file.content_type or "application/octet-stream",
+            )
+        else:
+            # Fallback: save to local /tmp for development
+            import os
+            local_dir = f"/tmp/cuckoo-uploads/{tenant_id}/docs/{doc_id}"
+            os.makedirs(local_dir, exist_ok=True)
+            with open(f"{local_dir}/{file.filename}", "wb") as f:
+                f.write(content)
+            oss_path = f"{local_dir}/{file.filename}"
+    except Exception as e:
+        log.warning("oss_upload_failed", error=str(e), doc_id=doc_id)
+        # Fallback to local
+        import os
+        local_dir = f"/tmp/cuckoo-uploads/{tenant_id}/docs/{doc_id}"
+        os.makedirs(local_dir, exist_ok=True)
+        with open(f"{local_dir}/{file.filename}", "wb") as f:
+            f.write(content)
+        oss_path = f"{local_dir}/{file.filename}"
 
     db_pool = request.app.state.db_pool
     async with db_pool.acquire() as conn:

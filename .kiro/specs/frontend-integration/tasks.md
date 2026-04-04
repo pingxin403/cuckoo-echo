@@ -436,39 +436,39 @@
 ## 阶段六：Docker 端到端验证 + 后端集成测试
 
 - [ ] 30. Docker Rebuild + SSE 逐 token 验证
-  - [ ] 30.1 Rebuild chat-service Docker 镜像并验证 SSE 逐 token 流式
+  - [x] 30.1 Rebuild chat-service Docker 镜像并验证 SSE 逐 token 流式
     - `docker compose build chat-service && docker compose up -d chat-service --force-recreate`
     - `curl -N` 验证每个 token 独立到达（间隔 50-200ms）
     - 通过 Chrome DevTools 验证前端 MessageList 逐字显示
-  - [ ] 30.2 Rebuild knowledge-pipeline Docker 镜像并修复 Docling 依赖
+  - [-] 30.2 Rebuild knowledge-pipeline Docker 镜像并修复 Docling 依赖
     - 检查 `docker compose logs knowledge-pipeline` 错误日志
     - 修复 Docling 依赖（可能需要 `libgl1-mesa-glx`、`poppler-utils` 等系统包）
     - 验证 worker 能正常 poll `knowledge_docs` 表并处理文档
-  - [ ] 30.3 验证 RAG 上传→处理→检索完整链路
+  - [~] 30.3 验证 RAG 上传→处理→检索完整链路
     - 上传 TXT 文档 → 检查 knowledge_pipeline 日志 → 验证 Milvus 有向量数据
     - 发送相关问题 → 验证 LLM 回复引用知识库内容
 
 - [ ] 31. HITL 端到端运行时验证
-  - [ ] 31.1 通过 C 端发送"转人工"触发 HITL
+  - [~] 31.1 通过 C 端发送"转人工"触发 HITL
     - 在 Chat 页面发送"转人工"
     - 检查 chat-service 日志：`router_hitl_triggered`
     - 检查 admin-service 日志：`hitl_request_created`
-  - [ ] 31.2 Admin 端接管→对话→结束
+  - [~] 31.2 Admin 端接管→对话→结束
     - 在 Admin HITL 面板验证待处理会话出现
     - 点击接管 → 发送消息 → 结束介入
     - 验证 C 端状态恢复
 
 - [ ] 32. 配置保存后端验证
-  - [ ] 32.1 验证 Persona/Model/RateLimit 配置保存和读取
+  - [~] 32.1 验证 Persona/Model/RateLimit 配置保存和读取
     - 通过 ConfigPanel 修改配置 → 刷新页面 → 验证持久化
     - 检查后端 PUT 接口响应格式是否与前端兼容
 
 - [ ] 33. 后端集成测试
-  - [ ] 33.1 运行 `tests/integration/` 测试套件
+  - [~] 33.1 运行 `tests/integration/` 测试套件
     - 需要 Docker Compose 基础设施运行（PG/Redis/Milvus）
     - `uv run pytest tests/integration/ -m integration -v`
     - 修复因代码变更导致的测试失败
-  - [ ] 33.2 运行 `tests/e2e/` 后端 E2E 测试
+  - [~] 33.2 运行 `tests/e2e/` 后端 E2E 测试
     - `uv run pytest tests/e2e/ -m e2e -v`
     - 修复因 API 变更导致的测试失败
 
@@ -480,46 +480,46 @@
 ## 阶段七：可观测性 + 生产部署准备
 
 - [ ] 35. Grafana 监控面板
-  - [ ] 35.1 创建 `docker-compose.monitoring.yml`
+  - [~] 35.1 创建 `docker-compose.monitoring.yml`
     - 添加 Prometheus + Grafana 服务
     - 配置 Prometheus scrape targets（api-gateway:8000、chat-service:8001、admin-service:8002）
-  - [ ] 35.2 创建 Grafana Dashboard JSON
+  - [~] 35.2 创建 Grafana Dashboard JSON
     - 请求量/延迟/错误率面板（按服务分组）
     - SSE 流式延迟面板（首 token 时间）
     - Token 消耗趋势面板
     - 知识库处理队列深度面板
-  - [ ]* 35.3 配置告警规则
+  - [~]* 35.3 配置告警规则
     - 错误率 > 5% 告警
     - SSE 首 token 延迟 > 10s 告警
     - knowledge_pipeline 队列积压 > 100 告警
 
 - [ ] 36. 日志聚合
-  - [ ] 36.1 配置 structlog JSON 输出格式
+  - [~] 36.1 配置 structlog JSON 输出格式
     - 确保所有服务的 structlog 输出为 JSON 格式（已有）
     - 添加 `service_name`、`trace_id` 字段到日志上下文
-  - [ ]* 36.2 添加 Loki + Grafana Logs 集成
+  - [~]* 36.2 添加 Loki + Grafana Logs 集成
     - 在 `docker-compose.monitoring.yml` 中添加 Loki 服务
     - 配置 Docker log driver 将日志发送到 Loki
 
 - [ ] 37. 负载测试基线
-  - [ ] 37.1 运行 Locust 负载测试
+  - [~] 37.1 运行 Locust 负载测试
     - `uv run locust -f tests/load/locustfile.py --headless -u 50 -r 10 --run-time 60s`
     - 记录 RPS、P50/P95/P99 延迟、错误率
-  - [ ] 37.2 运行 RAG 负载测试
+  - [~] 37.2 运行 RAG 负载测试
     - `uv run locust -f tests/load/rag_load.py --headless -u 20 -r 5 --run-time 60s`
     - 记录 RAG 检索延迟和吞吐量
-  - [ ] 37.3 生成性能基线报告
+  - [~] 37.3 生成性能基线报告
     - 将结果写入 `docs/performance.md`
     - 包含硬件配置、测试参数、结果数据
 
 - [ ] 38. 生产部署准备
-  - [ ] 38.1 K8s Secrets 配置模板
+  - [~] 38.1 K8s Secrets 配置模板
     - 创建 `k8s/secrets.example.yaml`（LLM API Key、JWT Secret、DB 密码）
     - 文档化 Secret 创建步骤
-  - [ ] 38.2 Ingress + TLS 配置
+  - [~] 38.2 Ingress + TLS 配置
     - 创建 `k8s/ingress.yaml`（Nginx Ingress Controller）
     - 配置 cert-manager 自动 TLS
-  - [ ]* 38.3 数据备份脚本
+  - [~]* 38.3 数据备份脚本
     - 创建 `scripts/backup.sh`（已有框架，完善 PG dump + Milvus snapshot）
     - 创建 `scripts/restore.sh`（已有框架，完善恢复流程）
 

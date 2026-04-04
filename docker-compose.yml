@@ -125,6 +125,8 @@ services:
     ports:
       - "8002:8002"
     env_file: .env.docker
+    volumes:
+      - uploads:/tmp/cuckoo-uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -141,6 +143,8 @@ services:
       dockerfile: k8s/Dockerfile
     command: ["python", "-m", "knowledge_pipeline.worker"]
     env_file: .env.docker
+    volumes:
+      - uploads:/tmp/cuckoo-uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -202,3 +206,4 @@ volumes:
   pgdata:
   milvusdata:
   miniodata:
+  uploads:
