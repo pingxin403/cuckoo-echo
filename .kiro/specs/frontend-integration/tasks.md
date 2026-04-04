@@ -6,7 +6,7 @@
 
 ## 任务列表
 
-- [ ] 1. Field_Mapper 核心模块
+- [x] 1. Field_Mapper 核心模块
   - [x] 1.1 创建 `frontend/src/network/fieldMapper.ts`，实现 `toCamelCase` / `toSnakeCase` 通用转换函数
     - 安装 `camelcase-keys` 和 `snakecase-keys` 依赖
     - 实现 `toCamelCase<T>(obj)` 和 `toSnakeCase<T>(obj)` 包装函数，启用 `deep: true`
@@ -15,31 +15,31 @@
     - 实现 `transformResponse(data, endpoint)` 和 `toSnakeCaseWithExplicit(data, endpoint)` 组合转换函数
     - _需求: 1.1, 1.4, 1.5, 7.1, 7.3, 7.4_
 
-  - [ ]* 1.2 属性测试：字段映射往返一致性
+  - [x]* 1.2 属性测试：字段映射往返一致性
     - **Property 1: 字段映射往返一致性（Round-Trip）**
     - 创建 `frontend/src/__tests__/pbt/p1-field-mapper-roundtrip.test.ts`
     - 使用 fast-check 生成随机 snake_case 键值对象（1~50 键），验证 `keys(toSnakeCase(toCamelCase(R))) == keys(R)`
     - **验证: 需求 1.5**
 
-  - [ ]* 1.3 属性测试：API 响应结构映射完整性
+  - [x]* 1.3 属性测试：API 响应结构映射完整性
     - **Property 3: API 响应结构映射完整性**
     - 创建 `frontend/src/__tests__/pbt/p3-api-structure-mapping.test.ts`
     - 为 overview、tokens、missed-queries、knowledge、hitl、config 端点生成随机后端响应，验证转换后满足前端类型必需字段
     - **验证: 需求 1.1, 1.4, 7.1, 7.3, 7.4**
 
-  - [ ]* 1.4 单元测试：Field_Mapper 显式映射与结构适配
+  - [x]* 1.4 单元测试：Field_Mapper 显式映射与结构适配
     - 创建 `frontend/src/__tests__/network/fieldMapper.test.ts`
     - 测试显式映射规则、结构适配器、FormData 跳过、嵌套对象转换、边界条件
     - _需求: 1.1, 1.4_
 
-- [ ] 2. SSE 与 WebSocket 适配层
+- [x] 2. SSE 与 WebSocket 适配层
   - [x] 2.1 修改 `frontend/src/network/sseClient.ts`，实现 SSE 双格式解析
     - 新增 `extractTokenContent(parsed)` 函数：优先检测 `content` 字段（后端格式），回退到 `choices[0].delta.content`（OpenAI 格式）
     - 新增 `extractError(parsed)` 函数：检测 `CONCURRENT_REQUEST` 等 SSE 错误事件
     - 在 `parseStream` 中替换现有 Token 提取逻辑为 `extractTokenContent`
     - _需求: 4.2, 4.3_
 
-  - [ ]* 2.2 属性测试：SSE 双格式解析完整性
+  - [x]* 2.2 属性测试：SSE 双格式解析完整性
     - **Property 2: SSE 双格式解析完整性**
     - 创建 `frontend/src/__tests__/pbt/p2-sse-dual-format.test.ts`
     - 使用 fast-check 生成随机 Token 序列（含中文/英文/特殊字符），随机选择后端/OpenAI 格式编码，验证解析拼接结果一致
@@ -52,13 +52,13 @@
     - 处理 WS 关闭码（4001 不重连，1006 指数退避重连）
     - _需求: 5.1, 5.2, 5.5, 5.6_
 
-  - [ ]* 2.4 属性测试：指数退避延迟序列
+  - [x]* 2.4 属性测试：指数退避延迟序列
     - **Property 6: 指数退避延迟序列**
     - 创建 `frontend/src/__tests__/pbt/p6-exponential-backoff.test.ts`
     - 使用 fast-check 生成随机连续失败次数（1~20），验证延迟 = `min(1000 * 2^(k-1), 30000)`，成功后重置为 1000ms
     - **验证: 需求 4.6**
 
-- [ ] 3. JWT 解码与认证适配
+- [x] 3. JWT 解码与认证适配
   - [x] 3.1 修改 `frontend/src/stores/authStore.ts`，适配后端 JWT payload
     - 新增 `BackendJWTPayload` 接口（`admin_user_id`、`tenant_id`、`role`、`exp`、`iat`）
     - 实现 `userFromBackendPayload(payload)` 转换函数，处理缺失的 `email` 和 `tenant_name`（使用 `admin_user_id` 和 `tenant_id` 作为回退值）
@@ -66,7 +66,7 @@
     - 确保 Token 刷新逻辑对接 `POST /admin/v1/auth/refresh`
     - _需求: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-  - [ ]* 3.2 属性测试：JWT Payload 解码与回退字段
+  - [x]* 3.2 属性测试：JWT Payload 解码与回退字段
     - **Property 4: JWT Payload 解码与回退字段**
     - 创建 `frontend/src/__tests__/pbt/p4-jwt-payload-decode.test.ts`
     - 使用 fast-check 生成随机 `admin_user_id`、`tenant_id`、`role`，验证转换后 `AdminUser` 所有必需字段非空
@@ -79,14 +79,14 @@
     - 在 chatStore 的线程历史加载中集成此转换
     - _需求: 4.5, 1.4_
 
-  - [ ]* 3.4 属性测试：实时消息格式转换完整性
+  - [x]* 3.4 属性测试：实时消息格式转换完整性
     - **Property 5: 实时消息格式转换完整性**
     - 创建 `frontend/src/__tests__/pbt/p5-realtime-message-convert.test.ts`
     - 使用 fast-check 生成随机 LangGraph 消息和 HITL WS 事件，验证转换后字段完整性和 role 映射正确性
     - **验证: 需求 4.5, 5.3**
 
-- [ ] 4. Axios Interceptor 集成与 Store 适配
-  - [ ] 4.1 修改 `frontend/src/network/axios.ts`，注入 Field_Mapper Interceptor
+- [x] 4. Axios Interceptor 集成与 Store 适配
+  - [x] 4.1 修改 `frontend/src/network/axios.ts`，注入 Field_Mapper Interceptor
     - Request Interceptor：对非 FormData 请求体执行 `toSnakeCaseWithExplicit(data, endpoint)` 转换
     - Response Interceptor：执行 `transformResponse(data, endpoint)` 转换（显式映射 → 通用 snake→camel → 结构适配）
     - 扩展错误处理：增加 `ECONNREFUSED` / Network Error 检测，展示"后端服务不可用"Toast
@@ -112,7 +112,7 @@
     - 增加 `WS_CLOSE_MAP`（1000/1006/4001 关闭码处理）
     - _需求: 4.3, 5.5, 2.7_
 
-  - [ ]* 4.5 单元测试：Interceptor 集成与 Store 适配
+  - [x]* 4.5 单元测试：Interceptor 集成与 Store 适配
     - 创建 `frontend/src/__tests__/network/axios-interceptor.test.ts`
     - 测试 Request/Response Interceptor 转换、Token 注入、错误映射
     - 测试 adminStore 路径修正和响应处理
@@ -161,7 +161,7 @@
 - [x] 8. 检查点 — 基础设施验证
   - 确保所有测试通过，ask the user if questions arise.
 
-- [ ] 9. E2E 集成测试配置与场景
+- [x] 9. E2E 集成测试配置与场景
   - [x] 9.1 创建 `frontend/playwright.integration.config.ts`
     - `testMatch: '**/*.integration.spec.ts'`
     - `baseURL` 指向 `http://localhost`（Docker Compose 环境）
@@ -169,22 +169,22 @@
     - `timeout: 60_000`，`retries: 1`
     - _需求: 10.1, 10.4_
 
-  - [ ]* 9.2 创建 E2E 集成测试：Admin 登录
+  - [x]* 9.2 创建 E2E 集成测试：Admin 登录
     - 创建 `frontend/e2e/login.integration.spec.ts`
     - 使用 Seed 数据中的 Admin 用户登录，验证真实 JWT 签发、页面跳转、用户信息展示
     - _需求: 10.3_
 
-  - [ ]* 9.3 创建 E2E 集成测试：聊天流程
+  - [x]* 9.3 创建 E2E 集成测试：聊天流程
     - 创建 `frontend/e2e/chat.integration.spec.ts`
     - 使用 Seed 数据中的 API Key 发送消息，验证 SSE 流式响应和 Token 拼接
     - _需求: 10.3_
 
-  - [ ]* 9.4 创建 E2E 集成测试：知识库上传
+  - [x]* 9.4 创建 E2E 集成测试：知识库上传
     - 创建 `frontend/e2e/knowledge.integration.spec.ts`
     - 上传测试文件，验证文件处理状态轮询和字段映射
     - _需求: 10.3_
 
-  - [ ]* 9.5 创建 E2E 集成测试：HITL 流程
+  - [x]* 9.5 创建 E2E 集成测试：HITL 流程
     - 创建 `frontend/e2e/hitl.integration.spec.ts`
     - 验证 WebSocket 连接、HITL 事件接收、会话接管
     - _需求: 10.3_
