@@ -8,6 +8,7 @@ import ChatInput from '@/pages/chat/ChatInput';
 import MessageList from '@/pages/chat/MessageList';
 import ThreadList from '@/pages/chat/ThreadList';
 import HITLStatus from '@/pages/chat/HITLStatus';
+import WaveformIndicator from '@/pages/chat/WaveformIndicator';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -28,6 +29,7 @@ export default function ChatWidget({
   logoUrl,
 }: ChatWidgetProps) {
   const [apiKeyError, setApiKeyError] = useState(false);
+  const [isAsrProcessing, setIsAsrProcessing] = useState(false);
 
   // ── Session store ──
   const sessionStatus = useSessionStore((s) => s.status);
@@ -82,6 +84,14 @@ export default function ChatWidget({
     : '';
   const { connectionStatus: wsStatus } = useWebSocket({
     url: wsUrl,
+    onMessage(msg) {
+      // Detect ASR processing stage from backend
+      if (msg.type === 'processing' && (msg.data as { stage?: string })?.stage === 'asr') {
+        setIsAsrProcessing(true);
+      } else if (msg.type === 'token' || msg.type === 'done') {
+        setIsAsrProcessing(false);
+      }
+    },
   });
 
   // Disconnect SSE when switching to WebSocket
@@ -201,6 +211,13 @@ export default function ChatWidget({
         <div className="ce-main" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {/* HITL status banner */}
           <HITLStatus />
+
+          {/* ASR waveform indicator */}
+          {isAsrProcessing && (
+            <div className="mx-4 my-2">
+              <WaveformIndicator />
+            </div>
+          )}
 
           {/* MessageList */}
           <MessageList />

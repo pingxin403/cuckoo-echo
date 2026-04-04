@@ -533,7 +533,7 @@
     - MediaUploader 上传完成后将 MediaAttachment 传递给 sendMessage
     - _需求: 2.1, 2.2, 2.3_
 
-  - [~] 21.3 集成 WaveformIndicator 到 ChatWidget
+  - [x] 21.3 集成 WaveformIndicator 到 ChatWidget
     - 在 ChatWidget 中监听 ASR 阶段状态
     - 展示 WaveformIndicator 组件（"语音识别中…"）
     - _需求: 2.4, 补充-语音波形指示器_
