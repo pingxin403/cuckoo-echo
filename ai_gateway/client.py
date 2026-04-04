@@ -13,6 +13,11 @@ from shared.config import get_settings
 log = structlog.get_logger()
 
 
+def _is_ollama_model(model: str) -> bool:
+    """Check if the model string targets a local Ollama instance."""
+    return model.startswith("ollama/") or model.startswith("ollama_chat/")
+
+
 async def stream_chat_completion(
     messages: list[dict],
     tenant_llm_config: dict | None = None,
@@ -40,9 +45,16 @@ async def stream_chat_completion(
             "model": primary_model,
             "messages": messages,
             "stream": True,
-            "stream_options": {"include_usage": True},
             "temperature": temperature,
         }
+        # Ollama does not support stream_options; only add for non-Ollama models.
+        # Also disable qwen3 "thinking" mode which puts tokens in
+        # additional_kwargs.reasoning_content instead of content.
+        if _is_ollama_model(primary_model):
+            kwargs["extra_body"] = {"enable_thinking": False}
+        else:
+            kwargs["stream_options"] = {"include_usage": True}
+
         if settings.llm_api_key:
             kwargs["api_key"] = settings.llm_api_key
         if settings.llm_api_base:
@@ -59,9 +71,13 @@ async def stream_chat_completion(
             "model": fallback_model,
             "messages": messages,
             "stream": True,
-            "stream_options": {"include_usage": True},
             "temperature": temperature,
         }
+        if _is_ollama_model(fallback_model):
+            fallback_kwargs["extra_body"] = {"enable_thinking": False}
+        else:
+            fallback_kwargs["stream_options"] = {"include_usage": True}
+
         if settings.llm_api_key:
             fallback_kwargs["api_key"] = settings.llm_api_key
         if settings.llm_api_base:
