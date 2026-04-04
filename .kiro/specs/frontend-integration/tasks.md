@@ -7,7 +7,7 @@
 ## 任务列表
 
 - [ ] 1. Field_Mapper 核心模块
-  - [ ] 1.1 创建 `frontend/src/network/fieldMapper.ts`，实现 `toCamelCase` / `toSnakeCase` 通用转换函数
+  - [x] 1.1 创建 `frontend/src/network/fieldMapper.ts`，实现 `toCamelCase` / `toSnakeCase` 通用转换函数
     - 安装 `camelcase-keys` 和 `snakecase-keys` 依赖
     - 实现 `toCamelCase<T>(obj)` 和 `toSnakeCase<T>(obj)` 包装函数，启用 `deep: true`
     - 导出 `EXPLICIT_BACKEND_TO_FRONTEND` 和 `EXPLICIT_FRONTEND_TO_BACKEND` 显式规则表（覆盖 `doc_id→id`、`human_transfer_rate→humanEscalationRate`、`query_prefix→query`、`primaryModel→model` 等非标准映射）
@@ -33,7 +33,7 @@
     - _需求: 1.1, 1.4_
 
 - [ ] 2. SSE 与 WebSocket 适配层
-  - [ ] 2.1 修改 `frontend/src/network/sseClient.ts`，实现 SSE 双格式解析
+  - [~] 2.1 修改 `frontend/src/network/sseClient.ts`，实现 SSE 双格式解析
     - 新增 `extractTokenContent(parsed)` 函数：优先检测 `content` 字段（后端格式），回退到 `choices[0].delta.content`（OpenAI 格式）
     - 新增 `extractError(parsed)` 函数：检测 `CONCURRENT_REQUEST` 等 SSE 错误事件
     - 在 `parseStream` 中替换现有 Token 提取逻辑为 `extractTokenContent`
@@ -45,7 +45,7 @@
     - 使用 fast-check 生成随机 Token 序列（含中文/英文/特殊字符），随机选择后端/OpenAI 格式编码，验证解析拼接结果一致
     - **验证: 需求 4.2**
 
-  - [ ] 2.3 修改 `frontend/src/network/wsClient.ts`，增加 queryParams 和 onOpen 支持
+  - [~] 2.3 修改 `frontend/src/network/wsClient.ts`，增加 queryParams 和 onOpen 支持
     - 在 `WSClientOptions` 接口中新增 `queryParams?: Record<string, string>` 和 `onOpen?: () => void`
     - `connect` 方法中使用 `URL` + `searchParams.set` 拼接查询参数
     - `ws.onopen` 中调用 `options.onOpen?.()` 回调
@@ -59,7 +59,7 @@
     - **验证: 需求 4.6**
 
 - [ ] 3. JWT 解码与认证适配
-  - [ ] 3.1 修改 `frontend/src/stores/authStore.ts`，适配后端 JWT payload
+  - [~] 3.1 修改 `frontend/src/stores/authStore.ts`，适配后端 JWT payload
     - 新增 `BackendJWTPayload` 接口（`admin_user_id`、`tenant_id`、`role`、`exp`、`iat`）
     - 实现 `userFromBackendPayload(payload)` 转换函数，处理缺失的 `email` 和 `tenant_name`（使用 `admin_user_id` 和 `tenant_id` 作为回退值）
     - 修改 `login` action 使用 `transformResponse` 处理登录响应
@@ -72,7 +72,7 @@
     - 使用 fast-check 生成随机 `admin_user_id`、`tenant_id`、`role`，验证转换后 `AdminUser` 所有必需字段非空
     - **验证: 需求 3.2**
 
-  - [ ] 3.3 实现 LangGraph 消息格式转换
+  - [~] 3.3 实现 LangGraph 消息格式转换
     - 在 `frontend/src/network/fieldMapper.ts` 或新建 `frontend/src/lib/langGraphAdapter.ts` 中实现 `convertLangGraphMessage(msg, threadId)` 函数
     - 处理 `type` → `role` 映射（human→user, ai→assistant）
     - 处理 `tool_calls` 字段转换
@@ -86,27 +86,27 @@
     - **验证: 需求 4.5, 5.3**
 
 - [ ] 4. Axios Interceptor 集成与 Store 适配
-  - [ ] 4.1 修改 `frontend/src/network/axios.ts`，注入 Field_Mapper Interceptor
+  - [~] 4.1 修改 `frontend/src/network/axios.ts`，注入 Field_Mapper Interceptor
     - Request Interceptor：对非 FormData 请求体执行 `toSnakeCaseWithExplicit(data, endpoint)` 转换
     - Response Interceptor：执行 `transformResponse(data, endpoint)` 转换（显式映射 → 通用 snake→camel → 结构适配）
     - 扩展错误处理：增加 `ECONNREFUSED` / Network Error 检测，展示"后端服务不可用"Toast
     - 增加 HTTP 413、429 错误码处理
     - _需求: 1.2, 1.3, 2.7, 6.6_
 
-  - [ ] 4.2 修改 `frontend/src/stores/adminStore.ts`，适配后端实际响应和路径
+  - [~] 4.2 修改 `frontend/src/stores/adminStore.ts`，适配后端实际响应和路径
     - 修正缓存清除路径：`/admin/v1/cache/clear` → `/admin/v1/config/cache/clear`
     - 修正沙盒路径：`/admin/v1/sandbox/run` → `/admin/v1/metrics/sandbox/run`
     - 处理配置接口 `{updated: true}` 响应（非 HTTP 204）
     - 处理删除文档 `{doc_id, deleted: true}` 响应（非 HTTP 204）
     - _需求: 7.5, 7.6, 7.7, 6.4_
 
-  - [ ] 4.3 修改 `frontend/src/stores/chatStore.ts`，集成 SSE 适配和线程历史转换
+  - [~] 4.3 修改 `frontend/src/stores/chatStore.ts`，集成 SSE 适配和线程历史转换
     - SSE 发送请求体格式对齐后端：`{thread_id, user_id, messages: [{role, content}]}`
     - 集成 `extractTokenContent` 双格式解析
     - 线程历史加载集成 `convertLangGraphMessage` 转换
     - _需求: 4.1, 4.5_
 
-  - [ ] 4.4 扩展错误码映射表
+  - [~] 4.4 扩展错误码映射表
     - 修改 `frontend/src/lib/errorMap.ts`（或对应文件），增加 `ERROR_MAP`（401/404/409/413/415/429/500/503）
     - 增加 `SSE_ERROR_MAP`（CONCURRENT_REQUEST/STREAM_TIMEOUT/NETWORK_ERROR）
     - 增加 `WS_CLOSE_MAP`（1000/1006/4001 关闭码处理）
@@ -122,36 +122,36 @@
   - 确保所有测试通过，ask the user if questions arise.
 
 - [ ] 6. 环境配置与 MSW 条件加载
-  - [ ] 6.1 修改 `frontend/src/main.tsx`，实现 MSW 条件加载
+  - [~] 6.1 修改 `frontend/src/main.tsx`，实现 MSW 条件加载
     - 根据 `import.meta.env.VITE_ENABLE_MSW` 决定是否启用 MSW
     - MSW 禁用时清理残留 Service Worker（`navigator.serviceWorker.getRegistrations` + `unregister`）
     - _需求: 8.1, 8.2, 8.3_
 
-  - [ ] 6.2 创建环境配置文件
+  - [~] 6.2 创建环境配置文件
     - 创建 `frontend/.env.integration`：`VITE_ENABLE_MSW=false`
     - 修改 `frontend/.env.development`（如存在）：确保 `VITE_ENABLE_MSW=true`
     - _需求: 8.4, 2.4_
 
-  - [ ] 6.3 修改 `frontend/vite.config.ts`，新增开发代理配置
+  - [~] 6.3 修改 `frontend/vite.config.ts`，新增开发代理配置
     - 添加 `/admin/v1/` → `http://localhost:8002` 代理（含 `ws: true`）
     - 添加 `/v1/` → `http://localhost:8000` 代理（含 `ws: true`）
     - 确保 `/admin/v1/` 在 `/v1/` 之前声明（优先匹配）
     - _需求: 2.2, 2.3_
 
 - [ ] 7. Nginx 与 Docker Compose 基础设施
-  - [ ] 7.1 修改 `frontend/nginx.conf`，增加 SSE/WS 优化配置
+  - [~] 7.1 修改 `frontend/nginx.conf`，增加 SSE/WS 优化配置
     - SSE 端点 `/v1/chat/completions`：`proxy_buffering off` + `X-Accel-Buffering no` + `proxy_read_timeout 300s`
     - WS 端点 `/v1/chat/ws` 和 `/admin/v1/ws/`：`Upgrade` + `Connection "upgrade"` + `proxy_read_timeout 300s`
     - 健康检查端点 `/nginx-health`
     - 配置 API 代理路由（`/admin/v1/` → admin-service:8002，`/v1/` → api-gateway:8000）
     - _需求: 2.5, 2.6, 9.3_
 
-  - [ ] 7.2 修改 `docker-compose.yml`，新增 frontend 和 seed 服务
+  - [~] 7.2 修改 `docker-compose.yml`，新增 frontend 和 seed 服务
     - 新增 `frontend` 服务：构建 `./frontend`，暴露 80 端口，依赖 api-gateway 和 admin-service，健康检查 `/nginx-health`
     - 新增 `seed` 服务：运行 `python -m scripts.seed`，依赖 migrate 完成，幂等创建测试数据
     - _需求: 9.1, 9.2, 9.4, 9.5, 9.6_
 
-  - [ ] 7.3 创建 `scripts/seed.py` 幂等种子脚本
+  - [~] 7.3 创建 `scripts/seed.py` 幂等种子脚本
     - 创建测试租户（`test-tenant-001`，API Key `ck_test_integration_key`）
     - 创建 Admin 用户（`admin@test.com`，bcrypt 密码）
     - 初始化默认配置（LLM config、rate limit）
@@ -162,7 +162,7 @@
   - 确保所有测试通过，ask the user if questions arise.
 
 - [ ] 9. E2E 集成测试配置与场景
-  - [ ] 9.1 创建 `frontend/playwright.integration.config.ts`
+  - [~] 9.1 创建 `frontend/playwright.integration.config.ts`
     - `testMatch: '**/*.integration.spec.ts'`
     - `baseURL` 指向 `http://localhost`（Docker Compose 环境）
     - `webServer: undefined`（不启动 Vite dev server）
