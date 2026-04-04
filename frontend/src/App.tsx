@@ -83,11 +83,11 @@ export default function App() {
               <Route path="/admin" element={<ProtectedRoute />}>
                 <Route element={<DashboardLayout />}>
                   <Route index element={<Navigate to="/admin/metrics" replace />} />
-                  <Route path="metrics" element={<Suspense fallback={<Skeleton />}><MetricsDashboard /></Suspense>} />
-                  <Route path="knowledge" element={<Suspense fallback={<Skeleton />}><KnowledgeManager /></Suspense>} />
-                  <Route path="hitl" element={<Suspense fallback={<Skeleton />}><HITLPanel /></Suspense>} />
-                  <Route path="config" element={<Suspense fallback={<Skeleton />}><ConfigPanel /></Suspense>} />
-                  <Route path="sandbox" element={<Suspense fallback={<Skeleton />}><SandboxRunner /></Suspense>} />
+                  <Route path="metrics" element={<ErrorBoundary><Suspense fallback={<Skeleton />}><MetricsDashboard /></Suspense></ErrorBoundary>} />
+                  <Route path="knowledge" element={<ErrorBoundary><Suspense fallback={<Skeleton />}><KnowledgeManager /></Suspense></ErrorBoundary>} />
+                  <Route path="hitl" element={<ErrorBoundary><Suspense fallback={<Skeleton />}><HITLPanel /></Suspense></ErrorBoundary>} />
+                  <Route path="config" element={<ErrorBoundary><Suspense fallback={<Skeleton />}><ConfigPanel /></Suspense></ErrorBoundary>} />
+                  <Route path="sandbox" element={<ErrorBoundary><Suspense fallback={<Skeleton />}><SandboxRunner /></Suspense></ErrorBoundary>} />
                 </Route>
               </Route>
 
