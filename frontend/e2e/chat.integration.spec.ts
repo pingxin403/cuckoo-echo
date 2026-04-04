@@ -21,9 +21,10 @@ test.describe('Chat flow (integration)', () => {
     });
 
     // Wait for assistant response bubble (SSE streaming or completed)
+    // Ollama local models may take longer to respond
     await expect(
       page.locator('[data-testid="message-bubble"]').nth(1),
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: 60_000 });
   });
 
   test('SSE stream completes and message is finalized', async ({ page }) => {
@@ -34,8 +35,9 @@ test.describe('Chat flow (integration)', () => {
     await page.click('button[aria-label="发送消息"]');
 
     // Wait for streaming to complete — the send button should become enabled again
+    // Ollama local models may take longer
     await expect(page.locator('button[aria-label="发送消息"]')).toBeEnabled({
-      timeout: 30_000,
+      timeout: 60_000,
     });
 
     // At least two message bubbles should exist (user + assistant)
