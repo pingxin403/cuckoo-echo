@@ -82,16 +82,23 @@ async def notify_hitl_request(
 
     async with db_pool.acquire() as conn:
         async with tenant_db_context(conn, tenant_id):
+            # Ensure thread exists (may only exist in LangGraph checkpointer)
+            await conn.execute(
+                """INSERT INTO threads (id, tenant_id, user_id, status)
+                   VALUES ($1::uuid, $2::uuid, $2::uuid, 'active')
+                   ON CONFLICT (id) DO NOTHING""",
+                thread_id, tenant_id,
+            )
             await conn.execute(
                 """INSERT INTO hitl_sessions (id, tenant_id, thread_id, status)
-                   VALUES ($1, $2, $3, 'pending')""",
+                   VALUES ($1::uuid, $2::uuid, $3::uuid, 'pending')""",
                 session_id, tenant_id, thread_id,
             )
             # Insert escalation delayed task (execute_at = NOW() + 60s)
             await conn.execute(
                 """INSERT INTO hitl_escalation_tasks
                        (id, session_id, tenant_id, thread_id, execute_at)
-                   VALUES ($1, $2, $3, $4, NOW() + INTERVAL '60 seconds')""",
+                   VALUES ($1::uuid, $2::uuid, $3::uuid, $4::uuid, NOW() + INTERVAL '60 seconds')""",
                 str(uuid4()), session_id, tenant_id, thread_id,
             )
 
