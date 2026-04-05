@@ -58,14 +58,17 @@ function findMatchingRules<T>(
   endpoint: string,
   ruleTable: Record<string, T>,
 ): T | undefined {
+  // Strip query params for matching
+  const path = endpoint.split('?')[0];
+
   // Exact match first
-  if (ruleTable[endpoint]) return ruleTable[endpoint];
+  if (ruleTable[path]) return ruleTable[path];
 
   // Wildcard match (e.g., '/admin/v1/knowledge/docs/*')
   for (const pattern of Object.keys(ruleTable)) {
     if (pattern.endsWith('/*')) {
-      const prefix = pattern.slice(0, -1); // remove trailing '*'
-      if (endpoint.startsWith(prefix)) return ruleTable[pattern];
+      const prefix = pattern.slice(0, -1);
+      if (path.startsWith(prefix)) return ruleTable[pattern];
     }
   }
   return undefined;
