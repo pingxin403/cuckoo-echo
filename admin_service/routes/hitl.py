@@ -86,7 +86,7 @@ async def notify_hitl_request(
         await conn.execute(
             """INSERT INTO users (id, tenant_id, external_uid)
                VALUES ($1::uuid, $2::uuid, 'system')
-               ON CONFLICT (id) DO NOTHING""",
+               ON CONFLICT (tenant_id, external_uid) DO NOTHING""",
             system_user_id, tenant_id,
         )
         # Ensure thread row exists (FK constraint on hitl_sessions.thread_id)
