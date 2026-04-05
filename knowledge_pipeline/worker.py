@@ -39,20 +39,26 @@ class KnowledgePipelineWorker:
         from knowledge_pipeline.chunker import split_text
 
         try:
-            await self._update_status(doc_id, "processing")
+            await self._update_status(doc_id, "processing", stage="parsing")
 
             # Parse
             text = await parse_document(file_path)
+            log.info("doc_parsed", doc_id=doc_id, text_len=len(text))
 
             # Chunk
+            await self._update_status(doc_id, "processing", stage="chunking")
             chunks = split_text(text)
+            log.info("doc_chunked", doc_id=doc_id, chunks=len(chunks))
 
             # Embed
+            await self._update_status(doc_id, "processing", stage=f"embedding ({len(chunks)} chunks)")
             vectors = await self.embedding_service.embed_batch(
                 [c for c in chunks]
             )
+            log.info("doc_embedded", doc_id=doc_id, vectors=len(vectors))
 
             # Store in Milvus
+            await self._update_status(doc_id, "processing", stage="storing")
             data = [
                 {
                     "id": str(uuid4()),
@@ -81,27 +87,28 @@ class KnowledgePipelineWorker:
         status: str,
         chunk_count: int | None = None,
         error_msg: str | None = None,
+        stage: str | None = None,
     ):
         async with self.db_pool.acquire() as conn:
             if chunk_count is not None:
                 await conn.execute(
                     "UPDATE knowledge_docs SET status=$1, chunk_count=$2, updated_at=NOW() WHERE id=$3",
-                    status,
-                    chunk_count,
-                    doc_id,
+                    status, chunk_count, doc_id,
                 )
             elif error_msg is not None:
                 await conn.execute(
                     "UPDATE knowledge_docs SET status=$1, error_msg=$2, updated_at=NOW() WHERE id=$3",
-                    status,
-                    error_msg,
-                    doc_id,
+                    status, error_msg, doc_id,
+                )
+            elif stage is not None:
+                await conn.execute(
+                    "UPDATE knowledge_docs SET status=$1, error_msg=$2, updated_at=NOW() WHERE id=$3",
+                    status, f"stage:{stage}", doc_id,
                 )
             else:
                 await conn.execute(
                     "UPDATE knowledge_docs SET status=$1, updated_at=NOW() WHERE id=$2",
-                    status,
-                    doc_id,
+                    status, doc_id,
                 )
 
 

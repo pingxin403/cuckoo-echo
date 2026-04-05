@@ -12,12 +12,15 @@ class ParseError(Exception):
     """Raised when document parsing fails."""
 
 
-async def parse_document(file_path: str) -> str:
+async def parse_document(file_path: str, timeout_seconds: int = 300) -> str:
     """Parse a document file and return its text content as Markdown.
 
     Uses Docling DocumentConverter for PDF/Word/HTML.
     Falls back to plain text reading for .txt files.
+    Timeout: 5 minutes by default to prevent hanging on very large PDFs.
     """
+    import asyncio
+
     path = Path(file_path)
     suffix = path.suffix.lower()
 
@@ -27,13 +30,23 @@ async def parse_document(file_path: str) -> str:
     try:
         from docling.document_converter import DocumentConverter
 
-        converter = DocumentConverter()
-        result = converter.convert(str(path))
-        markdown = result.document.export_to_markdown()
+        loop = asyncio.get_running_loop()
+
+        def _sync_parse():
+            converter = DocumentConverter()
+            result = converter.convert(str(path))
+            return result.document.export_to_markdown()
+
+        markdown = await asyncio.wait_for(
+            loop.run_in_executor(None, _sync_parse),
+            timeout=timeout_seconds,
+        )
         if not markdown or not markdown.strip():
             raise ParseError(f"Docling returned empty content for {file_path}")
-        log.info("document_parsed", path=file_path, format=suffix)
+        log.info("document_parsed", path=file_path, format=suffix, length=len(markdown))
         return markdown
+    except asyncio.TimeoutError:
+        raise ParseError(f"Parsing timed out after {timeout_seconds}s for {file_path}")
     except ImportError:
         log.warning("docling_not_available", msg="falling back to text extraction")
         return _parse_text(path)
