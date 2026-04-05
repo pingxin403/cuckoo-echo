@@ -23,7 +23,11 @@ class EmbeddingService:
         try:
             from litellm import aembedding
 
-            kwargs: dict = {"model": self.model, "input": [text]}
+            # Truncate to avoid Ollama 500 errors on very long text
+            MAX_CHARS = 8000
+            truncated = text[:MAX_CHARS] if len(text) > MAX_CHARS else text
+
+            kwargs: dict = {"model": self.model, "input": [truncated]}
             if self.api_base:
                 kwargs["api_base"] = self.api_base
             if self.api_key:
@@ -39,7 +43,11 @@ class EmbeddingService:
         try:
             from litellm import aembedding
 
-            kwargs: dict = {"model": self.model, "input": texts}
+            # Truncate overly long texts to avoid Ollama 500 errors
+            MAX_CHARS = 8000  # ~2000 tokens, safe for most embedding models
+            truncated = [t[:MAX_CHARS] if len(t) > MAX_CHARS else t for t in texts]
+
+            kwargs: dict = {"model": self.model, "input": truncated}
             if self.api_base:
                 kwargs["api_base"] = self.api_base
             if self.api_key:
