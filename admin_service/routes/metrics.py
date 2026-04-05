@@ -21,20 +21,24 @@ async def metrics_overview(request: Request, range: str = Query("7d")):
     tenant_id = request.state.tenant_id
     pool = await _get_ro_pool(request)
     async with pool.acquire() as conn:
-        # Total conversations
-        total = await conn.fetchval(
-            f"SELECT COUNT(*) FROM threads WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '{interval}'",
+        row = await conn.fetchrow(
+            f"""SELECT
+                    COUNT(DISTINCT t.id) AS total_conversations,
+                    COUNT(DISTINCT h.id) AS hitl_count
+                FROM threads t
+                LEFT JOIN hitl_sessions h
+                    ON h.tenant_id = t.tenant_id
+                    AND h.started_at >= NOW() - INTERVAL '{interval}'
+                WHERE t.tenant_id = $1
+                    AND t.created_at >= NOW() - INTERVAL '{interval}'""",
             tenant_id,
         )
-        # Human transfer rate
-        hitl_count = await conn.fetchval(
-            f"SELECT COUNT(*) FROM hitl_sessions WHERE tenant_id = $1 AND started_at >= NOW() - INTERVAL '{interval}'",
-            tenant_id,
-        )
+    total = row["total_conversations"] if row else 0
+    hitl_count = row["hitl_count"] if row else 0
     return {
-        "total_conversations": total or 0,
-        "human_transfer_count": hitl_count or 0,
-        "human_transfer_rate": round((hitl_count or 0) / max(total or 1, 1), 4),
+        "total_conversations": total,
+        "human_transfer_count": hitl_count,
+        "human_transfer_rate": round(hitl_count / max(total, 1), 4),
         "range": range,
     }
 

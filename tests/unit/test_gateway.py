@@ -61,6 +61,8 @@ def _make_redis(incr_values=None):
     else:
         redis.incr = AsyncMock(return_value=1)
     redis.expire = AsyncMock()
+    redis.get = AsyncMock(return_value=None)  # Cache miss by default
+    redis.set = AsyncMock()
     return redis
 
 

@@ -68,10 +68,14 @@ async def tenant_db_context(
     connection is used for the entire transaction.
     """
     async with conn.transaction():
-        # SET LOCAL doesn't support $1 placeholders in asyncpg.
-        # Use quote_literal equivalent for safety.
-        safe_id = tenant_id.replace("'", "''")
-        await conn.execute(f"SET LOCAL app.current_tenant = '{safe_id}'")
+        # Validate tenant_id is a proper UUID to prevent SQL injection
+        # (SET LOCAL doesn't support $1 parameterized queries in asyncpg)
+        import uuid as _uuid
+        try:
+            validated = str(_uuid.UUID(tenant_id))
+        except (ValueError, AttributeError):
+            raise ValueError(f"Invalid tenant_id format: {tenant_id!r}")
+        await conn.execute(f"SET LOCAL app.current_tenant = '{validated}'")
         yield conn
 
 

@@ -535,45 +535,45 @@
 
 ## 阶段八：安全加固 + 性能优化 + 部署加固
 
-- [ ] 40. 安全加固
-  - [ ] 40.1 加固 `shared/db.py` SET LOCAL — 添加 UUID 格式校验
+- [x] 40. 安全加固
+  - [x] 40.1 加固 `shared/db.py` SET LOCAL — 添加 UUID 格式校验
     - 在 `tenant_db_context` 中验证 `tenant_id` 是合法 UUID 格式（`uuid.UUID(tenant_id)`）
     - 非法格式直接抛出 `ValueError`，防止 SQL 注入
-  - [ ] 40.2 加固 Nginx CSP 头
+  - [x] 40.2 加固 Nginx CSP 头
     - 移除 `style-src 'unsafe-inline'`（需要确认 Tailwind 不依赖内联样式）
     - 添加 `frame-ancestors 'none'`、`base-uri 'self'`、`form-action 'self'`
     - 添加 `Referrer-Policy: strict-origin-when-cross-origin`
-  - [ ] 40.3 JWT 安全增强
+  - [x] 40.3 JWT 安全增强
     - 在 `shared/config.py` 中添加 `admin_jwt_secret` 非默认值校验（启动时检查）
     - 前端 authStore 添加 token 过期自动清理定时器（每分钟检查）
 
-- [ ] 41. 性能优化
-  - [ ] 41.1 合并 Metrics 查询为单个 JOIN
+- [x] 41. 性能优化
+  - [x] 41.1 合并 Metrics 查询为单个 JOIN
     - 修改 `admin_service/routes/metrics.py` 的 `metrics_overview`
     - 将 `threads` COUNT 和 `hitl_sessions` COUNT 合并为单个 SQL 查询
-  - [ ] 41.2 Rate Limit 配置缓存
+  - [x] 41.2 Rate Limit 配置缓存
     - 在 `api_gateway/middleware/rate_limit.py` 中缓存 `tenant.rate_limit` 到 Redis
     - TTL 60 秒，避免每个请求都查 DB
-  - [ ] 41.3 添加数据库复合索引
+  - [x] 41.3 添加数据库复合索引
     - 创建 Alembic migration 006：
       - `CREATE INDEX idx_threads_tenant_created ON threads(tenant_id, created_at)`
       - `CREATE INDEX idx_hitl_sessions_tenant_started ON hitl_sessions(tenant_id, started_at)`
       - `CREATE INDEX idx_knowledge_docs_tenant_status ON knowledge_docs(tenant_id, status)`
 
-- [ ] 42. Docker 部署加固
-  - [ ] 42.1 为应用服务添加 health check
+- [x] 42. Docker 部署加固
+  - [x] 42.1 为应用服务添加 health check
     - `api-gateway`：`curl -f http://localhost:8000/health`
     - `chat-service`：`curl -f http://localhost:8001/health`
     - `admin-service`：`curl -f http://localhost:8002/health`
-  - [ ] 42.2 添加 restart policy 和资源限制
+  - [x] 42.2 添加 restart policy 和资源限制
     - 所有应用服务添加 `restart: on-failure`
     - 添加 `mem_limit: 1g`（应用服务）、`mem_limit: 2g`（Milvus）
     - 添加 `stop_grace_period: 30s`
-  - [ ] 42.3 Dockerfile 非 root 用户
+  - [x] 42.3 Dockerfile 非 root 用户
     - 在 `k8s/Dockerfile` 中添加 `RUN useradd -m app` + `USER app`
     - 确保文件权限正确
 
-- [ ] 43. 检查点 — 安全与性能验证
+- [x] 43. 检查点 — 安全与性能验证
   - 运行全部测试确保无回归
   - 验证 CSP 头生效（Chrome DevTools → Network → Response Headers）
   - 验证 Docker health check 工作（`docker compose ps` 显示 healthy）

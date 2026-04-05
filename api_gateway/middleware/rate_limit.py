@@ -107,16 +107,29 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         return request.headers.get("X-User-ID", "anonymous")
 
     async def _get_user_rps(self, tenant_id: str) -> int:
-        """Load per-tenant user RPS from the tenants table."""
+        """Load per-tenant user RPS with Redis cache (TTL 60s)."""
+        cache_key = f"cuckoo:rps:{tenant_id}"
+        try:
+            cached = await self.redis.get(cache_key)
+            if cached is not None:
+                return int(cached)
+        except Exception:
+            pass  # Redis down — fall through to DB
+
         async with self.db_pool.acquire() as conn:
             row = await conn.fetchrow(
                 "SELECT rate_limit FROM tenants WHERE id = $1",
                 tenant_id,
             )
+        rps = 10
         if row and row["rate_limit"]:
             rl = row["rate_limit"]
-            # rate_limit column is JSONB — asyncpg returns it as a string or dict
             if isinstance(rl, str):
                 rl = orjson.loads(rl)
-            return rl.get("user_rps", 10)
-        return 10
+            rps = rl.get("user_rps", 10)
+
+        try:
+            await self.redis.set(cache_key, str(rps), ex=60)
+        except Exception:
+            pass
+        return rps

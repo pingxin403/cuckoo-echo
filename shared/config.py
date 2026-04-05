@@ -41,6 +41,11 @@ class Settings(BaseSettings):
     # Admin JWT
     admin_jwt_secret: str = "change-me-in-production"
 
+    def validate_jwt_secret(self) -> None:
+        """Raise if JWT secret is still the default value in non-dev environments."""
+        if self.environment != "development" and self.admin_jwt_secret == "change-me-in-production":
+            raise ValueError("ADMIN_JWT_SECRET must be changed from default in non-development environments")
+
     # App
     environment: str = "development"
     log_level: str = "INFO"

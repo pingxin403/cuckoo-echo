@@ -160,7 +160,7 @@ class TestUpdateRateLimit:
 class TestMetricsOverview:
     def test_overview_returns_aggregated_data(self):
         conn = AsyncMock()
-        conn.fetchval = AsyncMock(side_effect=[42, 5])  # total, hitl_count
+        conn.fetchrow = AsyncMock(return_value={"total_conversations": 42, "hitl_count": 5})
         pool, _ = _mock_pool(conn)
         app = _build_app(pool)
         client = TestClient(app)
@@ -176,7 +176,7 @@ class TestMetricsOverview:
 
     def test_overview_handles_zero_conversations(self):
         conn = AsyncMock()
-        conn.fetchval = AsyncMock(side_effect=[0, 0])
+        conn.fetchrow = AsyncMock(return_value={"total_conversations": 0, "hitl_count": 0})
         pool, _ = _mock_pool(conn)
         app = _build_app(pool)
         client = TestClient(app)
@@ -192,7 +192,7 @@ class TestMetricsOverview:
         """Metrics should prefer db_pool_ro over db_pool."""
         main_conn = AsyncMock()
         ro_conn = AsyncMock()
-        ro_conn.fetchval = AsyncMock(side_effect=[10, 2])
+        ro_conn.fetchrow = AsyncMock(return_value={"total_conversations": 10, "hitl_count": 2})
 
         main_pool, _ = _mock_pool(main_conn)
         ro_pool, _ = _mock_pool(ro_conn)
@@ -203,8 +203,8 @@ class TestMetricsOverview:
 
         assert resp.status_code == 200
         # RO conn should have been used, not main conn
-        ro_conn.fetchval.assert_awaited()
-        main_conn.fetchval.assert_not_awaited()
+        ro_conn.fetchrow.assert_awaited()
+        main_conn.fetchrow.assert_not_awaited()
 
 
 class TestMetricsTokens:

@@ -76,23 +76,23 @@ class KnowledgePipelineWorker:
         # Store in Milvus
         await self._update_status(doc_id, "processing", stage="storing")
         data = [
-                {
-                    "id": str(uuid4()),
-                    "tenant_id": tenant_id,
-                    "doc_id": doc_id,
-                    "chunk_text": chunk,
-                    "dense_vector": vec,
-                    "created_at": int(time.time()),
-                }
-                for chunk, vec in zip(chunks, vectors)
-            ]
-            self.milvus_client.insert(
-                collection_name="knowledge_chunks",
-                data=data,
-            )
+            {
+                "id": str(uuid4()),
+                "tenant_id": tenant_id,
+                "doc_id": doc_id,
+                "chunk_text": chunk,
+                "dense_vector": vec,
+                "created_at": int(time.time()),
+            }
+            for chunk, vec in zip(chunks, vectors)
+        ]
+        self.milvus_client.insert(
+            collection_name="knowledge_chunks",
+            data=data,
+        )
 
-            await self._update_status(doc_id, "completed", chunk_count=len(chunks))
-            log.info("doc_processed", doc_id=doc_id, chunks=len(chunks))
+        await self._update_status(doc_id, "completed", chunk_count=len(chunks))
+        log.info("doc_processed", doc_id=doc_id, chunks=len(chunks))
 
     async def _update_status(
         self,

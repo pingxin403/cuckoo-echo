@@ -100,11 +100,11 @@ class TestTenantDbContext:
         conn = AsyncMock()
         conn.transaction = MagicMock(return_value=_FakeTransaction())
 
-        async with tenant_db_context(conn, "tenant-42") as c:
+        async with tenant_db_context(conn, "00000000-0000-4000-a000-000000000042") as c:
             assert c is conn
 
         conn.execute.assert_awaited_once_with(
-            "SET LOCAL app.current_tenant = 'tenant-42'"
+            "SET LOCAL app.current_tenant = '00000000-0000-4000-a000-000000000042'"
         )
 
     @pytest.mark.asyncio
@@ -112,7 +112,7 @@ class TestTenantDbContext:
         conn = AsyncMock()
         conn.transaction = MagicMock(return_value=_FakeTransaction())
 
-        async with tenant_db_context(conn, "t1"):
+        async with tenant_db_context(conn, "00000000-0000-4000-a000-000000000001"):
             pass
 
         conn.transaction.assert_called_once()
