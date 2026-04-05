@@ -85,6 +85,7 @@ async def event_generator(
         # Attach token queue to stream_chat_completion for real-time token push
         from ai_gateway.client import stream_chat_completion
         stream_chat_completion._token_queue = queue
+        tokens_pushed_via_queue = False
 
         response_sent = False
         try:
@@ -104,15 +105,21 @@ async def event_generator(
                         continue
 
                     # If llm_generate pushed tokens via queue, mark as sent
+                    # For non-LLM nodes (like hitl_node), push the full response
                     llm_response = diff.get("llm_response")
-                    if llm_response:
-                        # Tokens were already pushed via queue during streaming
-                        # Only push full response if queue was not used (fallback)
-                        if not response_sent:
+                    if llm_response and not response_sent:
+                        # Check if tokens were already pushed per-token via the queue
+                        tokens_pushed_via_queue = not queue.empty() or node_name == "llm_generate"
+                        if not tokens_pushed_via_queue:
+                            # Non-streaming node (HITL, error) — push full response
                             log.info(
                                 "sse_pushing_llm_response",
                                 thread_id=thread_id,
                                 node=node_name,
+                                length=len(llm_response),
+                            )
+                            await queue.put(orjson.dumps({"content": llm_response}).decode())
+                        response_sent = True
                                 length=len(llm_response),
                             )
                         response_sent = True
@@ -186,7 +193,7 @@ async def chat_completions(request: Request):
             thread_id=thread_id,
             tenant_id=tenant_id,
             user_id=user_id,
-            payload={"messages": body.get("messages", [])},
+            payload={"messages": body.get("messages", []), "tenant_id": tenant_id, "thread_id": thread_id},
             agent=agent,
             redis=redis,
             billing_service=billing,
