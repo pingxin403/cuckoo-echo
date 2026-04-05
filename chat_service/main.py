@@ -49,10 +49,12 @@ def _wire_dependencies(app: FastAPI):
     import chat_service.agent.nodes.rag_engine as rag_mod
     import chat_service.agent.nodes.preprocess as pre_mod
     import chat_service.agent.nodes.llm_generate as llm_mod
+    import chat_service.agent.nodes.hitl_node as hitl_mod
 
-    # DB pool for RAG soft-delete checks and LLM tenant config
+    # DB pool for RAG soft-delete checks, LLM tenant config, and HITL session creation
     rag_mod.db_pool = app.state.db_pool
     llm_mod.db_pool = app.state.db_pool
+    hitl_mod.db_pool = app.state.db_pool
 
     # ASR client
     try:

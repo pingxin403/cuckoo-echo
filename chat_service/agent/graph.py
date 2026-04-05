@@ -16,6 +16,7 @@ from chat_service.agent.nodes import (
     router_node,
     tool_executor_node,
 )
+from chat_service.agent.nodes.hitl_node import hitl_node
 from chat_service.agent.state import AgentState
 
 
@@ -30,21 +31,23 @@ def build_agent_graph(checkpointer: BaseCheckpointSaver | None = None):
     graph.add_node("llm_generate", llm_generate_node)
     graph.add_node("guardrails", guardrails_node)
     graph.add_node("postprocess", postprocess_node)
+    graph.add_node("hitl", hitl_node)
 
     graph.set_entry_point("preprocess")
     graph.add_edge("preprocess", "router")
     graph.add_conditional_edges("router", route_decision, {
         "tool": "tool_executor",
         "rag": "rag_engine",
-        "hitl": END,
+        "hitl": "hitl",
     })
     graph.add_edge("tool_executor", "llm_generate")
     graph.add_edge("rag_engine", "llm_generate")
     graph.add_edge("llm_generate", "guardrails")
     graph.add_conditional_edges("guardrails", guardrails_decision, {
         "pass": "postprocess",
-        "hitl": END,
+        "hitl": "hitl",
     })
+    graph.add_edge("hitl", END)
     graph.add_edge("postprocess", END)
 
     return graph.compile(checkpointer=checkpointer)
