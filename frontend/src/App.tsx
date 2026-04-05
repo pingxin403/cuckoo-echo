@@ -65,6 +65,19 @@ function ChatPage() {
   );
 }
 
+/**
+ * SmartRedirect — redirects based on auth state.
+ * Authenticated admin → /admin/metrics
+ * Unauthenticated → /login
+ */
+function SmartRedirect() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  if (isAuthenticated) {
+    return <Navigate to="/admin/metrics" replace />;
+  }
+  return <Navigate to="/login" replace />;
+}
+
 /* ── Root App component ── */
 
 export default function App() {
@@ -91,8 +104,8 @@ export default function App() {
                 </Route>
               </Route>
 
-              {/* Catch-all → login */}
-              <Route path="*" element={<Navigate to="/login" replace />} />
+              {/* Catch-all → landing page based on auth state */}
+              <Route path="*" element={<SmartRedirect />} />
             </Routes>
           </AnalyticsProvider>
         </ToastProvider>

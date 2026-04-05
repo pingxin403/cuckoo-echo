@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { AdminUser } from '@/types';
 import apiClient, {
   setTokenGetter,
@@ -19,22 +20,12 @@ interface AuthState {
   checkTokenExpiry: () => boolean;
 }
 
-/**
- * Decode the payload section of a JWT (base64url → JSON).
- * Returns the parsed payload object, or null on failure.
- */
-/**
- * Decode the payload section of a JWT (base64url → JSON).
- * Supports both backend real format and mock format.
- */
 interface JWTPayload {
-  // Backend real format
   admin_user_id?: string;
   tenant_id: string;
   role: string;
   exp: number;
   iat?: number;
-  // Mock/legacy format (may also be present)
   sub?: string;
   email?: string;
   tenant_name?: string;
@@ -44,79 +35,98 @@ function decodeJwtPayload(token: string): JWTPayload | null {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
-    const base64 = parts[1]
-      .replace(/-/g, '+')
-      .replace(/_/g, '/');
-    const json = atob(base64);
-    return JSON.parse(json) as JWTPayload;
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64)) as JWTPayload;
   } catch {
     return null;
   }
 }
 
 function userFromPayload(payload: JWTPayload): AdminUser {
-  // Handle both backend real format (admin_user_id) and mock format (sub)
   const id = payload.admin_user_id ?? payload.sub ?? '';
   return {
     id,
-    email: payload.email ?? id,                    // Fallback: use id as display name
+    email: payload.email ?? id,
     tenantId: payload.tenant_id,
-    tenantName: payload.tenant_name ?? payload.tenant_id,  // Fallback: use tenant_id
+    tenantName: payload.tenant_name ?? payload.tenant_id,
     role: payload.role,
   };
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  accessToken: null,
-  user: null,
-  isAuthenticated: false,
+/** Check if a token is expired or will expire within 60s */
+function isTokenExpired(token: string): boolean {
+  const payload = decodeJwtPayload(token);
+  if (!payload) return true;
+  return payload.exp * 1000 - Date.now() < 60_000;
+}
 
-  async login(email: string, password: string) {
-    const res = await apiClient.post<{ accessToken: string; access_token?: string }>(
-      '/admin/v1/auth/login',
-      { email, password },
-    );
-    // After Axios interceptor camelCase conversion, field is accessToken
-    // Fallback to access_token for MSW compatibility
-    const token = res.data.accessToken ?? res.data.access_token ?? '';
-    const payload = decodeJwtPayload(token);
-    set({
-      accessToken: token,
-      user: payload ? userFromPayload(payload) : null,
-      isAuthenticated: true,
-    });
-  },
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      accessToken: null,
+      user: null,
+      isAuthenticated: false,
 
-  logout() {
-    set({ accessToken: null, user: null, isAuthenticated: false });
-    // Fire-and-forget: use raw axios to avoid interceptor 401 loop
-    import('axios').then(({ default: rawAxios }) => {
-      rawAxios.post('/admin/v1/auth/logout', null, { withCredentials: true }).catch(() => {});
-    });
-    window.location.href = '/login';
-  },
+      async login(email: string, password: string) {
+        const res = await apiClient.post<{ accessToken: string; access_token?: string }>(
+          '/admin/v1/auth/login',
+          { email, password },
+        );
+        const token = res.data.accessToken ?? res.data.access_token ?? '';
+        const payload = decodeJwtPayload(token);
+        set({
+          accessToken: token,
+          user: payload ? userFromPayload(payload) : null,
+          isAuthenticated: true,
+        });
+      },
 
-  setAccessToken(token: string) {
-    const payload = decodeJwtPayload(token);
-    set({
-      accessToken: token,
-      user: payload ? userFromPayload(payload) : null,
-      isAuthenticated: true,
-    });
-  },
+      logout() {
+        set({ accessToken: null, user: null, isAuthenticated: false });
+        import('axios').then(({ default: rawAxios }) => {
+          rawAxios.post('/admin/v1/auth/logout', null, { withCredentials: true }).catch(() => {});
+        });
+        window.location.href = '/login';
+      },
 
-  checkTokenExpiry(): boolean {
-    const { accessToken } = get();
-    if (!accessToken) return true;
-    const payload = decodeJwtPayload(accessToken);
-    if (!payload) return true;
-    const remainingMs = payload.exp * 1000 - Date.now();
-    const ONE_HOUR_MS = 60 * 60 * 1000;
-    return remainingMs < ONE_HOUR_MS;
-  },
-}));
+      setAccessToken(token: string) {
+        const payload = decodeJwtPayload(token);
+        set({
+          accessToken: token,
+          user: payload ? userFromPayload(payload) : null,
+          isAuthenticated: true,
+        });
+      },
 
-// ─── Wire up callback integrations at module level ─────────────
+      checkTokenExpiry(): boolean {
+        const { accessToken } = get();
+        if (!accessToken) return true;
+        const payload = decodeJwtPayload(accessToken);
+        if (!payload) return true;
+        return payload.exp * 1000 - Date.now() < 60 * 60 * 1000;
+      },
+    }),
+    {
+      name: 'cuckoo-auth',
+      // Only persist token and user, not functions
+      partialize: (state) => ({
+        accessToken: state.accessToken,
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
+      // On rehydrate: validate token is not expired
+      onRehydrateStorage: () => (state) => {
+        if (state?.accessToken && isTokenExpired(state.accessToken)) {
+          state.accessToken = null;
+          state.user = null;
+          state.isAuthenticated = false;
+        }
+      },
+    },
+  ),
+);
+
+// Wire up callback integrations
 setTokenGetter(() => useAuthStore.getState().accessToken);
 setTokenRefresher(refreshTokenWithMutex);
 setAuthCallbacks(
