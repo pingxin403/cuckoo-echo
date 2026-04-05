@@ -56,6 +56,8 @@ export default function ChatWidget({
     },
     onError(error) {
       if (error.code === 'HTTP_ERROR' && error.message.includes('401')) setApiKeyError(true);
+      // Reset streaming state on any SSE error so the UI isn't stuck
+      finishStreaming('');
     },
     onReconnected() { if (activeThreadId) loadThread(activeThreadId); },
   });

@@ -86,10 +86,10 @@ export default function MetricsDashboard() {
 
   // Derive some display values
   const escalationCount = overview
-    ? Math.round(overview.totalConversations * overview.humanEscalationRate)
+    ? Math.round((overview.totalConversations ?? 0) * (overview.humanEscalationRate ?? 0))
     : 0;
   const escalationPct = overview
-    ? (overview.humanEscalationRate * 100).toFixed(1)
+    ? ((overview.humanEscalationRate ?? 0) * 100).toFixed(1)
     : '0.0';
   const thumbUpPct = overview?.thumbUpRate != null
     ? (overview.thumbUpRate * 100).toFixed(1)
