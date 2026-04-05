@@ -9,10 +9,7 @@ Usage:
 from __future__ import annotations
 
 import os
-import structlog
 from pymilvus import MilvusClient
-
-log = structlog.get_logger()
 
 COLLECTION_NAME = "knowledge_chunks"
 
