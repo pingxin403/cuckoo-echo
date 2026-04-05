@@ -81,15 +81,22 @@ async def notify_hitl_request(
     session_id = str(uuid4())
 
     async with db_pool.acquire() as conn:
-        # Ensure thread row exists (FK constraint requires it)
-        # Skip RLS context for thread creation — use direct INSERT
+        # Ensure a system user exists for this tenant (FK constraint on threads.user_id)
+        system_user_id = tenant_id  # Use tenant_id as system user ID
+        await conn.execute(
+            """INSERT INTO users (id, tenant_id, external_uid)
+               VALUES ($1::uuid, $2::uuid, 'system')
+               ON CONFLICT (id) DO NOTHING""",
+            system_user_id, tenant_id,
+        )
+        # Ensure thread row exists (FK constraint on hitl_sessions.thread_id)
         await conn.execute(
             """INSERT INTO threads (id, tenant_id, user_id, status)
-               VALUES ($1::uuid, $2::uuid, $2::uuid, 'human_intervention')
+               VALUES ($1::uuid, $2::uuid, $3::uuid, 'human_intervention')
                ON CONFLICT (id) DO NOTHING""",
-            thread_id, tenant_id,
+            thread_id, tenant_id, system_user_id,
         )
-        # Now create HITL session with RLS context
+        # Create HITL session with RLS context
         async with tenant_db_context(conn, tenant_id):
             await conn.execute(
                 """INSERT INTO hitl_sessions (id, tenant_id, thread_id, status)
