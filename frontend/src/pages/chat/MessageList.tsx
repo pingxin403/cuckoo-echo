@@ -44,50 +44,69 @@ export default function MessageList({ onLoadMore }: MessageListProps) {
   }, [scrollToBottom, messages.length]);
 
   return (
-    <div className="relative flex-1" aria-label="消息列表">
-      <Virtuoso
-        ref={virtuosoRef}
-        data={messages}
-        startReached={handleStartReached}
-        followOutput={virtuosoProps.followOutput}
-        atBottomStateChange={virtuosoProps.atBottomStateChange}
-        itemContent={(_index: number, message: Message) => (
-          <div
-            key={message.id}
-            className="px-4 py-2"
-            data-message-id={message.id}
-            data-role={message.role}
-          >
-            {/* Placeholder — MessageBubble will replace this in task 9.3 */}
+    <div className="relative flex-1 bg-gray-50" aria-label="消息列表">
+      {messages.length === 0 && !isStreaming ? (
+        /* Empty state */
+        <div className="flex h-full flex-col items-center justify-center text-gray-400">
+          <svg className="mb-3 h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          <p className="text-sm">发送消息开始对话</p>
+        </div>
+      ) : (
+        <Virtuoso
+          ref={virtuosoRef}
+          data={messages}
+          startReached={handleStartReached}
+          followOutput={virtuosoProps.followOutput}
+          atBottomStateChange={virtuosoProps.atBottomStateChange}
+          itemContent={(_index: number, message: Message) => (
             <div
-              className={`rounded-lg px-3 py-2 text-sm max-w-[80%] ${
-                message.role === 'user'
-                  ? 'ml-auto bg-[var(--ce-primary-color,#4f46e5)] text-white'
-                  : 'mr-auto bg-gray-100 text-gray-900'
-              }`}
+              key={message.id}
+              className="px-4 py-1.5"
+              data-message-id={message.id}
+              data-role={message.role}
+              data-testid="message-bubble"
             >
-              {message.content}
+              <div
+                className={`inline-block rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm ${
+                  message.role === 'user'
+                    ? 'float-right bg-[var(--ce-primary-color,#4f46e5)] text-white'
+                    : 'float-left bg-white text-gray-800 ring-1 ring-gray-200'
+                }`}
+                style={{ maxWidth: '75%' }}
+              >
+                {message.content}
+              </div>
+              <div className="clear-both" />
             </div>
-          </div>
-        )}
-        className="h-full"
-      />
+          )}
+          className="h-full"
+        />
+      )}
 
-      {/* Streaming assistant response (shown during SSE) */}
+      {/* Streaming assistant response */}
       {isStreaming && streamingContent && (
-        <div className="px-4 py-2">
-          <div className="mr-auto max-w-[80%] rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-900">
+        <div className="px-4 py-1.5">
+          <div className="inline-block max-w-[75%] rounded-2xl bg-white px-4 py-2.5 text-sm leading-relaxed text-gray-800 shadow-sm ring-1 ring-gray-200">
             {streamingContent}
-            <span className="ml-1 inline-block animate-pulse">▌</span>
+            <span className="ml-0.5 inline-block animate-pulse text-indigo-500">▌</span>
           </div>
         </div>
       )}
 
-      {/* "AI 正在思考" indicator */}
+      {/* Thinking indicator */}
       {isStreaming && !streamingContent && (
-        <p className="px-4 py-2 text-sm text-gray-400" aria-live="polite">
-          AI 正在思考…
-        </p>
+        <div className="px-4 py-1.5">
+          <div className="inline-flex items-center gap-1.5 rounded-2xl bg-white px-4 py-2.5 text-sm text-gray-400 shadow-sm ring-1 ring-gray-200">
+            <span className="flex gap-1">
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: '0ms' }} />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: '150ms' }} />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: '300ms' }} />
+            </span>
+            AI 正在思考
+          </div>
+        </div>
       )}
 
       {/* "有新消息" floating button */}

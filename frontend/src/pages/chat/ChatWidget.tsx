@@ -13,13 +13,6 @@ import WaveformIndicator from '@/pages/chat/WaveformIndicator';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
-/**
- * ChatWidget — C-端聊天主组件
- *
- * Manages SSE ↔ WebSocket protocol switching based on session status,
- * renders ThreadList sidebar + MessageList + ChatInput (placeholders for now),
- * and applies CSS variable theming.
- */
 export default function ChatWidget({
   apiKey,
   theme = 'light',
@@ -32,31 +25,22 @@ export default function ChatWidget({
   const [apiKeyError, setApiKeyError] = useState(false);
   const [isAsrProcessing, setIsAsrProcessing] = useState(false);
 
-  // ── Session store ──
   const sessionStatus = useSessionStore((s) => s.status);
   const switchProtocol = useSessionStore((s) => s.switchProtocol);
-
-  // ── Chat store ──
   const sendMessage = useChatStore((s) => s.sendMessage);
   const appendToken = useChatStore((s) => s.appendToken);
   const finishStreaming = useChatStore((s) => s.finishStreaming);
   const isStreaming = useChatStore((s) => s.isStreaming);
   const setConnectionStatus = useChatStore((s) => s.setConnectionStatus);
-
-  // ── Chat store actions for reconciliation ──
   const loadThread = useChatStore((s) => s.loadThread);
   const activeThreadId = useSessionStore((s) => s.activeThreadId);
 
-  // ── Determine active protocol from session status ──
-  const shouldUseWebSocket =
-    sessionStatus === 'hitl_active' || sessionStatus === 'hitl_pending';
+  const shouldUseWebSocket = sessionStatus === 'hitl_active' || sessionStatus === 'hitl_pending';
 
-  // Sync protocol to session store
   useEffect(() => {
     switchProtocol(shouldUseWebSocket ? 'websocket' : 'sse');
   }, [shouldUseWebSocket, switchProtocol]);
 
-  // ── SSE hook (active when NOT in HITL mode) ──
   const sseUrl = `${API_BASE}/v1/chat/completions`;
   const {
     send: sseSend,
@@ -65,78 +49,42 @@ export default function ChatWidget({
   } = useSSE({
     url: sseUrl,
     apiKey,
-    onToken(token: string, _messageId?: string) {
-      appendToken(token);
-    },
+    onToken(token: string, _messageId?: string) { appendToken(token); },
     onDone(messageId: string) {
       finishStreaming(messageId);
       analytics.track('message_received', { thread_id: activeThreadId });
     },
     onError(error) {
-      // 401 from SSE means invalid API key
-      if (error.code === 'HTTP_ERROR' && error.message.includes('401')) {
-        setApiKeyError(true);
-      }
+      if (error.code === 'HTTP_ERROR' && error.message.includes('401')) setApiKeyError(true);
     },
-    onReconnected() {
-      // SSE reconnected — fetch latest messages and reconcile (Req 1.6)
-      if (activeThreadId) {
-        loadThread(activeThreadId);
-      }
-    },
+    onReconnected() { if (activeThreadId) loadThread(activeThreadId); },
   });
 
-  // ── handleSend — triggers optimistic update + SSE request ──
   const handleSend = useCallback(
     (content: string, media?: MediaAttachment[]) => {
       analytics.track('message_sent', { thread_id: activeThreadId, has_media: !!media?.length, media_type: media?.[0]?.type });
       sendMessage(content, media);
-
-      // Trigger SSE request to backend (only when not in HITL/WebSocket mode)
       if (!shouldUseWebSocket) {
-        sseSend({
-          thread_id: activeThreadId ?? undefined,
-          messages: [{ role: 'user', content }],
-        });
+        sseSend({ thread_id: activeThreadId ?? undefined, messages: [{ role: 'user', content }] });
       }
     },
     [sendMessage, activeThreadId, sseSend, shouldUseWebSocket],
   );
 
-  // ── WebSocket hook (active when in HITL mode) ──
-  const wsUrl = shouldUseWebSocket
-    ? `${API_BASE.replace(/^http/, 'ws')}/v1/chat/ws?api_key=${apiKey}`
-    : '';
+  const wsUrl = shouldUseWebSocket ? `${API_BASE.replace(/^http/, 'ws')}/v1/chat/ws?api_key=${apiKey}` : '';
   const { connectionStatus: wsStatus } = useWebSocket({
     url: wsUrl,
     onMessage(msg) {
-      // Detect ASR processing stage from backend
-      if (msg.type === 'processing' && msg.data != null && (msg.data as { stage?: string }).stage === 'asr') {
-        setIsAsrProcessing(true);
-      } else if (msg.type === 'token' || msg.type === 'done') {
-        setIsAsrProcessing(false);
-      }
+      if (msg.type === 'processing' && msg.data != null && (msg.data as { stage?: string }).stage === 'asr') setIsAsrProcessing(true);
+      else if (msg.type === 'token' || msg.type === 'done') setIsAsrProcessing(false);
     },
   });
 
-  // Disconnect SSE when switching to WebSocket
-  useEffect(() => {
-    if (shouldUseWebSocket) {
-      disconnectSSE();
-    }
-  }, [shouldUseWebSocket, disconnectSSE]);
+  useEffect(() => { if (shouldUseWebSocket) disconnectSSE(); }, [shouldUseWebSocket, disconnectSSE]);
 
-  // ── Unified connection status ──
-  const connectionStatus: ConnectionStatus = shouldUseWebSocket
-    ? wsStatus
-    : sseStatus;
+  const connectionStatus: ConnectionStatus = shouldUseWebSocket ? wsStatus : sseStatus;
+  useEffect(() => { setConnectionStatus(connectionStatus); }, [connectionStatus, setConnectionStatus]);
 
-  // Sync to chat store
-  useEffect(() => {
-    setConnectionStatus(connectionStatus);
-  }, [connectionStatus, setConnectionStatus]);
-
-  // ── CSS variable theming ──
   const themeStyle = useMemo(
     () => ({
       '--ce-primary-color': primaryColor ?? (theme === 'dark' ? '#6366f1' : '#4f46e5'),
@@ -145,109 +93,70 @@ export default function ChatWidget({
     [primaryColor, bgColor, theme],
   );
 
-  // ── API Key invalid → show error ──
   if (apiKeyError) {
     return (
-      <div
-        className="ce-widget ce-widget--error"
-        style={themeStyle}
-        data-theme={theme}
-        data-position={position}
-        data-lang={lang}
-        role="alert"
-      >
-        <p>配置错误，请联系管理员</p>
+      <div className="flex h-screen items-center justify-center bg-gray-50" style={themeStyle} role="alert">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-4 text-red-700">
+          <p className="font-medium">配置错误</p>
+          <p className="mt-1 text-sm">API Key 无效，请联系管理员</p>
+        </div>
       </div>
     );
   }
 
-  // ── Main chat UI ──
   return (
     <div
-      className="ce-widget"
+      className="flex h-screen flex-col bg-white"
       style={themeStyle}
       data-theme={theme}
       data-position={position}
       data-lang={lang}
     >
-      {/* Connection status indicator */}
-      <div
-        className="ce-connection-status"
-        aria-live="polite"
-        aria-label={
-          connectionStatus === 'connected'
-            ? '已连接'
-            : connectionStatus === 'connecting'
-              ? '连接中…'
-              : '已断开'
-        }
-      >
-        <span
-          className="ce-status-dot"
-          data-status={connectionStatus}
-          style={{
-            display: 'inline-block',
-            width: 8,
-            height: 8,
-            borderRadius: '50%',
-            marginRight: 6,
-            backgroundColor:
-              connectionStatus === 'connected'
-                ? '#22c55e'
-                : connectionStatus === 'connecting'
-                  ? '#f59e0b'
-                  : '#ef4444',
-          }}
-        />
-        <span className="ce-status-text" style={{ fontSize: 12 }}>
-          {connectionStatus === 'connected'
-            ? '已连接'
-            : connectionStatus === 'connecting'
-              ? '连接中…'
-              : '已断开'}
-        </span>
-      </div>
+      {/* Header bar */}
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4">
+        <div className="flex items-center gap-2">
+          {logoUrl ? (
+            <img src={logoUrl} alt="Logo" className="h-7" />
+          ) : (
+            <span className="text-sm font-semibold text-gray-800">Cuckoo-Echo</span>
+          )}
+        </div>
+        <div
+          className="flex items-center gap-1.5"
+          aria-live="polite"
+          aria-label={connectionStatus === 'connected' ? '已连接' : connectionStatus === 'connecting' ? '连接中…' : '已断开'}
+        >
+          <span
+            className="inline-block h-2 w-2 rounded-full"
+            style={{
+              backgroundColor: connectionStatus === 'connected' ? '#22c55e' : connectionStatus === 'connecting' ? '#f59e0b' : '#ef4444',
+            }}
+          />
+          <span className="text-xs text-gray-500">
+            {connectionStatus === 'connected' ? '已连接' : connectionStatus === 'connecting' ? '连接中…' : '已断开'}
+          </span>
+        </div>
+      </header>
 
-      {/* Logo */}
-      {logoUrl && (
-        <img
-          src={logoUrl}
-          alt="Logo"
-          className="ce-logo"
-          style={{ height: 32, marginBottom: 8 }}
-        />
-      )}
-
-      <div className="ce-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* ThreadList sidebar */}
+      {/* Main content */}
+      <div className="flex min-h-0 flex-1">
+        {/* Thread sidebar */}
         <aside
-          className="ce-thread-list"
-          style={{
-            width: 220,
-            borderRight: '1px solid #e5e7eb',
-            overflowY: 'auto',
-          }}
+          className="w-56 shrink-0 border-r border-gray-200 bg-gray-50 overflow-y-auto"
           aria-label="会话列表"
         >
           <ThreadList />
         </aside>
 
-        {/* Main chat area */}
-        <div className="ce-main" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* HITL status banner */}
+        {/* Chat area */}
+        <div className="flex min-w-0 flex-1 flex-col bg-white">
           <HITLStatus />
-
-          {/* ASR waveform indicator */}
           {isAsrProcessing && (
             <div className="mx-4 my-2">
               <WaveformIndicator />
             </div>
           )}
-
-          {/* MessageList */}
           <MessageList />
-
-          {/* ChatInput */}
           <ChatInput onSend={handleSend} disabled={isStreaming} />
         </div>
       </div>
