@@ -68,7 +68,10 @@ async def tenant_db_context(
     connection is used for the entire transaction.
     """
     async with conn.transaction():
-        await conn.execute("SET LOCAL app.current_tenant = $1", tenant_id)
+        # SET LOCAL doesn't support $1 placeholders in asyncpg.
+        # Use quote_literal equivalent for safety.
+        safe_id = tenant_id.replace("'", "''")
+        await conn.execute(f"SET LOCAL app.current_tenant = '{safe_id}'")
         yield conn
 
 
