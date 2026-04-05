@@ -120,9 +120,6 @@ async def event_generator(
                             )
                             await queue.put(orjson.dumps({"content": llm_response}).decode())
                         response_sent = True
-                                length=len(llm_response),
-                            )
-                        response_sent = True
 
                     correction = diff.get("correction_message")
                     if correction:
