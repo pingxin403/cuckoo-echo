@@ -1,0 +1,65 @@
+{
+  "dashboard": {
+    "title": "Cuckoo-Echo Overview",
+    "uid": "cuckoo-echo-overview",
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": { "from": "now-1h", "to": "now" },
+    "panels": [
+      {
+        "title": "Request Rate (RPS)",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+        "targets": [{
+          "expr": "sum(rate(http_requests_total[1m])) by (job)",
+          "legendFormat": "{{job}}"
+        }]
+      },
+      {
+        "title": "Error Rate (%)",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+        "targets": [{
+          "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (job) / sum(rate(http_requests_total[5m])) by (job) * 100",
+          "legendFormat": "{{job}}"
+        }]
+      },
+      {
+        "title": "P50 Latency (ms)",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+        "targets": [{
+          "expr": "histogram_quantile(0.5, sum(rate(http_request_duration_highr_seconds_bucket[5m])) by (le, job)) * 1000",
+          "legendFormat": "{{job}}"
+        }]
+      },
+      {
+        "title": "P95 Latency (ms)",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+        "targets": [{
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_highr_seconds_bucket[5m])) by (le, job)) * 1000",
+          "legendFormat": "{{job}}"
+        }]
+      },
+      {
+        "title": "P99 Latency (ms)",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+        "targets": [{
+          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_highr_seconds_bucket[5m])) by (le, job)) * 1000",
+          "legendFormat": "{{job}}"
+        }]
+      },
+      {
+        "title": "Request Count by Status",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 24, "x": 0, "y": 16 },
+        "targets": [{
+          "expr": "sum(http_requests_total) by (status, job)",
+          "legendFormat": "{{job}} {{status}}"
+        }]
+      }
+    ]
+  }
+}

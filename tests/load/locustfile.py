@@ -1,7 +1,9 @@
 """Load test — simulate concurrent chat users.
 
 Usage:
-    locust -f tests/load/locustfile.py --host http://localhost:8000
+    locust -f tests/load/locustfile.py --host http://localhost
+    # Or headless:
+    locust -f tests/load/locustfile.py --host http://localhost --headless -u 10 -r 2 --run-time 30s
 """
 from locust import HttpUser, task, between
 
@@ -11,7 +13,7 @@ class ChatUser(HttpUser):
 
     def on_start(self):
         self.headers = {
-            "Authorization": "Bearer ck_load_test_key",
+            "Authorization": "Bearer ck_test_integration_key",
             "Content-Type": "application/json",
         }
 
@@ -28,4 +30,4 @@ class ChatUser(HttpUser):
 
     @task(1)
     def check_health(self):
-        self.client.get("/health")
+        self.client.get("/nginx-health")
