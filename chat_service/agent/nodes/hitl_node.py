@@ -30,7 +30,7 @@ async def hitl_node(state: AgentState) -> AgentState:
     try:
         from admin_service.routes.hitl import notify_hitl_request
 
-        log.info("hitl_node_calling_notify", db_pool_type=type(pool).__name__, tenant_id=tenant_id, thread_id=thread_id)
+        log.info("hitl_node_calling_notify", db_pool_type=type(db_pool).__name__, tenant_id=tenant_id, thread_id=thread_id)
         session_id = await notify_hitl_request(
             db_pool=db_pool,
             tenant_id=tenant_id,
