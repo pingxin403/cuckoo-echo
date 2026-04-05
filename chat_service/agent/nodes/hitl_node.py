@@ -30,6 +30,7 @@ async def hitl_node(state: AgentState) -> AgentState:
     try:
         from admin_service.routes.hitl import notify_hitl_request
 
+        log.info("hitl_node_calling_notify", db_pool_type=type(pool).__name__, tenant_id=tenant_id, thread_id=thread_id)
         session_id = await notify_hitl_request(
             db_pool=db_pool,
             tenant_id=tenant_id,
@@ -42,7 +43,8 @@ async def hitl_node(state: AgentState) -> AgentState:
             "llm_response": "正在为您转接人工客服，请稍候…",
         }
     except Exception as e:
-        log.error("hitl_node_failed", error=str(e))
+        import traceback
+        log.error("hitl_node_failed", error=str(e), traceback=traceback.format_exc())
         return {
             **state,
             "llm_response": "正在为您转接人工客服，请稍候…",
