@@ -104,7 +104,7 @@ class TestTenantDbContext:
             assert c is conn
 
         conn.execute.assert_awaited_once_with(
-            "SET LOCAL app.current_tenant = $1", "tenant-42"
+            "SET LOCAL app.current_tenant = 'tenant-42'"
         )
 
     @pytest.mark.asyncio

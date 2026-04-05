@@ -93,17 +93,6 @@ async def notify_hitl_request(
                    VALUES ($1::uuid, $2::uuid, $3::uuid, $4::uuid, NOW() + INTERVAL '60 seconds')""",
                 str(uuid4()), session_id, tenant_id, thread_id,
             )
-            await conn.execute(
-                """INSERT INTO hitl_sessions (id, tenant_id, thread_id, status)
-                   VALUES ($1::uuid, $2::uuid, $3::uuid, 'pending')""",
-                session_id, tenant_id, thread_id,
-            )
-            await conn.execute(
-                """INSERT INTO hitl_escalation_tasks
-                       (id, session_id, tenant_id, thread_id, execute_at)
-                   VALUES ($1::uuid, $2::uuid, $3::uuid, $4::uuid, NOW() + INTERVAL '60 seconds')""",
-                str(uuid4()), session_id, tenant_id, thread_id,
-            )
 
     # Push event to admin WebSocket connections
     await broadcast_to_tenant(tenant_id, {
