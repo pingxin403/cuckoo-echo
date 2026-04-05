@@ -81,20 +81,21 @@ async def notify_hitl_request(
     session_id = str(uuid4())
 
     async with db_pool.acquire() as conn:
+        # Ensure thread row exists (FK constraint requires it)
+        # Skip RLS context for thread creation — use direct INSERT
+        await conn.execute(
+            """INSERT INTO threads (id, tenant_id, user_id, status)
+               VALUES ($1::uuid, $2::uuid, $2::uuid, 'human_intervention')
+               ON CONFLICT (id) DO NOTHING""",
+            thread_id, tenant_id,
+        )
+        # Now create HITL session with RLS context
         async with tenant_db_context(conn, tenant_id):
-            # Ensure thread exists (may only exist in LangGraph checkpointer)
-            await conn.execute(
-                """INSERT INTO threads (id, tenant_id, user_id, status)
-                   VALUES ($1::uuid, $2::uuid, $2::uuid, 'active')
-                   ON CONFLICT (id) DO NOTHING""",
-                thread_id, tenant_id,
-            )
             await conn.execute(
                 """INSERT INTO hitl_sessions (id, tenant_id, thread_id, status)
                    VALUES ($1::uuid, $2::uuid, $3::uuid, 'pending')""",
                 session_id, tenant_id, thread_id,
             )
-            # Insert escalation delayed task (execute_at = NOW() + 60s)
             await conn.execute(
                 """INSERT INTO hitl_escalation_tasks
                        (id, session_id, tenant_id, thread_id, execute_at)
