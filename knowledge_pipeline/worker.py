@@ -34,32 +34,48 @@ class KnowledgePipelineWorker:
                 await asyncio.sleep(2)
 
     async def process_document(self, doc_id: str, tenant_id: str, file_path: str):
-        """Process a single document: parse → chunk → embed → store."""
+        """Process a single document with automatic retry (max 3 attempts)."""
+        max_retries = 3
+        for attempt in range(1, max_retries + 1):
+            try:
+                await self._do_process(doc_id, tenant_id, file_path, attempt)
+                return  # Success
+            except Exception as e:
+                if attempt < max_retries:
+                    wait = 2 ** attempt  # 2s, 4s
+                    log.warning("doc_processing_retry", doc_id=doc_id, attempt=attempt, error=str(e), wait=wait)
+                    await self._update_status(doc_id, "processing", stage=f"retry {attempt}/{max_retries} in {wait}s")
+                    await asyncio.sleep(wait)
+                else:
+                    log.error("doc_processing_failed", doc_id=doc_id, error=str(e), attempts=max_retries)
+                    await self._update_status(doc_id, "failed", error_msg=f"[{max_retries} attempts] {str(e)[:500]}")
+
+    async def _do_process(self, doc_id: str, tenant_id: str, file_path: str, attempt: int):
+        """Single processing attempt: parse → chunk → embed → store."""
         from knowledge_pipeline.parser import parse_document, ParseError
         from knowledge_pipeline.chunker import split_text
 
-        try:
-            await self._update_status(doc_id, "processing", stage="parsing")
+        await self._update_status(doc_id, "processing", stage=f"parsing (attempt {attempt})")
 
-            # Parse
-            text = await parse_document(file_path)
-            log.info("doc_parsed", doc_id=doc_id, text_len=len(text))
+        # Parse
+        text = await parse_document(file_path)
+        log.info("doc_parsed", doc_id=doc_id, text_len=len(text))
 
-            # Chunk
-            await self._update_status(doc_id, "processing", stage="chunking")
-            chunks = split_text(text)
-            log.info("doc_chunked", doc_id=doc_id, chunks=len(chunks))
+        # Chunk
+        await self._update_status(doc_id, "processing", stage="chunking")
+        chunks = split_text(text)
+        log.info("doc_chunked", doc_id=doc_id, chunks=len(chunks))
 
-            # Embed
-            await self._update_status(doc_id, "processing", stage=f"embedding ({len(chunks)} chunks)")
-            vectors = await self.embedding_service.embed_batch(
-                [c for c in chunks]
-            )
-            log.info("doc_embedded", doc_id=doc_id, vectors=len(vectors))
+        # Embed
+        await self._update_status(doc_id, "processing", stage=f"embedding ({len(chunks)} chunks)")
+        vectors = await self.embedding_service.embed_batch(
+            [c for c in chunks]
+        )
+        log.info("doc_embedded", doc_id=doc_id, vectors=len(vectors))
 
-            # Store in Milvus
-            await self._update_status(doc_id, "processing", stage="storing")
-            data = [
+        # Store in Milvus
+        await self._update_status(doc_id, "processing", stage="storing")
+        data = [
                 {
                     "id": str(uuid4()),
                     "tenant_id": tenant_id,
@@ -77,9 +93,6 @@ class KnowledgePipelineWorker:
 
             await self._update_status(doc_id, "completed", chunk_count=len(chunks))
             log.info("doc_processed", doc_id=doc_id, chunks=len(chunks))
-        except Exception as e:
-            log.error("doc_processing_failed", doc_id=doc_id, error=str(e))
-            await self._update_status(doc_id, "failed", error_msg=str(e))
 
     async def _update_status(
         self,
