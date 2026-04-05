@@ -92,7 +92,7 @@ class KnowledgePipelineWorker:
         async with self.db_pool.acquire() as conn:
             if chunk_count is not None:
                 await conn.execute(
-                    "UPDATE knowledge_docs SET status=$1, chunk_count=$2, updated_at=NOW() WHERE id=$3",
+                    "UPDATE knowledge_docs SET status=$1, chunk_count=$2, error_msg=NULL, updated_at=NOW() WHERE id=$3",
                     status, chunk_count, doc_id,
                 )
             elif error_msg is not None:
