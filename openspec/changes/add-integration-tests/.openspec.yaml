@@ -1,0 +1,26 @@
+schema: spec-driven
+created: 2026-04-18
+
+artifacts:
+  - id: proposal
+    name: Proposal
+    description: Add integration tests for production hardening
+    path: proposal.md
+    type: markdown
+    status: in_progress
+
+  - id: requirements
+    name: Requirements
+    description: Integration test requirements
+    path: requirements.md
+    type: markdown
+    status: pending
+
+  - id: tasks
+    name: Tasks
+    description: Implementation tasks
+    path: tasks.md
+    type: markdown
+    status: pending
+
+status: in_progress
