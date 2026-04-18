@@ -7,34 +7,34 @@ artifacts:
     description: 完善 Cuckoo-Echo 技术规范文档
     path: proposal.md
     type: markdown
-    status: in_progress
+    status: done
 
   - id: requirements
     name: Requirements
     description: 功能需求清单
     path: specs/requirements.md
     type: markdown
-    status: pending
+    status: done
 
   - id: api_specs
     name: API Specs
     description: API 规范定义
     path: specs/api.md
     type: markdown
-    status: pending
+    status: done
 
   - id: architecture
     name: Architecture
     description: 系统架构文档
     path: specs/architecture.md
     type: markdown
-    status: pending
+    status: done
 
   - id: tasks
     name: Tasks
     description: 实现任务清单
     path: tasks.md
     type: markdown
-    status: pending
+    status: done
 
-status: in_progress
+status: done
