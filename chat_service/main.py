@@ -12,6 +12,7 @@ from shared.db import create_asyncpg_pool
 from shared.redis_client import get_redis, close_redis
 from chat_service.agent.checkpointer import lifespan as agent_lifespan
 from chat_service.routes.chat import router as chat_router
+from chat_service.routes.feedback import router as feedback_router
 from chat_service.routes.ws_chat import router as ws_chat_router
 from shared.metrics import setup_prometheus
 
@@ -50,11 +51,16 @@ def _wire_dependencies(app: FastAPI):
     import chat_service.agent.nodes.preprocess as pre_mod
     import chat_service.agent.nodes.llm_generate as llm_mod
     import chat_service.agent.nodes.hitl_node as hitl_mod
+    import chat_service.services.feedback as feedback_mod
 
     # DB pool for RAG soft-delete checks, LLM tenant config, and HITL session creation
     rag_mod.db_pool = app.state.db_pool
     llm_mod.db_pool = app.state.db_pool
     hitl_mod.db_pool = app.state.db_pool
+    feedback_mod.db_pool = app.state.db_pool
+    
+    # Feedback service for routes
+    app.state.feedback_service = feedback_mod
 
     # ASR client
     try:
@@ -184,6 +190,7 @@ class ChatTenantAuthMiddleware(BaseHTTPMiddleware):
 app.add_middleware(ChatTenantAuthMiddleware)
 
 app.include_router(chat_router)
+app.include_router(feedback_router)
 app.include_router(ws_chat_router)
 
 

@@ -21,3 +21,4 @@ class AgentState(TypedDict, total=False):
     guardrails_passed: bool
     correction_message: str | None
     unresolved_turns: int
+    feedback_state: str | None

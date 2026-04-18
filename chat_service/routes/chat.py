@@ -156,6 +156,21 @@ async def event_generator(
         # Ensure the shielded task completes
         await task
         yield "[DONE]"
+        
+        # After stream completes, send feedback_state for the final message
+        if user_id and tenant_id and message_id:
+            feedback_service = getattr(request.app.state, "feedback_service", None)
+            if feedback_service:
+                import chat_service.services.feedback as feedback_mod
+                db_pool = request.app.state.db_pool
+                feedback_state = await feedback_mod.get_feedback_state(
+                    db_pool=db_pool,
+                    thread_id=thread_id,
+                    message_id=message_id,
+                    user_id=user_id,
+                    tenant_id=tenant_id,
+                )
+                yield orjson.dumps({"feedback_state": feedback_state}).decode()
     except asyncio.CancelledError:
         interrupted = True
         log.warning("client_disconnected", thread_id=thread_id)
@@ -208,7 +223,50 @@ async def get_thread_history(thread_id: str, request: Request):
     if not checkpoint:
         return {"thread_id": thread_id, "messages": []}
     state = checkpoint.get("channel_values", {})
+    messages = state.get("messages", [])
+    
+    # Get tenant_id and user_id from request.state
+    tenant_id = getattr(request.state, "tenant_id", None)
+    user_id = getattr(request.state, "user_id", None)
+    
+    # If no user_id, return messages without feedback_state
+    if not user_id:
+        return {
+            "thread_id": thread_id,
+            "messages": messages,
+        }
+    
+    # Get feedback service from app.state
+    feedback_service = getattr(request.app.state, "feedback_service", None)
+    if feedback_service is None:
+        return {
+            "thread_id": thread_id,
+            "messages": messages,
+        }
+    
+    # Add feedback_state to each message
+    import chat_service.services.feedback as feedback_mod
+    db_pool = request.app.state.db_pool
+    
+    enriched_messages = []
+    for msg in messages:
+        msg_id = msg.get("id") or msg.get("additional_kwargs", {}).get("id")
+        if msg_id and tenant_id:
+            feedback_state = await feedback_mod.get_feedback_state(
+                db_pool=db_pool,
+                thread_id=thread_id,
+                message_id=str(msg_id),
+                user_id=user_id,
+                tenant_id=tenant_id,
+            )
+            # Create a copy with feedback_state
+            enriched_msg = dict(msg)
+            enriched_msg["feedback_state"] = feedback_state
+            enriched_messages.append(enriched_msg)
+        else:
+            enriched_messages.append(msg)
+    
     return {
         "thread_id": thread_id,
-        "messages": state.get("messages", []),
+        "messages": enriched_messages,
     }

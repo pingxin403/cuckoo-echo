@@ -66,7 +66,13 @@ class Settings(BaseSettings):
     # Vision LLM
     vision_model: str = "gpt-4o-mini"  # Model supporting image input (OpenAI Vision API format)
 
-    model_config = {"env_prefix": "", "env_file": ".env", "env_file_encoding": "utf-8"}
+    # RAG quality thresholds
+    ragas_faithfulness_min: float = 0.85
+    ragas_context_precision_min: float = 0.80
+    ragas_context_recall_min: float = 0.75
+    ragas_answer_relevancy_min: float = 0.85
+
+    model_config = {"env_prefix": "", "env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
 @lru_cache
