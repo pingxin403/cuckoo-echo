@@ -1,0 +1,40 @@
+schema: spec-driven
+created: 2026-04-18
+
+artifacts:
+  - id: proposal
+    name: Proposal
+    description: 完善 Cuckoo-Echo 技术规范文档
+    path: proposal.md
+    type: markdown
+    status: in_progress
+
+  - id: requirements
+    name: Requirements
+    description: 功能需求清单
+    path: specs/requirements.md
+    type: markdown
+    status: pending
+
+  - id: api_specs
+    name: API Specs
+    description: API 规范定义
+    path: specs/api.md
+    type: markdown
+    status: pending
+
+  - id: architecture
+    name: Architecture
+    description: 系统架构文档
+    path: specs/architecture.md
+    type: markdown
+    status: pending
+
+  - id: tasks
+    name: Tasks
+    description: 实现任务清单
+    path: tasks.md
+    type: markdown
+    status: pending
+
+status: in_progress
