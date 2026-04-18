@@ -120,31 +120,31 @@
 
 **任务列表**：
 
-- [-] 11. Tool Executor Node
+- [x] 11. Tool Executor Node
   - [x] 11.1 Implement `get_order_status(order_id, tenant_id)` and `update_shipping_address(order_id, address, tenant_id)` in `chat_service/agent/tools/order_tools.py`; each function must include `tenant_id` in every outbound request/query
   - [x] 11.2 Implement `tool_executor_node(state)` in `chat_service/agent/nodes/tool_executor.py`: parse `user_intent` to extract tool name and args; call `safe_tool_call(tool_name, args, tenant_id)` with `asyncio.wait_for(..., timeout=5.0)`; on `TimeoutError` return friendly error dict
   - [x] 11.3 Persist tool call record: after each call append `{"name": tool_name, "args": args, "result": result}` to `state["tool_calls"]`; the AsyncPostgresSaver Checkpoint already persists the full State including `tool_calls` — no separate DB write needed here
   - [x] 11.4 Write unit tests in `tests/unit/test_tool_executor.py`: successful call returns result, 5s timeout returns error dict, `tenant_id` present in every outbound call
 
-- [-] 12. ASR Service & Multimodal Preprocess
-  - [x] 11.1 Implement `POST /v1/asr/transcribe` in `asr_service/main.py`: validate `content_type in SUPPORTED_AUDIO_TYPES`; upload to OSS with prefix `{tenant_id}/audio/`; call `whisper_client.transcribe(oss_path)`; return `{"text": ..., "oss_path": ...}`; raise 500 on `WhisperError`
-  - [x] 11.2 Implement `preprocess_node` multimodal handling in `chat_service/agent/nodes/preprocess.py`: if `media` contains audio, call ASR service and replace content with transcript; if `media` contains image, upload to OSS and append signed URL to message; push `{"status": "processing"}` SSE event during preprocessing
-  - [x] 11.3 Measure ASR-to-Agent handoff latency: record `asr_done_at` timestamp after transcription; compute `handoff_ms = (agent_start_at - asr_done_at).total_seconds() * 1000`; emit `metrics.histogram("asr_handoff_ms", handoff_ms)` and log warning if `handoff_ms > 500`; also emit `metrics.histogram("asr_processing_ms", processing_ms)` for Whisper inference duration — this is the key signal for GPU scaling decisions
-  - [x] 11.4 Write unit tests in `tests/unit/test_asr_service.py`: successful transcription returns text, unsupported format returns 415, WhisperError returns 500, OSS path includes tenant prefix
+- [x] 12. ASR Service & Multimodal Preprocess
+  - [x] 11.1 Implement `POST /v1/asr/transcribe` in `asr_service/main.py`
+  - [x] 11.2 Implement `preprocess_node` multimodal handling
+  - [x] 11.3 Measure ASR-to-Agent handoff latency
+  - [x] 11.4 Write unit tests in `tests/unit/test_asr_service.py`
 
-- [-] 12. Admin Service — Knowledge Management
-  - [x] 12.1 Implement `POST /admin/v1/knowledge/docs` in `admin_service/routes/knowledge.py`: accept multipart upload ≤ 50MB; write OSS path and `status=pending` row to `knowledge_docs`; return `doc_id`
-  - [x] 12.2 Implement `GET /admin/v1/knowledge/docs/{id}`: query `knowledge_docs` for `status`, `chunk_count`, `error_msg`; return progress object
-  - [x] 12.3 Implement `DELETE /admin/v1/knowledge/docs/{id}`: set `deleted_at = NOW()` immediately (soft delete); enqueue async Milvus cleanup task (`delete expr=f"doc_id == '{doc_id}'"`) with retry (max 3 attempts, exponential backoff); Milvus physical delete must complete within 5 minutes
-  - [x] 12.4 Implement `POST /admin/v1/knowledge/docs/{id}/retry`: reset `status=pending`, clear `error_msg`; the polling worker will pick it up on next cycle
-  - [x] 12.5 Write unit tests in `tests/unit/test_admin_knowledge.py`: upload creates pending row, delete sets deleted_at, retry resets status, progress endpoint returns correct status
+- [x] 12. Admin Service — Knowledge Management
+  - [x] 12.1 Implement `POST /admin/v1/knowledge/docs`
+  - [x] 12.2 Implement `GET /admin/v1/knowledge/docs/{id}`
+  - [x] 12.3 Implement `DELETE /admin/v1/knowledge/docs/{id}`
+  - [x] 12.4 Implement `POST /admin/v1/knowledge/docs/{id}/retry`
+  - [x] 12.5 Write unit tests in `tests/unit/test_admin_knowledge.py`
 
-- [-] 13. Admin Service — HITL
-  - [x] 13.1 Implement `WS /admin/v1/ws/hitl` in `admin_service/routes/hitl.py`: maintain per-tenant WebSocket connection registry; push `{"type": "hitl_request", "thread_id": ..., "reason": ..., "unresolved_turns": ...}` when Agent sets `hitl_requested=True`
-  - [x] 13.2 Implement `POST /admin/v1/hitl/{session_id}/take`: update `threads.status = 'human_intervention'`; update `hitl_sessions.admin_user_id` and `status = 'active'`; stop Agent auto-reply for that thread
-  - [x] 13.3 Implement `POST /admin/v1/hitl/{session_id}/end`: update `threads.status = 'active'`; update `hitl_sessions.ended_at` and `status = 'resolved'`; allow Agent to resume
-  - [x] 13.4 Implement 60s escalation timer using a persistent delayed task: on HITL request, insert a row into a `hitl_escalation_tasks` table with `execute_at = NOW() + INTERVAL '60 seconds'`; a background polling loop (similar to Knowledge Pipeline Worker, using `SELECT FOR UPDATE SKIP LOCKED`) checks for overdue rows and triggers escalation — do NOT use `asyncio.sleep(60)` which is lost on Pod restart; on escalation: push wait-message SSE to end-user, set `hitl_sessions.status = 'auto_escalated'`, create ticket row, send ticket-confirmation SSE
-  - [x] 13.5 Write unit tests in `tests/unit/test_hitl.py`: take sets thread to human_intervention, end restores to active, 60s timeout triggers escalation and ticket creation; verify escalation task row is inserted on HITL request and deleted after escalation fires
+- [x] 13. Admin Service — HITL
+  - [x] 13.1 Implement `WS /admin/v1/ws/hitl`
+  - [x] 13.2 Implement `POST /admin/v1/hitl/{session_id}/take`
+  - [x] 13.3 Implement `POST /admin/v1/hitl/{session_id}/end`
+  - [x] 13.4 Implement 60s escalation timer
+  - [x] 13.5 Write unit tests in `tests/unit/test_hitl.py`
 
 - [x] 14. Admin Service — Config & Metrics
   - [x] 14.1 Implement `PUT /admin/v1/config/persona`, `PUT /admin/v1/config/model`, `PUT /admin/v1/config/rate-limit` in `admin_service/routes/config.py`: update `tenants.llm_config` and `tenants.rate_limit` JSONB fields; invalidate cached rate-limit values in Redis
@@ -314,24 +314,24 @@
   - [x] 28.3 Add `faster-whisper>=1.0.0` to optional dependencies (`[project.optional-dependencies] asr = [...]`); update docker compose ASR service with GPU support flag
   - [x] 28.4 Write unit tests for whisper_client (mock both local and remote modes)
 
-- [-] 29. Admin JWT Authentication
-  - [x] 29.1 Implement `admin_service/middleware/jwt_auth.py`: decode JWT token from `Authorization: Bearer <jwt>` header; extract `tenant_id`, `admin_user_id`, `role` from claims; validate signature using `ADMIN_JWT_SECRET` from Settings; return 401 on invalid/expired token
-  - [x] 29.2 Create `admin_service/routes/auth.py`: `POST /admin/v1/auth/login` — validate admin credentials against `admin_users` table (add to migration); return JWT token with 24h expiry; `POST /admin/v1/auth/refresh` — refresh token
-  - [x] 29.3 Add `admin_users` table to `migrations/003_admin_users.sql` with `id`, `tenant_id`, `email`, `password_hash` (bcrypt), `role`, `created_at`
-  - [x] 29.4 Replace the simplified header-based auth middleware in `admin_service/main.py` with `JWTAuthMiddleware`; keep `/health` and `/admin/v1/auth/login` exempt
-  - [x] 29.5 Write unit tests for JWT auth middleware and login endpoint
+- [x] 29. Admin JWT Authentication
+  - [x] 29.1 Implement `admin_service/middleware/jwt_auth.py`
+  - [x] 29.2 Create `admin_service/routes/auth.py`
+  - [x] 29.3 Add `admin_users` table to migration
+  - [x] 29.4 Replace with JWTAuthMiddleware
+  - [x] 29.5 Write unit tests
 
-- [-] 30. Alembic Migration Integration
-  - [x] 30.1 Initialize Alembic: `uv add alembic`; `uv run alembic init migrations/alembic`; configure `alembic.ini` to read `DATABASE_URL` from pydantic-settings; set `script_location = migrations/alembic`
-  - [x] 30.2 Convert existing SQL migrations to Alembic revisions: `001_initial.sql` → revision 1, `002_escalation_tables.sql` → revision 2, `003_admin_users.sql` → revision 3; use `op.execute()` for raw SQL to preserve exact DDL
-  - [x] 30.3 Update Makefile: `make migrate-up` → `uv run alembic upgrade head`; `make migrate-down` → `uv run alembic downgrade -1`; `make migrate-new MSG="description"` → `uv run alembic revision --autogenerate -m "description"`
-  - [x] 30.4 Update docker-compose.yml: change migration init from `docker-entrypoint-initdb.d` to explicit `alembic upgrade head` in entrypoint or init container
+- [x] 30. Alembic Migration Integration
+  - [x] 30.1 Initialize Alembic
+  - [x] 30.2 Convert to revisions
+  - [x] 30.3 Update Makefile
+  - [x] 30.4 Update docker-compose
 
-- [-] 31. Semantic Cache Implementation
-  - [x] 31.1 Implement `shared/semantic_cache.py`: create Milvus `semantic_cache` collection (query_vector, response_text, tenant_id, created_at, ttl); `cache_lookup(query_vec, tenant_id, threshold=0.95)` → returns cached response or None; `cache_store(query_vec, response, tenant_id)`
-  - [x] 31.2 Integrate into `chat_service/agent/nodes/rag_engine.py`: before RAG search, check semantic cache; if hit (similarity ≥ 0.95), return cached response directly without LLM call; if miss, proceed with normal RAG → LLM flow and cache the result
-  - [x] 31.3 Add cache invalidation: when knowledge docs are updated/deleted, invalidate related cache entries for that tenant; add `POST /admin/v1/cache/clear` endpoint
-  - [x] 31.4 Write unit tests: cache hit returns response without LLM call, cache miss proceeds normally, cache invalidation works, tenant isolation in cache
+- [x] 31. Semantic Cache Implementation
+  - [x] 31.1 Implement `shared/semantic_cache.py`
+  - [x] 31.2 Integrate into RAG
+  - [x] 31.3 Add cache invalidation
+  - [x] 31.4 Write unit tests
 
 - [x] 32. Integration Test Suite on Real Infrastructure
   - [x] 32.1 Write `tests/integration/test_full_chat_flow.py`: `docker compose up` → create tenant → send message → verify SSE stream → verify message persisted in PG → verify Langfuse trace created; mark as `pytest.mark.integration`
