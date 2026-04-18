@@ -128,9 +128,72 @@ curl http://localhost:8000/v1/threads/550e8400-e29b-41d4-a716-446655440000 \
 
 ---
 
-## Admin 管理接口
+## 用户反馈接口 (User Feedback)
 
-All admin endpoints are prefixed with `/admin/v1/` and require admin-level API key authentication.
+### POST /v1/feedback — 记录反馈
+
+Record user feedback (👍 or 👎) on AI responses.
+
+```bash
+curl -X POST http://localhost:8000/v1/feedback \
+  -H "Authorization: Bearer ck_your_api_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "thread_id": "550e8400-e29b-41d4-a716-446655440000",
+    "message_id": "550e8400-e29b-41d4-a716-446655440001",
+    "feedback_type": "thumbs_up"
+  }'
+```
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `thread_id` | UUID | Yes | Thread identifier |
+| `message_id` | UUID | Yes | Message identifier |
+| `feedback_type` | string | Yes | `"thumbs_up"` or `"thumbs_down"` |
+
+**Response (200 OK):**
+
+```json
+{"success": true, "feedback_state": "thumbs_up"}
+```
+
+Clicking the same button twice toggles the feedback off (returns `null`).
+
+---
+
+### GET /v1/feedback/stats — 获取反馈统计
+
+Get feedback statistics for a thread or message.
+
+```bash
+curl "http://localhost:8000/v1/feedback/stats?thread_id=550e8400-e29b-41d4-a716-446655440000" \
+  -H "Authorization: Bearer ck_your_api_key_here"
+```
+
+**Query Parameters:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `thread_id` | UUID | No | Filter by thread |
+| `message_id` | UUID | No | Filter by message |
+
+**Response (200 OK):**
+
+```json
+{
+  "total": 10,
+  "thumbs_up": 8,
+  "thumbs_down": 2,
+  "thumbs_up_percentage": 80.0,
+  "thumbs_down_percentage": 20.0
+}
+```
+
+---
+
+## Admin 管理接口
 
 ### POST /admin/v1/knowledge/docs — 上传知识文档
 

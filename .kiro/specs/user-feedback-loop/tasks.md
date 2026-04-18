@@ -123,9 +123,9 @@ This feature adds a user feedback loop (👍/👎) to the Cuckoo-Echo AI chat pl
     - Requires real database + PBT setup
     - Can be added to tests/pbt/
 
-- [ ] 9. Update documentation (optional)
-  - [ ] 9.1 Update API documentation
-  - [ ] 9.2 Update architecture documentation
+- [x] 9. Update documentation
+  - [x] 9.1 Update API documentation - Added POST /v1/feedback and GET /v1/feedback/stats
+  - [x] 9.2 Update architecture documentation - Added User Feedback Loop section
 
 - [x] 10. Final checkpoint - Unit tests pass
   - 11 unit tests passing

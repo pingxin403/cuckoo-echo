@@ -46,8 +46,12 @@ graph TB
     end
 
     subgraph Observability / 可观测性
-        LANGFUSE[Langfuse<br/>LLM Tracing]
+        LANGFUSE[Langfuse<br/>LLM Tracing + Feedback]
         PROM[Prometheus<br/>Metrics]
+    end
+
+    subgraph Feedback / 用户反馈
+        FB[Feedback Service<br/>Storage + Stats]
     end
 
     WEB & APP & SDK --> GW
@@ -58,6 +62,8 @@ graph TB
     ASR --> OSS
     AIGTW --> LLM1 & LLM2 & LLM3
     CS -.-> LANGFUSE & PROM
+    CS --> FB
+    FB -.-> LANGFUSE
     ADMIN -.-> PROM
 ```
 
@@ -183,6 +189,36 @@ stateDiagram-v2
 | `llm_generate` | LLM streaming generation via AI Gateway |
 | `guardrails` | NLI hallucination detection (cross-encoder/nli-deberta-v3-small) |
 | `postprocess` | Push correction message if needed, update state |
+
+---
+
+## User Feedback Loop / 用户反馈环
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant CS as Chat Service
+    participant FB as Feedback Service
+    participant PG as PostgreSQL
+    participant REDIS as Redis Cache
+    participant LANGFUSE as Langfuse
+
+    U->>CS: Message with feedback buttons
+    CS->>FB: POST /v1/feedback
+    FB->>PG: INSERT/UPDATE feedback
+    PG-->>FB: Confirm
+    FB->>REDIS: Invalidate cache
+    FB->>LANGFUSE: Send feedback event (async)
+    CS-->>U: Return success + feedback_state
+```
+
+**Data Flow:**
+
+1. User clicks 👍/👎 on AI response
+2. Frontend calls `POST /v1/feedback` with `feedback_type`
+3. Backend stores/updates feedback in PostgreSQL (RLS enforced)
+4. Redis cache invalidated (TTL: 60s)
+5. Async feedback event sent to Langfuse for tracing
 
 ---
 
