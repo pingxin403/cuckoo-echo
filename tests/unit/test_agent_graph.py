@@ -8,10 +8,22 @@ from chat_service.agent.state import AgentState
 class TestAgentState:
     def test_all_fields_defined(self):
         expected = {
-            "thread_id", "tenant_id", "user_id", "messages", "summary",
-            "user_intent", "rag_context", "tool_calls", "media_urls",
-            "hitl_requested", "tokens_used", "llm_response",
-            "guardrails_passed", "correction_message", "unresolved_turns",
+            "thread_id",
+            "tenant_id",
+            "user_id",
+            "messages",
+            "summary",
+            "user_intent",
+            "rag_context",
+            "tool_calls",
+            "media_urls",
+            "hitl_requested",
+            "tokens_used",
+            "llm_response",
+            "guardrails_passed",
+            "correction_message",
+            "unresolved_turns",
+            "feedback_state",
         }
         assert set(AgentState.__annotations__.keys()) == expected
 
@@ -34,9 +46,15 @@ class TestBuildAgentGraph:
         graph = build_agent_graph()
         node_names = set(graph.get_graph().nodes.keys())
         expected_nodes = {
-            "preprocess", "router", "rag_engine", "tool_executor",
-            "llm_generate", "guardrails", "postprocess",
-            "__start__", "__end__",
+            "preprocess",
+            "router",
+            "rag_engine",
+            "tool_executor",
+            "llm_generate",
+            "guardrails",
+            "postprocess",
+            "__start__",
+            "__end__",
         }
         assert expected_nodes.issubset(node_names)
 

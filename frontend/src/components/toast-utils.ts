@@ -1,5 +1,5 @@
 // Toast utility functions for use outside React tree (e.g., Axios interceptors)
-import type { ToastType } from './Toast';
+export type ToastType = 'success' | 'error' | 'info';
 
 let _showToast: ((type: ToastType, message: string) => void) | null = null;
 
@@ -14,5 +14,3 @@ export function showToast(type: ToastType, message: string) {
     console.warn('[Toast] ToastProvider not mounted yet');
   }
 }
-
-export type { ToastType };

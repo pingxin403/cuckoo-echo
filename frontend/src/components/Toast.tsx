@@ -1,9 +1,10 @@
 import { useState, useCallback, createContext, useContext, type ReactNode } from 'react';
 // eslint-disable-next-line react-refresh/only-export-components
 import * as ToastPrimitive from '@radix-ui/react-toast';
-import { registerToast } from './toast-utils';
+import { registerToast, showToast, type ToastType } from './toast-utils';
 
-export type { ToastType } from './toast-utils';
+export { showToast };
+export type { ToastType };
 
 interface ToastItem {
   id: string;
