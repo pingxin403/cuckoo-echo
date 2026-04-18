@@ -1,9 +1,26 @@
-.PHONY: install test lint format up down migrate migrate-down migrate-new migrate-status dev pre-commit test-e2e dev-all seed logs clean verify-e2e quality-gate test-pbt test-all test-frontend test-frontend-e2e
+.PHONY: install test lint format typecheck verify up down migrate migrate-down migrate-new migrate-status dev pre-commit test-e2e dev-all seed logs clean verify-e2e quality-gate test-pbt test-all test-frontend test-frontend-e2e health init-db build build-frontend
 
 # ── Setup ──
 install:
 	uv sync
 	cd frontend && pnpm install
+
+# ── Build ──
+build:
+	uv sync
+	cd frontend && pnpm build
+
+build-frontend:
+	cd frontend && pnpm build
+
+# ── Type Check ──
+typecheck:
+	uv run ruff check .
+	cd frontend && pnpm typecheck
+
+# ── Verify ──
+verify: lint typecheck test
+	@echo "All checks passed!"
 
 # ── Backend Tests ──
 test:
@@ -71,9 +88,22 @@ migrate-new:
 migrate-status:
 	uv run alembic current
 
+# Initialize database (run all migrations + seed)
+init-db: migrate seed
+
+# ── Health Check ──
+health:
+	@docker compose ps
+	@echo "Checking services..."
+	@curl -sf http://localhost:8000/health || echo "API Gateway not healthy"
+	@curl -sf http://localhost:8001/health || echo "Chat Service not healthy"
+
 # ── Development ──
 dev:
 	uv run uvicorn api_gateway.main:app --reload --port 8000
+
+dev-frontend:
+	cd frontend && pnpm dev
 
 dev-all:
 	docker compose up -d postgres redis milvus minio
