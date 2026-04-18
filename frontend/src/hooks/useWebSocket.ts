@@ -16,17 +16,17 @@ interface UseWebSocketReturn {
 export function useWebSocket({ url, onMessage }: UseWebSocketOptions): UseWebSocketReturn {
   const clientRef = useRef<WSClient | null>(null);
   const onMessageRef = useRef(onMessage);
-  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>(url ? 'connecting' : 'disconnected');
 
-  // Keep callback ref up to date without re-triggering effect
-  onMessageRef.current = onMessage;
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
 
   useEffect(() => {
     if (!url) return;
 
     const client = new WSClient();
     clientRef.current = client;
-    setConnectionStatus('connecting');
 
     client.connect({
       url,

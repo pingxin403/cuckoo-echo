@@ -49,7 +49,7 @@ export default function ChatWidget({
   } = useSSE({
     url: sseUrl,
     apiKey,
-    onToken(token: string, _messageId?: string) { appendToken(token); },
+    onToken(token: string) { appendToken(token); },
     onDone(messageId: string) {
       finishStreaming(messageId);
       analytics.track('message_received', { thread_id: activeThreadId });

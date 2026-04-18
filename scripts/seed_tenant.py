@@ -56,10 +56,10 @@ async def main() -> None:
     print("=" * 60)
     print()
     print("Test with:")
-    print(f'  curl -N http://localhost:8000/v1/chat/completions \\')
+    print('  curl -N http://localhost:8000/v1/chat/completions \\')
     print(f'    -H "Authorization: Bearer {api_key}" \\')
-    print(f'    -H "Content-Type: application/json" \\')
-    print(f'    -d \'{{"user_id":"test_user","messages":[{{"role":"user","content":"hello"}}]}}\'')
+    print('    -H "Content-Type: application/json" \\')
+    print('    -d \'{"user_id":"test_user","messages":[{"role":"user","content":"hello"}]}\'')
 
     await pool.close()
 

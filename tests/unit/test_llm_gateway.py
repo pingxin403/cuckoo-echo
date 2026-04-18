@@ -79,9 +79,6 @@ class TestStreamChatCompletion:
             # second call (fallback) succeeds.
             mock_acompletion.side_effect = [asyncio.TimeoutError(), fallback_stream]
 
-            # We need to also patch wait_for so the first call raises TimeoutError
-            original_wait_for = asyncio.wait_for
-
             call_count = 0
 
             async def patched_wait_for(coro, *, timeout):

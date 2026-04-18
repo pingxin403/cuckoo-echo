@@ -59,7 +59,7 @@ describe('embed.tsx — <cuckoo-chat> Web Component', () => {
 
     // If connectedCallback didn't fire automatically, invoke it manually
     if (!el.shadowRoot) {
-      (el as any).connectedCallback();
+      (el as unknown as { connectedCallback: () => void }).connectedCallback();
     }
 
     // Shadow root should exist

@@ -7,7 +7,6 @@ from chat_service.agent.nodes.router import (
     RULE_PATTERNS,
     UNRESOLVED_THRESHOLD,
     detect_negative_sentiment,
-    llm_classify_intent,
     route_decision,
     router_node,
 )

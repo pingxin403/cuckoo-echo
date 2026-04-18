@@ -1,7 +1,7 @@
 """Unit tests for chat_service/routes/ws_chat.py WebSocket endpoint."""
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 from chat_service.routes.ws_chat import chat_websocket
 

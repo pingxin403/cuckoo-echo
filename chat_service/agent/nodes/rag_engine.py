@@ -8,7 +8,6 @@ from __future__ import annotations
 import asyncio
 
 import structlog
-from pymilvus import AnnSearchRequest, RRFRanker
 
 from chat_service.agent.state import AgentState
 

@@ -6,12 +6,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import bcrypt
 import jwt
-import pytest
 from fastapi import FastAPI
 from starlette.requests import Request
 from starlette.testclient import TestClient
 
-from admin_service.middleware.jwt_auth import JWTAuthMiddleware, EXEMPT_PATHS
+from admin_service.middleware.jwt_auth import JWTAuthMiddleware
 from admin_service.routes.auth import router as auth_router
 
 TEST_SECRET = "test-jwt-secret-key-that-is-long-enough-for-hs256"

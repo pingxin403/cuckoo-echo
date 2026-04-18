@@ -9,7 +9,6 @@ Run with: pytest -m integration
 
 from __future__ import annotations
 
-import asyncio
 from uuid import uuid4
 
 import pytest

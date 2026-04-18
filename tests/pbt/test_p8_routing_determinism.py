@@ -12,7 +12,7 @@ from __future__ import annotations
 import asyncio
 from unittest.mock import AsyncMock, patch
 
-from hypothesis import given, settings, assume, HealthCheck, strategies as st
+from hypothesis import given, settings, HealthCheck, strategies as st
 
 from chat_service.agent.nodes.router import router_node
 

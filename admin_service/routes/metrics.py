@@ -1,4 +1,5 @@
 """Admin Metrics API routes."""
+
 from __future__ import annotations
 
 import structlog
@@ -89,7 +90,7 @@ async def metrics_missed_queries(request: Request, range: str = Query("7d")):
 async def sandbox_run(request: Request):
     """Run RAG quality gate with Ragas metrics."""
     body = await request.json()
-    tenant_id = request.state.tenant_id
+    # tenant_id: kept for potential future use in sandbox evaluation
     test_cases = body.get("test_cases", [])
 
     if not test_cases:
@@ -102,12 +103,14 @@ async def sandbox_run(request: Request):
         # Build evaluation dataset from test cases
         dataset = []
         for case in test_cases:
-            dataset.append({
-                "user_input": case.get("query", ""),
-                "retrieved_contexts": case.get("contexts", []),
-                "response": case.get("response", ""),
-                "reference": case.get("reference", ""),
-            })
+            dataset.append(
+                {
+                    "user_input": case.get("query", ""),
+                    "retrieved_contexts": case.get("contexts", []),
+                    "response": case.get("response", ""),
+                    "reference": case.get("reference", ""),
+                }
+            )
 
         eval_dataset = EvaluationDataset.from_list(dataset)
         result = evaluate(

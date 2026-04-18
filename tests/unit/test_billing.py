@@ -1,7 +1,5 @@
 """Unit tests for shared/billing.py multimodal credit calculations."""
 
-import math
-import pytest
 
 from shared.billing import (
     calculate_audio_credits,

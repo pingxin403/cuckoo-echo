@@ -5,7 +5,6 @@ import fc from 'fast-check';
 import { validateFile, FILE_RULES } from '../../lib/fileValidation';
 
 const CATEGORIES = ['image', 'audio', 'document'] as const;
-type Category = (typeof CATEGORIES)[number];
 
 /** All allowed MIME types across all categories */
 const ALL_ALLOWED_TYPES = Object.values(FILE_RULES).flatMap((r) => r.allowedTypes);

@@ -8,7 +8,6 @@ from admin_service.routes.hitl import (
     router,
     notify_hitl_request,
     _poll_escalation_tasks,
-    _ws_connections,
 )
 
 

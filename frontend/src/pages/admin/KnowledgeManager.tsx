@@ -58,32 +58,36 @@ function useProcessingPoller(documents: KnowledgeDoc[]) {
   );
 
   useEffect(() => {
+    // Capture ref values at effect start to avoid stale closure issues
+    const currentTimers = timersRef.current;
+    const currentDelays = delaysRef.current;
+
     // Clear all existing timers
-    for (const timer of timersRef.current.values()) clearTimeout(timer);
-    timersRef.current.clear();
+    for (const timer of currentTimers.values()) clearTimeout(timer);
+    currentTimers.clear();
 
     // Start polling for processing docs
     const processingDocs = documents.filter(
       (d) => d.status === 'pending' || d.status === 'processing',
     );
     for (const doc of processingDocs) {
-      if (!delaysRef.current.has(doc.id)) {
-        delaysRef.current.set(doc.id, 3000);
+      if (!currentDelays.has(doc.id)) {
+        currentDelays.set(doc.id, 3000);
       }
       poll(doc.id);
     }
 
     // Clean up delays for completed/failed docs
-    for (const [id] of delaysRef.current) {
+    for (const [id] of currentDelays) {
       const doc = documents.find((d) => d.id === id);
       if (!doc || doc.status === 'completed' || doc.status === 'failed') {
-        delaysRef.current.delete(id);
+        currentDelays.delete(id);
       }
     }
 
     return () => {
-      for (const timer of timersRef.current.values()) clearTimeout(timer);
-      timersRef.current.clear();
+      for (const timer of currentTimers.values()) clearTimeout(timer);
+      currentTimers.clear();
     };
   }, [documents, poll]);
 }

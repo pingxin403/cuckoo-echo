@@ -31,7 +31,9 @@ export function useSSE({
     useState<ConnectionStatus>('disconnected');
   const wasDisconnectedRef = useRef(false);
 
-  callbacksRef.current = { onToken, onDone, onError, onReconnected };
+  useEffect(() => {
+    callbacksRef.current = { onToken, onDone, onError, onReconnected };
+  }, [onToken, onDone, onError, onReconnected]);
 
   useEffect(() => {
     const client = new SSEClient();

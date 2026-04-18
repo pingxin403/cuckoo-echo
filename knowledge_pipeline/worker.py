@@ -52,7 +52,7 @@ class KnowledgePipelineWorker:
 
     async def _do_process(self, doc_id: str, tenant_id: str, file_path: str, attempt: int):
         """Single processing attempt: parse → chunk → embed → store."""
-        from knowledge_pipeline.parser import parse_document, ParseError
+        from knowledge_pipeline.parser import parse_document
         from knowledge_pipeline.chunker import split_text
 
         await self._update_status(doc_id, "processing", stage=f"parsing (attempt {attempt})")

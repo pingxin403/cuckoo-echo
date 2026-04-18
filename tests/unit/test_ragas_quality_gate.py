@@ -13,7 +13,6 @@ import json
 import os
 import tempfile
 
-import pytest
 
 # Import from the script
 import sys

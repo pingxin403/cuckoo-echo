@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useSessionStore } from '@/stores/sessionStore';
 import type { SessionStatus } from '@/types';
 
@@ -17,7 +17,7 @@ export default function HITLStatus() {
   const [banner, setBanner] = useState<string | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const prev = prevStatusRef.current;
     prevStatusRef.current = status;
 

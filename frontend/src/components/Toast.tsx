@@ -1,7 +1,9 @@
 import { useState, useCallback, createContext, useContext, type ReactNode } from 'react';
+// eslint-disable-next-line react-refresh/only-export-components
 import * as ToastPrimitive from '@radix-ui/react-toast';
+import { registerToast } from './toast-utils';
 
-type ToastType = 'success' | 'error' | 'info';
+export type { ToastType } from './toast-utils';
 
 interface ToastItem {
   id: string;
@@ -36,7 +38,7 @@ const typeLabels: Record<ToastType, string> = {
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
-  const showToast = useCallback((type: ToastType, message: string) => {
+  const showToastHandler = useCallback((type: ToastType, message: string) => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     setToasts((prev) => [...prev, { id, type, message }]);
   }, []);
@@ -45,8 +47,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  // Register the toast function for use outside React tree
+  useState(() => {
+    registerToast(showToastHandler);
+  });
+
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={{ showToast: showToastHandler }}>
       <ToastPrimitive.Provider swipeDirection="right">
         {children}
         {toasts.map((toast) => (
@@ -76,19 +83,4 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       </ToastPrimitive.Provider>
     </ToastContext.Provider>
   );
-}
-
-// Standalone showToast for use outside React tree (e.g., Axios interceptors)
-let _showToast: ((type: ToastType, message: string) => void) | null = null;
-
-export function registerToast(fn: (type: ToastType, message: string) => void) {
-  _showToast = fn;
-}
-
-export function showToast(type: ToastType, message: string) {
-  if (_showToast) {
-    _showToast(type, message);
-  } else {
-    console.warn('[Toast] ToastProvider not mounted yet');
-  }
 }

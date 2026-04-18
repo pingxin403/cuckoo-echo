@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from knowledge_pipeline.chunker import split_text, DEFAULT_CHUNK_SIZE
+from knowledge_pipeline.chunker import split_text
 from knowledge_pipeline.parser import parse_document, ParseError
 
 

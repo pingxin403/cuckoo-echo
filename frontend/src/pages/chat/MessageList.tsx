@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import type { Message } from '@/types';
 import { useChatStore } from '@/stores/chatStore';
@@ -24,12 +24,12 @@ export default function MessageList({ onLoadMore }: MessageListProps) {
     useVirtualScroll();
 
   // Track previous message count to detect new arrivals
-  const prevCountRef = useRef(messages.length);
-  const hasNewMessages = !isAtBottom && messages.length > prevCountRef.current;
+  const [prevCount, setPrevCount] = useState(messages.length);
+  const hasNewMessages = !isAtBottom && messages.length > prevCount;
 
   useEffect(() => {
     if (isAtBottom) {
-      prevCountRef.current = messages.length;
+      setPrevCount(messages.length);
     }
   }, [messages.length, isAtBottom]);
 
@@ -40,7 +40,7 @@ export default function MessageList({ onLoadMore }: MessageListProps) {
 
   const handleNewMessageClick = useCallback(() => {
     scrollToBottom();
-    prevCountRef.current = messages.length;
+    setPrevCount(messages.length);
   }, [scrollToBottom, messages.length]);
 
   return (

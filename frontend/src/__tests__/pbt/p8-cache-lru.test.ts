@@ -8,7 +8,6 @@ import {
   saveThread,
   loadThread,
   setCacheConfig,
-  getCacheConfig,
 } from '@/lib/cache';
 import type { ThreadMeta, Message } from '@/types';
 import { createStore, entries, keys, del } from 'idb-keyval';

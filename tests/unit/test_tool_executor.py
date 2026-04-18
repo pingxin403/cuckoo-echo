@@ -3,7 +3,7 @@ import asyncio
 import pytest
 from unittest.mock import patch
 from chat_service.agent.nodes.tool_executor import (
-    tool_executor_node, safe_tool_call, _parse_tool_intent, TOOL_TIMEOUT,
+    tool_executor_node, safe_tool_call, _parse_tool_intent,
 )
 from chat_service.agent.state import AgentState
 

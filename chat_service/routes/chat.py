@@ -61,13 +61,10 @@ async def event_generator(
     acquired = await lock.acquire(blocking=False)
 
     if not acquired:
-        yield orjson.dumps(
-            {"error": "CONCURRENT_REQUEST", "message": "AI is still processing"}
-        ).decode()
+        yield orjson.dumps({"error": "CONCURRENT_REQUEST", "message": "AI is still processing"}).decode()
         return
 
     tokens_used = 0
-    interrupted = False
     queue: asyncio.Queue = asyncio.Queue()
 
     async def _consume_stream():
@@ -84,20 +81,20 @@ async def event_generator(
 
         # Attach token queue to stream_chat_completion for real-time token push
         from ai_gateway.client import stream_chat_completion
+
         stream_chat_completion._token_queue = queue
         tokens_pushed_via_queue = False
 
         response_sent = False
         try:
-            async for state_update in agent.astream(
-                payload, config=config, stream_mode="updates"
-            ):
+            async for state_update in agent.astream(payload, config=config, stream_mode="updates"):
                 log.debug(
                     "astream_state_update",
                     thread_id=thread_id,
                     node=list(state_update.keys()),
-                    keys={k: list(v.keys()) if isinstance(v, dict) else type(v).__name__
-                          for k, v in state_update.items()},
+                    keys={
+                        k: list(v.keys()) if isinstance(v, dict) else type(v).__name__ for k, v in state_update.items()
+                    },
                 )
 
                 for node_name, diff in state_update.items():
@@ -133,9 +130,7 @@ async def event_generator(
         except Exception as exc:
             log.error("astream_error", thread_id=thread_id, error=str(exc))
             if not response_sent:
-                await queue.put(
-                    orjson.dumps({"content": "抱歉，系统暂时无法处理您的请求，请稍后重试。"}).decode()
-                )
+                await queue.put(orjson.dumps({"content": "抱歉，系统暂时无法处理您的请求，请稍后重试。"}).decode())
         finally:
             # Clean up the token queue reference
             stream_chat_completion._token_queue = None
@@ -149,30 +144,15 @@ async def event_generator(
                 break
             # If item is a raw token string (from llm_generate per-token push),
             # wrap it in SSE JSON format
-            if isinstance(item, str) and not item.startswith('{'):
+            if isinstance(item, str) and not item.startswith("{"):
                 yield orjson.dumps({"content": item}).decode()
             else:
                 yield item
         # Ensure the shielded task completes
         await task
         yield "[DONE]"
-        
-        # After stream completes, send feedback_state for the final message
-        if user_id and tenant_id and message_id:
-            feedback_service = getattr(request.app.state, "feedback_service", None)
-            if feedback_service:
-                import chat_service.services.feedback as feedback_mod
-                db_pool = request.app.state.db_pool
-                feedback_state = await feedback_mod.get_feedback_state(
-                    db_pool=db_pool,
-                    thread_id=thread_id,
-                    message_id=message_id,
-                    user_id=user_id,
-                    tenant_id=tenant_id,
-                )
-                yield orjson.dumps({"feedback_state": feedback_state}).decode()
+
     except asyncio.CancelledError:
-        interrupted = True
         log.warning("client_disconnected", thread_id=thread_id)
         raise
     finally:
@@ -224,18 +204,18 @@ async def get_thread_history(thread_id: str, request: Request):
         return {"thread_id": thread_id, "messages": []}
     state = checkpoint.get("channel_values", {})
     messages = state.get("messages", [])
-    
+
     # Get tenant_id and user_id from request.state
     tenant_id = getattr(request.state, "tenant_id", None)
     user_id = getattr(request.state, "user_id", None)
-    
+
     # If no user_id, return messages without feedback_state
     if not user_id:
         return {
             "thread_id": thread_id,
             "messages": messages,
         }
-    
+
     # Get feedback service from app.state
     feedback_service = getattr(request.app.state, "feedback_service", None)
     if feedback_service is None:
@@ -243,11 +223,12 @@ async def get_thread_history(thread_id: str, request: Request):
             "thread_id": thread_id,
             "messages": messages,
         }
-    
+
     # Add feedback_state to each message
     import chat_service.services.feedback as feedback_mod
+
     db_pool = request.app.state.db_pool
-    
+
     enriched_messages = []
     for msg in messages:
         msg_id = msg.get("id") or msg.get("additional_kwargs", {}).get("id")
@@ -265,7 +246,7 @@ async def get_thread_history(thread_id: str, request: Request):
             enriched_messages.append(enriched_msg)
         else:
             enriched_messages.append(msg)
-    
+
     return {
         "thread_id": thread_id,
         "messages": enriched_messages,

@@ -1,4 +1,4 @@
-import { validateFile, FILE_RULES } from '../../lib/fileValidation';
+import { validateFile } from '../../lib/fileValidation';
 
 function makeFile(name: string, size: number, type: string): File {
   const buffer = new ArrayBuffer(size);

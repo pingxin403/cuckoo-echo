@@ -26,7 +26,7 @@ import type { ChatWidgetProps } from './types';
 
 // ─── Global config interface ──────────────────────────────────
 
-interface CuckooConfig extends Partial<ChatWidgetProps> {}
+type CuckooConfig = Partial<ChatWidgetProps>;
 
 declare global {
   interface Window {

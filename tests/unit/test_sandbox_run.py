@@ -1,7 +1,7 @@
 """Unit tests for admin_service/routes/metrics.py sandbox_run endpoint."""
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 from admin_service.routes.metrics import sandbox_run
 

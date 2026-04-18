@@ -1,7 +1,6 @@
 """Unit tests for ASR Service."""
 import io
 
-import pytest
 from starlette.testclient import TestClient
 
 from asr_service.main import SUPPORTED_AUDIO_TYPES, app

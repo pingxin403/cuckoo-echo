@@ -1,7 +1,6 @@
 """WebSocket chat endpoint — bidirectional real-time chat."""
 from __future__ import annotations
 
-import orjson
 import structlog
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 

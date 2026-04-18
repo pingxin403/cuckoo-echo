@@ -1,6 +1,5 @@
 """Unit tests for Chat_Service SSE endpoint."""
 
-import asyncio
 
 import pytest
 from unittest.mock import AsyncMock, MagicMock

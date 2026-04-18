@@ -1,4 +1,5 @@
 """Admin Knowledge Management API routes."""
+
 from __future__ import annotations
 import asyncio
 from uuid import uuid4
@@ -32,8 +33,9 @@ async def upload_document(
         oss_client = getattr(request.app.state, "oss_client", None)
         if oss_client:
             from io import BytesIO
+
             oss_client.put_object(
-                bucket_name=oss_client._bucket_name if hasattr(oss_client, '_bucket_name') else "cuckoo-echo",
+                bucket_name=oss_client._bucket_name if hasattr(oss_client, "_bucket_name") else "cuckoo-echo",
                 object_name=oss_path,
                 data=BytesIO(content),
                 length=len(content),
@@ -42,6 +44,7 @@ async def upload_document(
         else:
             # Fallback: save to local /tmp for development
             import os
+
             local_dir = f"/tmp/cuckoo-uploads/{tenant_id}/docs/{doc_id}"
             os.makedirs(local_dir, exist_ok=True)
             with open(f"{local_dir}/{file.filename}", "wb") as f:
@@ -51,6 +54,7 @@ async def upload_document(
         log.warning("oss_upload_failed", error=str(e), doc_id=doc_id)
         # Fallback to local
         import os
+
         local_dir = f"/tmp/cuckoo-uploads/{tenant_id}/docs/{doc_id}"
         os.makedirs(local_dir, exist_ok=True)
         with open(f"{local_dir}/{file.filename}", "wb") as f:
@@ -62,7 +66,10 @@ async def upload_document(
         await conn.execute(
             """INSERT INTO knowledge_docs (id, tenant_id, filename, oss_path, status)
                VALUES ($1, $2, $3, $4, 'pending')""",
-            doc_id, tenant_id, file.filename, oss_path,
+            doc_id,
+            tenant_id,
+            file.filename,
+            oss_path,
         )
 
     log.info("document_uploaded", doc_id=doc_id, tenant_id=tenant_id, filename=file.filename)
@@ -131,7 +138,7 @@ async def delete_document(doc_id: str, request: Request, background_tasks: Backg
 
     async with db_pool.acquire() as conn:
         async with tenant_db_context(conn, tenant_id):
-            result = await conn.execute(
+            await conn.execute(
                 "UPDATE knowledge_docs SET deleted_at = NOW() WHERE id = $1 AND deleted_at IS NULL",
                 doc_id,
             )
@@ -159,7 +166,7 @@ async def _cleanup_milvus_vectors(doc_id: str, app, max_retries: int = 3):
             log.info("milvus_vectors_deleted", doc_id=doc_id)
             return
         except Exception as e:
-            wait = 2 ** attempt
+            wait = 2**attempt
             log.warning("milvus_delete_retry", doc_id=doc_id, attempt=attempt, error=str(e))
             await asyncio.sleep(wait)
     log.error("milvus_delete_failed", doc_id=doc_id)

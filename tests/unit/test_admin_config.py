@@ -1,5 +1,4 @@
 """Unit tests for Admin Config & Metrics endpoints."""
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 from starlette.testclient import TestClient
 from fastapi import FastAPI

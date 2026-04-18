@@ -9,7 +9,7 @@ For any tool call triggered by tenant_t, every outbound request carries tenant_i
 from __future__ import annotations
 
 import asyncio
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 from hypothesis import given, settings, HealthCheck, strategies as st
 

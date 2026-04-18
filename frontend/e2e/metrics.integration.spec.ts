@@ -69,7 +69,7 @@ test.describe('Metrics Dashboard (integration)', () => {
     await expect(data.or(list)).toBeVisible({ timeout: 5_000 });
   });
 
-  test('metrics API returns data', async ({ page, request }) => {
+  test('metrics API returns data', async ({ page }) => {
     // Login first to get a token
     await loginAsAdmin(page);
 
