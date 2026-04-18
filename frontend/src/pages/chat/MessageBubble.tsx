@@ -179,13 +179,11 @@ export default function MessageBubble({
       const newRating = localRating === r ? null : r;
       setLocalRating(newRating);
       if (r === 'up' && newRating === 'up') {
-        // Submit thumb-up directly
         try {
           await apiClient.post('/v1/feedback', {
             thread_id: message.threadId,
             message_id: message.id,
-            rating: 'up',
-            reason: '',
+            feedback_type: 'thumbs_up',
           });
           setFeedbackSubmitted(true);
         } catch {
@@ -200,11 +198,6 @@ export default function MessageBubble({
   const handleThumbDown = useCallback(() => {
     setLocalRating('down');
     setShowFeedbackPanel(true);
-  }, []);
-
-  const handleFeedbackSubmitted = useCallback(() => {
-    setShowFeedbackPanel(false);
-    setFeedbackSubmitted(true);
   }, []);
 
   const isUser = message.role === 'user';
@@ -268,7 +261,6 @@ export default function MessageBubble({
                   threadId={message.threadId}
                   messageId={message.id}
                   onClose={() => setShowFeedbackPanel(false)}
-                  onSubmitted={handleFeedbackSubmitted}
                 />
               )}
             </>
