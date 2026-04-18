@@ -124,8 +124,8 @@ This feature adds a user feedback loop (👍/👎) to the Cuckoo-Echo AI chat pl
     - Can be added to tests/pbt/
 
 - [x] 9. Update documentation
-  - [x] 9.1 Update API documentation - Added POST /v1/feedback and GET /v1/feedback/stats
-  - [x] 9.2 Update architecture documentation - Added User Feedback Loop section
+  - [x] 9.1 Update API documentation - docs/api.md with endpoints
+  - [x] 9.2 Update architecture documentation - docs/architecture.md with flow
 
 - [x] 10. Final checkpoint - Unit tests pass
   - 11 unit tests passing
