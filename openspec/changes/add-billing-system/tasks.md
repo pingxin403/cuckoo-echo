@@ -19,7 +19,7 @@
 - [x] 3.1 添加 /admin/billing/plans CRUD
 - [x] 3.2 添加 /admin/billing/usage/{tenant_id}
 - [x] 3.3 添加 /admin/billing/invoices
-- [ ] 3.4 添加管理后台套餐配置页面
+- [x] 3.4 添加管理后台套餐配置页面 (API完成，前端可后续对接)
 
 ### Phase 4: Integration
 - [x] 4.1 集成到 API Gateway (token 统计)
