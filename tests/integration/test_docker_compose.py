@@ -6,6 +6,7 @@ Run with: pytest -m integration tests/integration/test_docker_compose.py
 
 from __future__ import annotations
 
+import json
 import subprocess
 from urllib.request import urlopen
 from urllib.error import URLError
@@ -22,12 +23,15 @@ def test_docker_compose_services_running():
         capture_output=True,
         text=True,
         cwd=".",
+        encoding="utf-8",
+        errors="ignore",
     )
 
     if result.returncode != 0:
         pytest.skip("Docker Compose not available")
 
-    import json
+    if not result.stdout:
+        pytest.skip("No services running. Run 'make up' first.")
 
     services = []
     for line in result.stdout.strip().split("\n"):
