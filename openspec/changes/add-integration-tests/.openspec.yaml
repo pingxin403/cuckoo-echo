@@ -7,7 +7,7 @@ artifacts:
     description: Add integration tests for production hardening
     path: proposal.md
     type: markdown
-    status: in_progress
+status: done
 
   - id: requirements
     name: Requirements
