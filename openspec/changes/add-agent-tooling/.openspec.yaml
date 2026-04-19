@@ -7,20 +7,20 @@ artifacts:
     description: Add agent debugging and observability tooling
     path: proposal.md
     type: markdown
-    status: pending
+    status: completed
 
   - id: requirements
     name: Requirements
     description: Agent tooling requirements
     path: requirements.md
     type: markdown
-    status: pending
+    status: completed
 
   - id: tasks
     name: Tasks
     description: Implementation tasks
     path: tasks.md
     type: markdown
-    status: pending
+    status: completed
 
-status: pending
+status: completed
