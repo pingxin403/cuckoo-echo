@@ -7,20 +7,20 @@ artifacts:
     description: Add webhook integration for external systems
     path: proposal.md
     type: markdown
-    status: pending
+    status: completed
 
   - id: requirements
     name: Requirements
     description: Webhook requirements
     path: requirements.md
     type: markdown
-    status: pending
+    status: completed
 
   - id: tasks
     name: Tasks
     description: Implementation tasks
     path: tasks.md
     type: markdown
-    status: pending
+    status: completed
 
-status: pending
+status: completed
