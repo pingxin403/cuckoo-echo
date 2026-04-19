@@ -49,7 +49,7 @@ def _wire_dependencies(app: FastAPI):
     Handles graceful degradation: if embedding/reranker/milvus fail to init,
     log a warning but don't crash. Chat-only mode (no RAG) still works.
     """
-import chat_service.agent.nodes.rag_engine as rag_mod
+    import chat_service.agent.nodes.rag_engine as rag_mod
     import chat_service.agent.nodes.preprocess as pre_mod
     import chat_service.agent.nodes.llm_generate as llm_mod
     import chat_service.agent.nodes.hitl_node as hitl_mod
