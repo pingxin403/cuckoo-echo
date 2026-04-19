@@ -62,15 +62,18 @@ def get_uvicorn_processes() -> list[dict]:
     return processes
 
 
-def check_port(port: int) -> bool:
+def check_port(port: int, retries: int = 3) -> bool:
     """Check if a port is in use."""
     import socket
 
-    try:
-        with socket.create_connection(("localhost", port), timeout=1):
-            return True
-    except (OSError, ConnectionRefusedError):
-        return False
+    for _ in range(retries):
+        try:
+            with socket.create_connection(("localhost", port), timeout=2):
+                return True
+        except (OSError, ConnectionRefusedError):
+            import time
+            time.sleep(1)
+    return False
 
 
 def start_services() -> None:
@@ -131,6 +134,19 @@ def stop_services() -> None:
     print("=" * 50)
 
 
+def check_health(port: int) -> bool:
+    """Check if service is healthy via HTTP."""
+    import urllib.request
+    import urllib.error
+    
+    try:
+        req = urllib.request.Request(f"http://localhost:{port}/health")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            return resp.status == 200
+    except Exception:
+        return False
+
+
 def status_services() -> None:
     """Check service status."""
     print("=" * 50)
@@ -139,8 +155,13 @@ def status_services() -> None:
     all_running = True
     for name, config in SERVICES.items():
         port = config["port"]
-        if check_port(port):
-            print(f"  {name}: RUNNING on port {port}")
+        port_open = check_port(port)
+        healthy = check_health(port) if port_open else False
+        
+        if healthy:
+            print(f"  {name}: HEALTHY on port {port}")
+        elif port_open:
+            print(f"  {name}: RUNNING (port open) on port {port}")
         else:
             print(f"  {name}: STOPPED")
             all_running = False
