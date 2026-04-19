@@ -7,20 +7,20 @@ artifacts:
     description: Add rate limiting and circuit breaker
     path: proposal.md
     type: markdown
-    status: pending
+    status: completed
 
   - id: requirements
     name: Requirements
     description: Rate limiting requirements
     path: requirements.md
     type: markdown
-    status: pending
+    status: completed
 
   - id: tasks
     name: Tasks
     description: Implementation tasks
     path: tasks.md
     type: markdown
-    status: pending
+    status: completed
 
-status: in_progress
+status: completed

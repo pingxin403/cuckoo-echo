@@ -7,20 +7,20 @@ artifacts:
     description: Add Kubernetes deployment manifests
     path: proposal.md
     type: markdown
-    status: pending
+    status: completed
 
   - id: requirements
     name: Requirements
     description: K8s deployment requirements
     path: requirements.md
     type: markdown
-    status: pending
+    status: completed
 
   - id: tasks
     name: Tasks
     description: Implementation tasks
     path: tasks.md
     type: markdown
-    status: pending
+    status: completed
 
-status: in_progress
+status: completed
