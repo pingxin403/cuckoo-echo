@@ -27,5 +27,5 @@
 - [ ] 4.3 添加余额不足拦截
 
 ### Phase 5: Tests
-- [ ] 5.1 添加 billing unit tests
+- [ ] 5.1 添加 billing integration tests
 - [ ] 5.2 添加 usage calculation tests
