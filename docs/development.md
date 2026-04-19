@@ -69,6 +69,31 @@ make seed  # Creates a test tenant and prints the API key
 
 ### 6. Start development server
 
+**Option A: Hybrid (recommended)** - Docker for infrastructure, local for services
+
+```bash
+# Windows PowerShell:
+.\scripts\dev-local.ps1
+
+# Or manually:
+docker compose -f docker-compose.dev.yml up -d  # Only infrastructure
+uv run alembic upgrade head                     # Migrations
+
+# Then in separate terminals:
+uvicorn api_gateway.main:app --reload --port 8000   # Terminal 1
+uvicorn chat_service.main:app --reload --port 8001   # Terminal 2
+python -m admin_service.main                           # Terminal 3
+cd frontend && pnpm dev                              # Terminal 4 (optional)
+```
+
+Benefits:
+- No Docker build issues (skip docker.io mirror problems)
+- Fast iteration - code changes reflect immediately with uvicorn --reload
+- Debug directly in IDE
+- Full control over service logs
+
+**Option B: Full Docker** - All services in containers
+
 ```bash
 # Single service (API Gateway with hot-reload)
 make dev
