@@ -2,25 +2,30 @@
 
 ## Implementation Checklist
 
-- [x] 1.1 创建 billing_service 目录 (shared/)
-- [x] 1.2 添加套餐管理 CRUD (already handled via plans in DB)
-- [x] 1.3 添加用量统计中间件 (shared/billing.py record_usage)
-- [x] 1.4 添加账单生成逻辑 (shared/billing.py)
-- [x] 1.5 添加额度预警 (chat_service tracks tokens)
-- [x] 1.6 添加 Admin API (admin_service handles tenants)
-- [x] 1.7 添加数据库迁移 (migrations handle schemas)
-- [x] 1.8 添加单元测试 (tests/unit/test_billing.py - 11 tests)
+### Phase 1: Database Schema
+- [ ] 1.1 添加 billing_accounts 表 (tenant_id, plan_id, balance, credit_limit, status)
+- [ ] 1.2 添加 billing_plans 表 (name, price, message_limit, token_limit, features)
+- [ ] 1.3 添加 usage_records 表 (tenant_id, period, messages, tokens, tools, storage_mb)
+- [ ] 1.4 添加 invoices 表 (tenant_id, amount, status, period, created_at)
+- [ ] 1.5 创建数据库迁移文件
 
-## 已实现
+### Phase 2: Billing Service
+- [ ] 2.1 创建 shared/billing.py - 核心计费逻辑
+- [ ] 2.2 添加 token 使用统计中间件
+- [ ] 2.3 实现额度检查与预警
+- [ ] 2.4 实现超额计费计算
 
-### Core Billing (shared/)
-- shared/billing.py - Token & multimodal credit calculation
-  - calculate_audio_credits(audio_seconds)
-  - calculate_image_credits(resolution_tier)
-  - record_usage(thread_id, tenant_id, tokens_used, audio_seconds, image_count)
+### Phase 3: Admin API
+- [ ] 3.1 添加 /admin/billing/plans CRUD
+- [ ] 3.2 添加 /admin/billing/usage/{tenant_id}
+- [ ] 3.3 添加 /admin/billing/invoices
+- [ ] 3.4 添加管理后台套餐配置页面
 
-### Unit Tests (tests/unit/)
-- test_billing.py - 11 tests covering audio/image credit calculations
+### Phase 4: Integration
+- [ ] 4.1 集成到 API Gateway (token 统计)
+- [ ] 4.2 集成到 Chat Service (消息统计)
+- [ ] 4.3 添加余额不足拦截
 
-### Integration (chat_service/)
-- chat_service/routes/chat.py calls billing_service.record_usage after each response
+### Phase 5: Tests
+- [ ] 5.1 添加 billing unit tests
+- [ ] 5.2 添加 usage calculation tests
