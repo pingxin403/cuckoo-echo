@@ -7,20 +7,20 @@ artifacts:
     description: Optimize semantic cache for production
     path: proposal.md
     type: markdown
-    status: in_progress
+    status: completed
 
   - id: requirements
     name: Requirements
     description: Cache optimization requirements
     path: requirements.md
     type: markdown
-    status: pending
+    status: completed
 
   - id: tasks
     name: Tasks
     description: Implementation tasks
     path: tasks.md
     type: markdown
-    status: pending
+    status: completed
 
-status: in_progress
+status: completed
