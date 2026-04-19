@@ -1,0 +1,26 @@
+schema: spec-driven
+created: 2026-04-19
+
+artifacts:
+  - id: proposal
+    name: Proposal
+    description: Add distributed tracing for full request flow
+    path: proposal.md
+    type: markdown
+    status: pending
+
+  - id: requirements
+    name: Requirements
+    description: Distributed tracing requirements
+    path: requirements.md
+    type: markdown
+    status: pending
+
+  - id: tasks
+    name: Tasks
+    description: Implementation tasks
+    path: tasks.md
+    type: markdown
+    status: pending
+
+status: in_progress
