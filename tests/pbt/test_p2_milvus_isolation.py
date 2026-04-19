@@ -7,7 +7,8 @@ Structural test — verifies that AnnSearchRequest expr filtering always
 contains only the target tenant_id, never a different tenant.
 """
 
-from hypothesis import given, settings, HealthCheck, assume, strategies as st
+from hypothesis import HealthCheck, assume, given, settings
+from hypothesis import strategies as st
 from pymilvus import AnnSearchRequest
 
 

@@ -9,7 +9,8 @@ preserve all fields without loss.
 
 import json
 
-from hypothesis import given, settings, HealthCheck, strategies as st
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
 from chat_service.agent.state import AgentState
 

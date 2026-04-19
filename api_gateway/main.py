@@ -15,14 +15,13 @@ from contextlib import asynccontextmanager
 import structlog
 from fastapi import FastAPI
 
+from api_gateway.middleware.auth import TenantAuthMiddleware
+from api_gateway.middleware.rate_limit import RateLimitMiddleware
 from shared.config import get_settings
 from shared.db import create_asyncpg_pool
 from shared.logging import setup_logging
-from shared.redis_client import get_redis
-
-from api_gateway.middleware.auth import TenantAuthMiddleware
-from api_gateway.middleware.rate_limit import RateLimitMiddleware
 from shared.metrics import setup_prometheus
+from shared.redis_client import get_redis
 
 log = structlog.get_logger()
 

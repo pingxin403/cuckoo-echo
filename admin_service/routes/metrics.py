@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import structlog
-from fastapi import APIRouter, Request, Query
+from fastapi import APIRouter, Query, Request
 
 log = structlog.get_logger()
 router = APIRouter(prefix="/admin/v1/metrics")
@@ -97,8 +97,8 @@ async def sandbox_run(request: Request):
         return {"status": "error", "message": "No test cases provided"}
 
     try:
-        from ragas import evaluate, EvaluationDataset
-        from ragas.metrics import Faithfulness, ContextPrecision, ContextRecall, AnswerRelevancy
+        from ragas import EvaluationDataset, evaluate
+        from ragas.metrics import AnswerRelevancy, ContextPrecision, ContextRecall, Faithfulness
 
         # Build evaluation dataset from test cases
         dataset = []

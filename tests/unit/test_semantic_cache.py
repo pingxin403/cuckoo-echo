@@ -1,9 +1,9 @@
 """Unit tests for semantic cache (Task 31.4)."""
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import shared.semantic_cache as sc
+import pytest
 
+import shared.semantic_cache as sc
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -276,8 +276,9 @@ class TestRagEngineCacheIntegration:
 
 class TestCacheClearEndpoint:
     def test_clear_cache_endpoint(self):
-        from starlette.testclient import TestClient
         from fastapi import FastAPI
+        from starlette.testclient import TestClient
+
         from admin_service.routes.config import router as config_router
 
         app = FastAPI()

@@ -26,7 +26,6 @@ from api_gateway.middleware.media_format import (
     validate_media_format,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -350,13 +349,13 @@ class TestMediaFormatValidator:
 class TestCircuitBreaker:
     def test_open_circuit_returns_degraded_response(self):
         """When the circuit is open, safe_call_* returns DEGRADED_RESPONSE."""
+        import asyncio
+
         from api_gateway.middleware.circuit_breaker import (
             DEGRADED_RESPONSE,
             safe_call_llm,
             safe_call_tool_service,
         )
-
-        import asyncio
 
         async def _test():
             # Patch call_llm to raise CircuitBreakerError
@@ -378,9 +377,9 @@ class TestCircuitBreaker:
 
     def test_closed_circuit_passes_through(self):
         """When the circuit is closed, the actual function result is returned."""
-        from api_gateway.middleware.circuit_breaker import safe_call_llm
-
         import asyncio
+
+        from api_gateway.middleware.circuit_breaker import safe_call_llm
 
         async def _test():
             expected = {"response": "hello"}
@@ -396,9 +395,9 @@ class TestCircuitBreaker:
 
     def test_half_open_allows_probe(self):
         """After recovery_timeout, a single probe request is allowed through."""
-        from api_gateway.middleware.circuit_breaker import safe_call_llm, DEGRADED_RESPONSE
-
         import asyncio
+
+        from api_gateway.middleware.circuit_breaker import DEGRADED_RESPONSE, safe_call_llm
 
         async def _test():
             # First call: circuit breaker error (open)

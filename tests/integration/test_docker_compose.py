@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import json
 import subprocess
-from urllib.request import urlopen
 from urllib.error import URLError
+from urllib.request import urlopen
 
 import pytest
 

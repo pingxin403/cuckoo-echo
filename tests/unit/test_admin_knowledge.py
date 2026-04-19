@@ -1,9 +1,11 @@
 """Unit tests for Admin Knowledge Management."""
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from starlette.testclient import TestClient
+
+import pytest
 from fastapi import FastAPI
-from admin_service.routes.knowledge import router, _cleanup_milvus_vectors
+from starlette.testclient import TestClient
+
+from admin_service.routes.knowledge import _cleanup_milvus_vectors, router
 
 
 def _build_app(db_pool=None):

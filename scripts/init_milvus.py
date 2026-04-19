@@ -9,6 +9,7 @@ Usage:
 from __future__ import annotations
 
 import os
+
 from pymilvus import MilvusClient
 
 COLLECTION_NAME = "knowledge_chunks"

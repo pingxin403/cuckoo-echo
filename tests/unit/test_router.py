@@ -1,7 +1,8 @@
 """Unit tests for the Router node."""
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from chat_service.agent.nodes.router import (
     RULE_PATTERNS,

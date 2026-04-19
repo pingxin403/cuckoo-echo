@@ -1,7 +1,8 @@
 """Integration test — full RAG flow: upload → process → query."""
-import pytest
-import httpx
 import asyncio
+
+import httpx
+import pytest
 
 pytestmark = [pytest.mark.integration]
 

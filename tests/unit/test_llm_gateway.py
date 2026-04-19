@@ -17,7 +17,6 @@ import pytest
 from ai_gateway.client import stream_chat_completion
 from ai_gateway.langfuse_handler import get_langfuse_handler
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -214,6 +213,7 @@ class TestLangfuseHandler:
         ):
             # Force re-import to trigger ImportError
             import importlib
+
             import ai_gateway.langfuse_handler as lf_mod
 
             importlib.reload(lf_mod)

@@ -8,7 +8,6 @@ import pytest
 
 from shared.db import create_asyncpg_pool, lock_key, ratelimit_key, tenant_db_context
 
-
 # ---------------------------------------------------------------------------
 # Key-builder tests (pure functions, no mocking needed)
 # ---------------------------------------------------------------------------

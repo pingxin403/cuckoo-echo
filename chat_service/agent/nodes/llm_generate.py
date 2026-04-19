@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import structlog
 
-from chat_service.agent.state import AgentState
 from ai_gateway.client import stream_chat_completion
+from chat_service.agent.state import AgentState
 
 log = structlog.get_logger()
 

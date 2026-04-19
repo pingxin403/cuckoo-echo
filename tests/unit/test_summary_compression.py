@@ -14,7 +14,7 @@ from unittest.mock import AsyncMock
 import pytest
 
 import chat_service.agent.nodes.preprocess as pre_mod
-from chat_service.agent.nodes.preprocess import preprocess_node, SUMMARIZE_THRESHOLD
+from chat_service.agent.nodes.preprocess import SUMMARIZE_THRESHOLD, preprocess_node
 
 
 def _base_state(num_messages: int = 1):

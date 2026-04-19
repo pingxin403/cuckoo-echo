@@ -8,6 +8,7 @@ import uuid
 from typing import Optional
 
 import structlog
+
 from ai_gateway.langfuse_handler import get_langfuse_handler
 from shared.config import get_settings
 from shared.db import tenant_db_context

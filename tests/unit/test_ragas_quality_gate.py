@@ -11,13 +11,13 @@ from __future__ import annotations
 
 import json
 import os
-import tempfile
-
 
 # Import from the script
 import sys
+import tempfile
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "scripts"))
-from ragas_quality_gate import generate_report, load_test_cases, _mock_evaluation, THRESHOLDS
+from ragas_quality_gate import THRESHOLDS, _mock_evaluation, generate_report, load_test_cases
 
 
 class TestGenerateReport:

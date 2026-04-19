@@ -1,6 +1,6 @@
 """Integration test — full HITL flow."""
-import pytest
 import httpx
+import pytest
 
 pytestmark = [pytest.mark.integration]
 

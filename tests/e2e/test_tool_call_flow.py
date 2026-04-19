@@ -1,6 +1,6 @@
 """E2E test — tool call flow (order status query)."""
-import pytest
 import httpx
+import pytest
 
 pytestmark = [pytest.mark.e2e]
 

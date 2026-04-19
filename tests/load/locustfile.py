@@ -7,7 +7,7 @@ Usage:
     # API-only test (no LLM, fast):
     locust -f tests/load/locustfile.py --host http://localhost --headless -u 50 -r 10 --run-time 30s --tags api
 """
-from locust import HttpUser, task, between, tag
+from locust import HttpUser, between, tag, task
 
 
 class ChatUser(HttpUser):

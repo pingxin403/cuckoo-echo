@@ -3,7 +3,7 @@
 Usage:
     locust -f tests/load/rag_load.py --host http://localhost:8000
 """
-from locust import HttpUser, task, between
+from locust import HttpUser, between, task
 
 
 class RAGUser(HttpUser):

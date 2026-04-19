@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 import structlog
-from fastapi import APIRouter, Request, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
 
 from shared.db import tenant_db_context
 

@@ -5,9 +5,10 @@
 """
 
 import pytest
-from hypothesis import given, settings, HealthCheck, strategies as st
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
-from api_gateway.middleware.media_format import validate_media_format, UnsupportedMediaFormat
+from api_gateway.middleware.media_format import UnsupportedMediaFormat, validate_media_format
 
 UNSUPPORTED_MIMES = ["video/mp4", "application/pdf", "image/gif", "audio/ogg", "text/plain"]
 

@@ -1,8 +1,8 @@
 """Unit tests for Guardrails node."""
-import pytest
 from unittest.mock import MagicMock, patch
 
 import numpy as np
+import pytest
 
 from chat_service.agent.nodes.guardrails import (
     CORRECTION_MESSAGE,

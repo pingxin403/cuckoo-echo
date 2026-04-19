@@ -6,9 +6,9 @@ Run with: pytest -m integration tests/integration/test_health.py
 
 from __future__ import annotations
 
-from urllib.request import urlopen
-from urllib.error import URLError
 import json
+from urllib.error import URLError
+from urllib.request import urlopen
 
 import pytest
 

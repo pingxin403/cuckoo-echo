@@ -1,8 +1,9 @@
 """Unit tests for shared/whisper_client.py."""
 from __future__ import annotations
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from shared.whisper_client import WhisperClient
 

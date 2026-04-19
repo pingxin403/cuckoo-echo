@@ -4,13 +4,14 @@
 **Validates: Requirements 1.2**
 """
 
-from hypothesis import given, settings, HealthCheck, strategies as st
 from unittest.mock import AsyncMock, MagicMock
 
-from starlette.testclient import TestClient
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 from starlette.applications import Starlette
-from starlette.routing import Route
 from starlette.responses import PlainTextResponse
+from starlette.routing import Route
+from starlette.testclient import TestClient
 
 from api_gateway.middleware.auth import TenantAuthMiddleware
 

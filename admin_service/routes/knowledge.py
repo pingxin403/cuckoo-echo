@@ -1,10 +1,13 @@
 """Admin Knowledge Management API routes."""
 
 from __future__ import annotations
+
 import asyncio
 from uuid import uuid4
+
 import structlog
-from fastapi import APIRouter, UploadFile, File, Request, HTTPException, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, File, HTTPException, Request, UploadFile
+
 from shared.db import tenant_db_context
 
 log = structlog.get_logger()

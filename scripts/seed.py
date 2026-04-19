@@ -17,7 +17,6 @@ import uuid
 import asyncpg
 import bcrypt
 
-
 # ─── Seed Data ──────────────────────────────────────────────────
 
 TENANT_ID = str(uuid.UUID("00000000-0000-4000-a000-000000000001"))

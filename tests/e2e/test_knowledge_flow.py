@@ -1,7 +1,8 @@
 """E2E test — knowledge upload and RAG query flow."""
-import pytest
-import httpx
 import asyncio
+
+import httpx
+import pytest
 
 pytestmark = [pytest.mark.e2e]
 

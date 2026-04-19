@@ -7,7 +7,8 @@ Tests the chunker round-trip property: split_text must produce non-empty
 chunks within size limits, and preserve original content.
 """
 
-from hypothesis import given, settings, HealthCheck, strategies as st
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
 from knowledge_pipeline.chunker import split_text
 

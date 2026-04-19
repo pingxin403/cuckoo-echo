@@ -6,14 +6,14 @@ from contextlib import asynccontextmanager
 import structlog
 from fastapi import FastAPI
 
-from shared.config import get_settings
-from shared.logging import setup_logging
-from shared.db import create_asyncpg_pool, create_asyncpg_pool_ro
-from shared.redis_client import get_redis, close_redis
-from admin_service.routes import knowledge_router, hitl_router, config_router, metrics_router
-from admin_service.routes.auth import router as auth_router
 from admin_service.middleware.jwt_auth import JWTAuthMiddleware
+from admin_service.routes import config_router, hitl_router, knowledge_router, metrics_router
+from admin_service.routes.auth import router as auth_router
+from shared.config import get_settings
+from shared.db import create_asyncpg_pool, create_asyncpg_pool_ro
+from shared.logging import setup_logging
 from shared.metrics import setup_prometheus
+from shared.redis_client import close_redis, get_redis
 
 log = structlog.get_logger()
 

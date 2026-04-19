@@ -6,11 +6,10 @@ import re
 
 import structlog
 
-from chat_service.agent.state import AgentState
-from chat_service.agent.tools.registry import get_tool
-
 # Ensure tools are registered by importing the module
 import chat_service.agent.tools.order_tools  # noqa: F401
+from chat_service.agent.state import AgentState
+from chat_service.agent.tools.registry import get_tool
 
 log = structlog.get_logger()
 

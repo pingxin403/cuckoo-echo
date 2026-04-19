@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import structlog
-from fastapi import FastAPI, UploadFile, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, UploadFile
 
 log = structlog.get_logger()
 

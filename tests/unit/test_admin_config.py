@@ -1,7 +1,8 @@
 """Unit tests for Admin Config & Metrics endpoints."""
 from unittest.mock import AsyncMock, MagicMock
-from starlette.testclient import TestClient
+
 from fastapi import FastAPI
+from starlette.testclient import TestClient
 
 from admin_service.routes.config import router as config_router
 from admin_service.routes.metrics import router as metrics_router

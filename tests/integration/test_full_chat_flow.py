@@ -1,6 +1,6 @@
 """Integration test — full chat flow with real infrastructure."""
-import pytest
 import httpx
+import pytest
 
 pytestmark = [pytest.mark.integration]
 

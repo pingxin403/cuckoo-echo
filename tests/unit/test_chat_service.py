@@ -1,8 +1,9 @@
 """Unit tests for Chat_Service SSE endpoint."""
 
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from chat_service.routes.chat import event_generator
 

@@ -10,7 +10,8 @@ SET LOCAL with the correct tenant_id, ensuring RLS activation.
 import asyncio
 from unittest.mock import AsyncMock, MagicMock
 
-from hypothesis import given, settings, HealthCheck, assume, strategies as st
+from hypothesis import HealthCheck, assume, given, settings
+from hypothesis import strategies as st
 
 from shared.db import tenant_db_context
 

@@ -22,7 +22,6 @@ import os
 import sys
 from datetime import datetime, timezone
 
-
 # Thresholds
 THRESHOLDS = {
     "faithfulness": float(os.environ.get("RAGAS_FAITHFULNESS_MIN", "0.85")),
@@ -44,6 +43,7 @@ def run_evaluation(test_cases: list[dict]) -> dict:
     Returns a dict with per-metric scores and overall pass/fail.
     """
     try:
+        from datasets import Dataset
         from ragas import evaluate
         from ragas.metrics import (
             answer_relevancy,
@@ -51,7 +51,6 @@ def run_evaluation(test_cases: list[dict]) -> dict:
             context_recall,
             faithfulness,
         )
-        from datasets import Dataset
 
         # Convert test cases to Ragas dataset format
         data = {

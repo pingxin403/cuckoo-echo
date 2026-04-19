@@ -9,6 +9,7 @@ from chat_service.agent.nodes.guardrails import (
     guardrails_node,
     postprocess_node,
 )
+from chat_service.agent.nodes.llm_generate import llm_generate_node
 from chat_service.agent.nodes.preprocess import preprocess_node
 from chat_service.agent.nodes.rag_engine import rag_engine_node
 from chat_service.agent.nodes.router import (
@@ -18,7 +19,6 @@ from chat_service.agent.nodes.router import (
     router_node,
 )
 from chat_service.agent.nodes.tool_executor import tool_executor_node
-from chat_service.agent.nodes.llm_generate import llm_generate_node
 
 log = structlog.get_logger()
 

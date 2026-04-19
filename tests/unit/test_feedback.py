@@ -1,14 +1,15 @@
 """Unit tests for feedback service."""
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 import uuid
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from chat_service.services.feedback import (
-    store_feedback,
+    _build_cache_key,
     get_feedback_state,
     get_feedback_stats,
-    _build_cache_key,
+    store_feedback,
 )
 
 

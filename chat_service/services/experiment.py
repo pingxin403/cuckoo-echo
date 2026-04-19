@@ -9,6 +9,7 @@ import uuid
 from typing import Optional
 
 import structlog
+
 from shared.config import get_settings
 from shared.db import tenant_db_context
 from shared.redis_client import get_redis

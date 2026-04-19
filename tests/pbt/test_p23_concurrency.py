@@ -10,7 +10,8 @@ succeeds while others get CONCURRENT_REQUEST.
 import asyncio
 from unittest.mock import AsyncMock, MagicMock
 
-from hypothesis import given, settings, HealthCheck, strategies as st
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
 from chat_service.routes.chat import event_generator
 

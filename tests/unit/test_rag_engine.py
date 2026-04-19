@@ -1,8 +1,9 @@
 """Unit tests for RAG Engine node."""
 
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from chat_service.agent.nodes.rag_engine import (
     _rerank_chunks,
@@ -10,7 +11,6 @@ from chat_service.agent.nodes.rag_engine import (
     rag_engine_node,
 )
 from chat_service.agent.state import AgentState
-
 
 # ---------------------------------------------------------------------------
 # Helpers

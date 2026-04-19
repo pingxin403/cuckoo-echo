@@ -52,8 +52,8 @@ class KnowledgePipelineWorker:
 
     async def _do_process(self, doc_id: str, tenant_id: str, file_path: str, attempt: int):
         """Single processing attempt: parse → chunk → embed → store."""
-        from knowledge_pipeline.parser import parse_document
         from knowledge_pipeline.chunker import split_text
+        from knowledge_pipeline.parser import parse_document
 
         await self._update_status(doc_id, "processing", stage=f"parsing (attempt {attempt})")
 
@@ -129,11 +129,11 @@ class KnowledgePipelineWorker:
 
 async def main():
     """Initialize dependencies and start the poll loop."""
+    from shared.config import get_settings
     from shared.db import create_asyncpg_pool
     from shared.embedding_service import get_embedding_service
-    from shared.milvus_client import get_milvus_client
     from shared.logging import setup_logging
-    from shared.config import get_settings
+    from shared.milvus_client import get_milvus_client
 
     settings = get_settings()
     setup_logging(settings.log_level)

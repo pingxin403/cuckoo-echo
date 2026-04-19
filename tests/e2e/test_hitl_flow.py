@@ -1,6 +1,6 @@
 """E2E test — HITL escalation flow."""
-import pytest
 import httpx
+import pytest
 
 pytestmark = [pytest.mark.e2e]
 

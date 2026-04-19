@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
-
 import json
+from unittest.mock import MagicMock, patch
 
 from pymilvus import DataType, FunctionType
 

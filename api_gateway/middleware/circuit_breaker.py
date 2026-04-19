@@ -12,9 +12,8 @@ circuit breaking is applied at the function call level, not per-request.
 
 from __future__ import annotations
 
-from circuitbreaker import CircuitBreakerError, circuit
-
 import structlog
+from circuitbreaker import CircuitBreakerError, circuit
 
 log = structlog.get_logger()
 

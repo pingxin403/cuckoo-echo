@@ -1,6 +1,6 @@
 """E2E test — login flow."""
-import pytest
 import httpx
+import pytest
 
 pytestmark = [pytest.mark.e2e]
 

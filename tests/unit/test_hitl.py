@@ -1,13 +1,14 @@
 """Unit tests for Admin HITL (Human-in-the-Loop) routes."""
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from starlette.testclient import TestClient
+
+import pytest
 from fastapi import FastAPI
+from starlette.testclient import TestClient
 
 from admin_service.routes.hitl import (
-    router,
-    notify_hitl_request,
     _poll_escalation_tasks,
+    notify_hitl_request,
+    router,
 )
 
 

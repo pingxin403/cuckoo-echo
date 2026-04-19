@@ -4,7 +4,8 @@
 **Validates: Requirements 1.6**
 """
 
-from hypothesis import given, settings, HealthCheck, strategies as st
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
 from shared.db import lock_key, ratelimit_key
 
