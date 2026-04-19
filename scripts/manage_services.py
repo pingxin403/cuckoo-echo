@@ -89,20 +89,19 @@ def start_services() -> None:
         if sys.platform == "win32":
             cmd_str = " ".join(config["command"])
             subprocess.Popen(
-                ["powershell", "-NoExit", "-Command", f"cd '{PROJECT_DIR}'; {cmd_str}"],
+                ["powershell", "-NoExit", "-Command", 
+                 f"cd '{PROJECT_DIR}'; uv run {cmd_str}"],
                 cwd=PROJECT_DIR,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.PIPE,
                 creationflags=CREATE_NEW_CONSOLE,
             )
         else:
             subprocess.Popen(
                 ["uv", "run"] + config["command"],
                 cwd=PROJECT_DIR,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
                 start_new_session=True,
             )
+        
+        print(f"    Launched: {name}")
 
     print("")
     print("Services started:")
