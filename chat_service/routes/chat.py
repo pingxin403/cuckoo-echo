@@ -56,6 +56,18 @@ async def event_generator(
     ``llm_generate`` node) we push it as SSE content.  A ``correction_message``
     from the guardrails/postprocess nodes is also forwarded if present.
     """
+    # Check message limit before processing
+    if billing_service:
+        allowed, reason = await billing_service.check_limit(tenant_id, "messages", 1)
+        if not allowed:
+            yield orjson.dumps({
+                "error": "LIMIT_EXCEEDED",
+                "message": f"Message limit exceeded: {reason}",
+                "code": "402_PAYMENT_REQUIRED"
+            }).decode()
+            yield "[DONE]"
+            return
+
     key = lock_key(thread_id)
     lock = redis.lock(key, timeout=LOCK_TTL)
     acquired = await lock.acquire(blocking=False)

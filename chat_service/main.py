@@ -37,6 +37,10 @@ async def lifespan(app: FastAPI):
     app.state.db_pool = await create_asyncpg_pool()
     app.state.redis = get_redis()
 
+    # Billing service
+    from shared.billing import record_usage as billing_record_usage, check_limit as billing_check_limit
+    app.state.billing_service = _BillingService(app.state.db_pool)
+
     # Agent (checkpointer + graph) — delegate to agent_lifespan
     async with agent_lifespan(app):
         # Wire dependencies into module-level placeholders
@@ -47,6 +51,23 @@ async def lifespan(app: FastAPI):
     await app.state.db_pool.close()
     await close_redis()
     log.info("chat_service_stopped")
+
+
+class _BillingService:
+    """Billing service wrapper for chat service."""
+
+    def __init__(self, db_pool):
+        self.db_pool = db_pool
+
+    async def record_usage(self, thread_id: str, tenant_id: str, tokens_used: int, messages: int = 1):
+        """Record token and message usage to database."""
+        from shared.billing import record_usage_to_db
+        await record_usage_to_db(self.db_pool, tenant_id, messages=messages, tokens=tokens_used)
+
+    async def check_limit(self, tenant_id: str, resource: str, amount: int = 1) -> tuple[bool, str]:
+        """Check if tenant has available limit for resource."""
+        from shared.billing import check_limit
+        return await check_limit(self.db_pool, tenant_id, resource, amount)
 
 
 def _wire_dependencies(app: FastAPI):

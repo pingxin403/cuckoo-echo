@@ -16,16 +16,16 @@
 - [x] 2.4 实现超额计费计算
 
 ### Phase 3: Admin API
-- [ ] 3.1 添加 /admin/billing/plans CRUD
-- [ ] 3.2 添加 /admin/billing/usage/{tenant_id}
-- [ ] 3.3 添加 /admin/billing/invoices
+- [x] 3.1 添加 /admin/billing/plans CRUD
+- [x] 3.2 添加 /admin/billing/usage/{tenant_id}
+- [x] 3.3 添加 /admin/billing/invoices
 - [ ] 3.4 添加管理后台套餐配置页面
 
 ### Phase 4: Integration
-- [ ] 4.1 集成到 API Gateway (token 统计)
-- [ ] 4.2 集成到 Chat Service (消息统计)
-- [ ] 4.3 添加余额不足拦截
+- [x] 4.1 集成到 API Gateway (token 统计)
+- [x] 4.2 集成到 Chat Service (消息统计)
+- [x] 4.3 添加余额不足拦截
 
 ### Phase 5: Tests
-- [ ] 5.1 添加 billing integration tests
-- [ ] 5.2 添加 usage calculation tests
+- [x] 5.1 添加 billing integration tests
+- [x] 5.2 添加 usage calculation tests
