@@ -92,7 +92,7 @@ def start_services() -> None:
                 ["powershell", "-NoExit", "-Command", f"cd '{PROJECT_DIR}'; {cmd_str}"],
                 cwd=PROJECT_DIR,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
                 creationflags=CREATE_NEW_CONSOLE,
             )
         else:
@@ -119,7 +119,10 @@ def stop_services() -> None:
 
     if sys.platform == "win32":
         subprocess.run(
-            ["powershell", "-Command", "Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force"],
+            ["powershell", "-Command", 
+             "Get-Process -Name python,powershell -ErrorAction SilentlyContinue | "
+             "Where-Object {$_.CommandLine -match 'uvicorn|admin_service|api_gateway|chat_service'} | "
+             "Stop-Process -Force"],
             check=False,
         )
     else:
