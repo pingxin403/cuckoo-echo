@@ -1,10 +1,11 @@
-"""LLM Generate node — calls AI Gateway for streaming completion."""
+"""LLM Generate node — calls AI Gateway for streaming completion with citations."""
 from __future__ import annotations
 
 import structlog
 
 from ai_gateway.client import stream_chat_completion
 from chat_service.agent.state import AgentState
+from shared.citation import format_inline_citations, create_source_card
 
 log = structlog.get_logger()
 
@@ -25,10 +26,15 @@ async def llm_generate_node(state: AgentState) -> AgentState:
     # System prompt (from tenant config or default)
     llm_messages.append({"role": "system", "content": "You are a helpful customer service assistant."})
 
-    # Add RAG context if available
+    # Add RAG context with citations if available
+    sources = state.get("sources", [])
     if rag_context:
         context_text = "\n\n".join(rag_context)
-        llm_messages.append({"role": "system", "content": f"Reference information:\n{context_text}"})
+        citation_text = format_inline_citations(sources) if sources else ""
+        context_with_citation = f"Reference information:\n{context_text}"
+        if citation_text:
+            context_with_citation += f"\n\nSources: {citation_text}"
+        llm_messages.append({"role": "system", "content": context_with_citation})
 
     # Add tool results if available
     if tool_calls:
@@ -97,7 +103,19 @@ async def llm_generate_node(state: AgentState) -> AgentState:
             except Exception as cache_err:
                 log.warning("semantic_cache_store_skipped", error=str(cache_err))
 
-        return {**state, "llm_response": full_response, "tokens_used": tokens_used, "guardrails_passed": True}
+        source_card = create_source_card(sources) if sources else None
+        return {
+            **state,
+            "llm_response": full_response,
+            "tokens_used": tokens_used,
+            "guardrails_passed": True,
+            "citations": [s.to_dict() for s in sources] if sources else [],
+        }
     except Exception as e:
         log.error("llm_generate_failed", error=str(e))
-        return {**state, "llm_response": "抱歉，系统暂时无法处理您的请求，请稍后重试。", "guardrails_passed": True}
+        return {
+            **state,
+            "llm_response": "抱歉，系统暂时无法处理您的请求，请稍后重试。",
+            "guardrails_passed": True,
+            "citations": [],
+        }

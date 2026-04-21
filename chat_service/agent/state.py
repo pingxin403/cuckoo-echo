@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import TypedDict, Any
 
 
 class AgentState(TypedDict, total=False):
@@ -13,6 +13,7 @@ class AgentState(TypedDict, total=False):
     summary: str | None
     user_intent: str | None
     rag_context: list[str]
+    sources: list[Any]
     tool_calls: list[dict]
     media_urls: list[str]
     hitl_requested: bool
@@ -22,3 +23,5 @@ class AgentState(TypedDict, total=False):
     correction_message: str | None
     unresolved_turns: int
     feedback_state: str | None
+    reasoning_trace: dict | None
+    citations: list[Any]
