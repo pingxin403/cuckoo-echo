@@ -8,8 +8,8 @@
 - [x] 1.3 Calculate suggestion priority score
 
 ### Phase 2: Recommendation API
-- [ ] 2.1 GET /admin/v1/knowledge/gaps - List knowledge gaps
-- [ ] 2.2 POST /admin/v1/knowledge/gaps/{id}/dismiss - Dismiss suggestion
+- [x] 2.1 GET /admin/v1/knowledge/gaps - List knowledge gaps
+- [x] 2.2 POST /admin/v1/knowledge/gaps/{id}/dismiss - Dismiss suggestion
 - [ ] 2.3 POST /admin/v1/knowledge/gaps/{id}/create - Create article
 
 ### Phase 3: Proactive Suggestions
@@ -29,7 +29,7 @@
 - knowledge_gaps table: tenant_id, query, frequency, first_seen, last_seen, suggested_title
 
 ## Acceptance Criteria
-- [ ] Admin can see top knowledge gaps
-- [ ] Suggestions ranked by frequency
+- [x] Admin can see top knowledge gaps
+- [x] Suggestions ranked by frequency
 - [ ] One-click article creation from suggestion
 - [ ] Track suggestion performance

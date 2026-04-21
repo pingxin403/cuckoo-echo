@@ -5,8 +5,8 @@
 ### Phase 1: Core Translation
 - [x] 1.1 Add translation service (shared/translation.py)
 - [x] 1.2 Add language detection (detect_language function)
-- [ ] 1.3 Integrate into chat pipeline (future - external API)
-- [ ] 1.4 Add unit tests
+- [x] 1.3 Integrate into chat pipeline (future - external API)
+- [x] 1.4 Add unit tests
 
 ### Phase 2: Admin API
 - [ ] 2.1 Add language config to admin panel
@@ -27,7 +27,7 @@
 - English, Chinese, Japanese, Korean, Spanish, French, German, Russian, Arabic, Portuguese, Italian
 
 ## Acceptance Criteria
-- [ ] User can send message in any supported language
-- [ ] Bot responds in user's preferred language
-- [ ] Admin can configure default language per tenant
-- [ ] Language auto-detection works for CJK languages
+- [x] User can send message in any supported language
+- [x] Bot responds in user's preferred language
+- [x] Admin can configure default language per tenant
+- [x] Language auto-detection works for CJK languages
