@@ -31,5 +31,5 @@
 ## Acceptance Criteria
 - [x] Admin can see top knowledge gaps
 - [x] Suggestions ranked by frequency
-- [ ] One-click article creation from suggestion
-- [ ] Track suggestion performance
+- [x] One-click article creation from suggestion
+- [x] Track suggestion performance
