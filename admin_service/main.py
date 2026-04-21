@@ -13,7 +13,7 @@ import structlog
 from fastapi import FastAPI
 
 from admin_service.middleware.jwt_auth import JWTAuthMiddleware
-from admin_service.routes import analytics_router, billing_router, config_router, hitl_router, knowledge_router, metrics_router
+from admin_service.routes import analytics_router, billing_router, config_router, hitl_router, knowledge_router, metrics_router, plugins_router
 from admin_service.routes.auth import router as auth_router
 from shared.config import get_settings
 from shared.db import create_asyncpg_pool, create_asyncpg_pool_ro
@@ -70,6 +70,7 @@ app.include_router(config_router)
 app.include_router(metrics_router)
 app.include_router(billing_router)
 app.include_router(analytics_router)
+app.include_router(plugins_router)
 
 
 @app.get("/health")
