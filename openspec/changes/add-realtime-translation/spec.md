@@ -40,7 +40,7 @@ Add real-time translation support for multilingual conversations.
 3.2 Show detected language to users
 
 ## Acceptance Criteria
-- [ ] User can send message in any supported language
-- [ ] Bot responds in user's preferred language
-- [ ] Admin can configure default language per tenant
-- [ ] Language auto-detection accuracy > 90%
+- [x] User can send message in any supported language
+- [x] Bot responds in user's preferred language
+- [x] Admin can configure default language per tenant
+- [x] Language auto-detection accuracy > 90%

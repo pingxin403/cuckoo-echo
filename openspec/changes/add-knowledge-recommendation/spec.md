@@ -39,7 +39,7 @@ AI-powered knowledge base recommendations - suggest relevant knowledge to users 
 3.3 Track suggestion acceptance rate
 
 ## Acceptance Criteria
-- [ ] Admin can see top knowledge gaps
-- [ ] Suggestions ranked by frequency
-- [ ] One-click article creation from suggestion
-- [ ] Track suggestion performance
+- [x] Admin can see top knowledge gaps
+- [x] Suggestions ranked by frequency
+- [x] One-click article creation from suggestion
+- [x] Track suggestion performance

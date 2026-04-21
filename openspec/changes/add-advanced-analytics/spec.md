@@ -54,7 +54,7 @@ Comprehensive analytics and business intelligence for the customer service platf
 3.3 Email reports
 
 ## Acceptance Criteria
-- [ ] Admin can view real-time dashboard
-- [ ] Historical data available (30+ days)
-- [ ] Custom reports can be generated
-- [ ] Data export works
+- [x] Admin can view real-time dashboard
+- [x] Historical data available (30+ days)
+- [x] Custom reports can be generated
+- [x] Data export works

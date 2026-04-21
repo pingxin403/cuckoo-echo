@@ -46,6 +46,6 @@ Extensible plugin system for third-party integrations and custom functionality.
 3.3 Usage analytics
 
 ## Acceptance Criteria
-- [ ] Third-party plugins can be installed
-- [ ] Custom tools work in chat
-- [ ] Tenant isolation enforced
+- [x] Third-party plugins can be installed
+- [x] Custom tools work in chat
+- [x] Tenant isolation enforced
