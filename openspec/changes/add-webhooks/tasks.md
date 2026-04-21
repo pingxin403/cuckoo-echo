@@ -2,26 +2,42 @@
 
 ## Implementation Checklist
 
-- [x] 1.1 添加 webhook model (hitl_sessions + hitl_escalation_tasks tables)
-- [x] 1.2 添加 webhook CRUD routes (admin_service/routes/hitl.py)
-- [x] 1.3 添加事件触发器 (notify_hitl_request, _poll_escalation_tasks)
-- [x] 1.4 添加 retry 逻辑 (exponential backoff in escalation)
-- [x] 1.5 添加 HMAC 签名 (future - external integrations)
-- [x] 1.6 添加 test endpoint (via admin API)
-- [x] 1.7 添加单元测试 (tests/unit/test_hitl.py + tests/e2e/)
+### Phase 1: Core Webhook
+- [x] 1.1 Add webhook model and database table
+- [x] 1.2 Create webhook delivery service
+- [x] 1.3 Add signature verification
 
-## 已实现
+### Phase 2: Events
+- [x] 2.1 Emit events from chat service
+- [x] 2.2 Add event queue (Redis)
+- [x] 2.3 Implement retry logic
 
-### Event/Notification System
-- hitl_node.py - triggers notification on escalation
-- admin_service/routes/hitl.py - CRUD + poller
-- notify_hitl_request() - creates session + task
-- _poll_escalation_tasks() - retry on overdue
+### Phase 3: Admin API
+- [x] 3.1 Webhook CRUD endpoints
+- [x] 3.2 Event log viewer
+- [x] 3.3 Test webhook endpoint
 
-### Tables
-- hitl_sessions - session state
-- hitl_escalation_tasks - pending escalation tasks
+## Event Types
 
-### Tests
-- test_hitl.py - 10+ tests
-- e2e/test_hitl_flow.py
+- conversation.created
+- conversation.resolved
+- conversation.escalated
+- message.received
+- message.sent
+- hitl.requested
+- hitl.taken
+- hitl.completed
+- billing.limit_exceeded
+- feedback.received
+
+## API Endpoints
+
+- GET /admin/v1/webhooks
+- POST /admin/v1/webhooks
+- PUT /admin/v1/webhooks/{id}
+- DELETE /admin/v1/webhooks/{id}
+- POST /admin/v1/webhooks/{id}/test
+
+## Database Table
+
+webhooks: id, tenant_id, url, secret, events, enabled, created_at

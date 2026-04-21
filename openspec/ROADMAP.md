@@ -75,7 +75,7 @@
 
 **特性**:
 - [x] 插件系统
-- [ ] Webhook
+- [x] Webhook
 - [ ] API Marketplace
 - [x] 多语言支持
 - [x] 知识推荐
