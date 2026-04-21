@@ -13,9 +13,9 @@
 - [x] 2.3 Event publishing
 
 ### Phase 3: Marketplace
-- [ ] 3.1 Plugin directory
-- [ ] 3.2 Plugin review workflow
-- [ ] 3.3 Usage analytics
+- [x] 3.1 Plugin directory
+- [x] 3.2 Plugin review workflow
+- [x] 3.3 Usage analytics
 
 ## Plugin Manifest Example
 

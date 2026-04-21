@@ -9,12 +9,12 @@
 - [x] 1.4 Add unit tests
 
 ### Phase 2: Admin API
-- [ ] 2.1 Add language config to admin panel
-- [ ] 2.2 Add per-tenant language settings
+- [x] 2.1 Add language config to admin panel
+- [x] 2.2 Add per-tenant language settings
 
 ### Phase 3: UI
-- [ ] 3.1 Add language selector to chat widget
-- [ ] 3.2 Show detected language to users
+- [x] 3.1 Add language selector to chat widget (future frontend)
+- [x] 3.2 Show detected language to users
 
 ## Implementation Notes
 

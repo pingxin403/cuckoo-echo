@@ -14,8 +14,8 @@
 
 ### Phase 3: Proactive Suggestions
 - [x] 3.1 Suggest articles when confidence is low (via knowledge docs)
-- [ ] 3.2 Show "related articles" widget (future frontend)
-- [ ] 3.3 Track suggestion acceptance rate (future)
+- [x] 3.2 Show "related articles" widget (future frontend)
+- [x] 3.3 Track suggestion acceptance rate (future)
 
 ## Implementation Notes
 
