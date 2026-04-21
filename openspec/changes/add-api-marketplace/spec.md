@@ -48,7 +48,7 @@ Public API marketplace for third-party integrations and service providers.
 3.3 Invoice generation
 
 ## Acceptance Criteria
-- [ ] Developers can self-register
-- [ ] API keys can be created and managed
-- [ ] Usage is tracked per key
-- [ ] Rate limiting works
+- [x] Developers can self-register
+- [x] API keys can be created and managed
+- [x] Usage is tracked per key
+- [x] Rate limiting works
