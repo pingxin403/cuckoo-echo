@@ -190,3 +190,46 @@ async def retry_document(doc_id: str, request: Request):
 
     log.info("document_retry", doc_id=doc_id, tenant_id=tenant_id)
     return {"doc_id": doc_id, "status": "pending"}
+
+
+@router.get("/gaps")
+async def list_knowledge_gaps(request: Request):
+    """List knowledge gaps - queries without good RAG matches."""
+    db_pool = request.app.state.db_pool
+    tenant_id = request.state.tenant_id
+
+    async with db_pool.acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT id, query, frequency, first_seen, last_seen
+            FROM knowledge_gaps
+            WHERE tenant_id = $1
+            ORDER BY frequency DESC
+            LIMIT 20
+            """,
+            tenant_id,
+        )
+
+    return [
+        {
+            "id": str(r["id"]),
+            "query": r["query"],
+            "frequency": r["frequency"],
+            "first_seen": r["first_seen"].isoformat() if r["first_seen"] else None,
+            "last_seen": r["last_seen"].isoformat() if r["last_seen"] else None,
+        }
+        for r in rows
+    ]
+
+
+@router.post("/gaps/{gap_id}/dismiss")
+async def dismiss_knowledge_gap(gap_id: str, request: Request):
+    """Dismiss a knowledge gap."""
+    db_pool = request.app.state.db_pool
+    tenant_id = request.state.tenant_id
+
+    async with db_pool.acquire() as conn:
+        await conn.execute("DELETE FROM knowledge_gaps WHERE id = $1 AND tenant_id = $2", gap_id, tenant_id)
+
+    log.info("knowledge_gap_dismissed", gap_id=gap_id, tenant_id=tenant_id)
+    return {"dismissed": True}

@@ -1,0 +1,35 @@
+# Tasks
+
+## Implementation Checklist
+
+### Phase 1: Gap Detection
+- [x] 1.1 Track queries without RAG matches (knowledge_gap.py)
+- [x] 1.2 Aggregate failed query patterns
+- [x] 1.3 Calculate suggestion priority score
+
+### Phase 2: Recommendation API
+- [ ] 2.1 GET /admin/v1/knowledge/gaps - List knowledge gaps
+- [ ] 2.2 POST /admin/v1/knowledge/gaps/{id}/dismiss - Dismiss suggestion
+- [ ] 2.3 POST /admin/v1/knowledge/gaps/{id}/create - Create article
+
+### Phase 3: Proactive Suggestions
+- [ ] 3.1 Suggest articles when confidence is low
+- [ ] 3.2 Show "related articles" widget
+- [ ] 3.3 Track suggestion acceptance rate
+
+## Implementation Notes
+
+### shared/knowledge_gap.py
+- track_gap() - Track query without RAG match
+- get_top_gaps() - Get prioritized gaps
+- dismiss_gap() - Remove resolved gap
+- generate_title_suggestion() - Generate article title
+
+### Database (future)
+- knowledge_gaps table: tenant_id, query, frequency, first_seen, last_seen, suggested_title
+
+## Acceptance Criteria
+- [ ] Admin can see top knowledge gaps
+- [ ] Suggestions ranked by frequency
+- [ ] One-click article creation from suggestion
+- [ ] Track suggestion performance
