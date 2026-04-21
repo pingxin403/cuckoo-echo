@@ -10,12 +10,12 @@
 ### Phase 2: Recommendation API
 - [x] 2.1 GET /admin/v1/knowledge/gaps - List knowledge gaps
 - [x] 2.2 POST /admin/v1/knowledge/gaps/{id}/dismiss - Dismiss suggestion
-- [ ] 2.3 POST /admin/v1/knowledge/gaps/{id}/create - Create article
+- [x] 2.3 POST /admin/v1/knowledge/gaps/{id}/create - Create article (use knowledge docs API)
 
 ### Phase 3: Proactive Suggestions
-- [ ] 3.1 Suggest articles when confidence is low
-- [ ] 3.2 Show "related articles" widget
-- [ ] 3.3 Track suggestion acceptance rate
+- [x] 3.1 Suggest articles when confidence is low (via knowledge docs)
+- [ ] 3.2 Show "related articles" widget (future frontend)
+- [ ] 3.3 Track suggestion acceptance rate (future)
 
 ## Implementation Notes
 
