@@ -23,7 +23,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         if not auth.startswith("Bearer "):
             return JSONResponse(status_code=401, content={"error": "Missing token"})
 
-        token = auth.removeprefix("Bearer ")
+        token = auth[7:] if auth.startswith("Bearer ") else auth
         settings = get_settings()
         secret = settings.admin_jwt_secret
 

@@ -18,7 +18,7 @@ TOOL_TIMEOUT = 5.0
 
 def _parse_tool_intent(user_intent: str, last_message: str) -> tuple[str, dict]:
     """Extract tool name and args from user_intent and message text."""
-    tool_name = user_intent.removeprefix("tool:")
+    tool_name = user_intent[5:] if user_intent.startswith("tool:") else user_intent
     args: dict = {}
 
     if tool_name == "get_order_status":

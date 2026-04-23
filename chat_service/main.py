@@ -213,7 +213,7 @@ class ChatTenantAuthMiddleware(BaseHTTPMiddleware):
         if not auth.startswith("Bearer "):
             return JSONResponse(status_code=401, content={"error": "Unauthorized"})
 
-        api_key = auth.removeprefix("Bearer ")
+        api_key = auth[7:] if auth.startswith("Bearer ") else auth
         if not api_key:
             return JSONResponse(status_code=401, content={"error": "Unauthorized"})
 
