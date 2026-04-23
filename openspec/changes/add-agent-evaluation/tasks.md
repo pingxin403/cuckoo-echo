@@ -8,7 +8,7 @@
 - [x] 1.4 Implement quality scoring
 - [x] 1.5 Add regression detection
 - [x] 1.6 Create eval dataset format
-- [ ] 1.7 Add tests (tests/unit/test_evaluation.py)
+- [x] 1.7 Add tests (tests/unit/test_evaluation.py)
 
 ## Implementation Files
 

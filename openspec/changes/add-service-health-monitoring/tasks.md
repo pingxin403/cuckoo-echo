@@ -7,7 +7,7 @@
 - [x] 1.3 Add circuit_breaker state reporting
 - [x] 1.4 Track error rates and total requests
 - [x] 1.5 Add latency tracking per service
-- [ ] 1.6 Add /health/detailed endpoint to chat_service/main.py
+- [x] 1.6 Add /health/detailed endpoint to chat_service/main.py
 
 ## Implementation Files
 

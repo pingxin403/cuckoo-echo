@@ -20,17 +20,17 @@
 ### Phase 4: Rollback
 - [x] 4.1 Add rollback trigger monitoring
 - [x] 4.2 Implement automatic rollback
-- [ ] 4.3 Add rollback notifications
+- [x] 4.3 Add rollback notifications
 
 ### Phase 5: Dashboard
-- [ ] 5.1 Add rollout metrics endpoint
-- [ ] 5.2 Create rollout status view
-- [ ] 5.3 Add historical tracking
+- [x] 5.1 Add rollout metrics endpoint
+- [x] 5.2 Create rollout status view
+- [x] 5.3 Add historical tracking
 
 ### Phase 6: Tests
-- [ ] 6.1 Add rollout strategy tests
-- [ ] 6.2 Add middleware tests
-- [ ] 6.3 Add rollback tests
+- [x] 6.1 Add rollout strategy tests
+- [x] 6.2 Add middleware tests
+- [x] 6.3 Add rollback tests
 
 ## Implementation Files
 

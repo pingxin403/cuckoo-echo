@@ -244,3 +244,13 @@ app.include_router(ws_chat_router)
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/health/detailed")
+async def health_detailed():
+    """Detailed health check with service status, circuit breakers, and error rates."""
+    from shared.health_monitor import HealthMonitor
+
+    monitor = HealthMonitor()
+    response = await monitor.get_health_response()
+    return response.model_dump()

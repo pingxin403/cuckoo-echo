@@ -7,7 +7,7 @@
 - [x] 1.3 Add relevance weighting
 - [x] 1.4 Implement token budget management
 - [x] 1.5 Add selective retention logic
-- [ ] 1.6 Add tests (tests/unit/test_context_compression.py)
+- [x] 1.6 Add tests (tests/unit/test_context_compression.py)
 
 ## Implementation Files
 
