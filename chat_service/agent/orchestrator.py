@@ -12,6 +12,8 @@ from typing import Any, Callable
 
 import structlog
 
+from chat_service.agent.role_registry import RoleRegistry
+
 logger = structlog.get_logger(__name__)
 
 
@@ -35,31 +37,6 @@ class AgentTask:
     trace_id: str | None = None
     retry_count: int = 0
     max_retries: int = 3
-
-
-@dataclass
-class RoleRegistry:
-    """Registry for agent roles and capabilities."""
-
-    _roles: dict[str, dict[str, Any]] = field(default_factory=dict)
-
-    def register_role(self, role: str, capabilities: list[str], priority: int = 0) -> None:
-        self._roles[role] = {
-            "capabilities": capabilities,
-            "priority": priority,
-        }
-
-    def get_capabilities(self, role: str) -> list[str]:
-        return self._roles.get(role, {}).get("capabilities", [])
-
-    def get_role_for_task(self, task_type: str) -> str | None:
-        for role, info in self._roles.items():
-            if task_type in info.get("capabilities", []):
-                return role
-        return None
-
-    def list_roles(self) -> list[str]:
-        return list(self._roles.keys())
 
 
 @dataclass
