@@ -51,7 +51,16 @@ class MyService:
 
 ## Acceptance Criteria
 
-- [ ] No module-level globals for services
-- [ ] All services initialized in lifespan
-- [ ] Services passed via dependency injection
-- [ ] Graceful shutdown implemented
+- [x] No module-level globals for services
+- [x] All services initialized in lifespan
+- [x] Services passed via dependency injection
+- [x] Graceful shutdown implemented
+
+## Implementation Notes
+
+The current codebase already follows this pattern:
+- `chat_service/main.py` uses `asynccontextmanager` lifespan to initialize services in `app.state`
+- `_wire_dependencies()` injects services into module-level placeholders for node modules (rag_engine, llm_generate, etc.)
+- `shared/redis_client.py` uses singleton pattern via `get_redis()` factory function
+- `shared/embedding_service.py` uses factory pattern via `get_embedding_service()`
+- Graceful shutdown is handled in lifespan (close db pool, close redis)

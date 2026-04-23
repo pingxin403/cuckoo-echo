@@ -81,8 +81,8 @@ class MultiAgentOrchestrator:
 
 ## Acceptance Criteria
 
-- [ ] Orchestrator delegates to multiple specialist agents
-- [ ] Agent messages propagate context
-- [ ] Shared memory accessible across agents
-- [ ] Fault tolerance with retry/fallback
-- [ ] Step-level tracing across agents
+- [x] Orchestrator delegates to multiple specialist agents
+- [x] Agent messages propagate context
+- [x] Shared memory accessible across agents
+- [x] Fault tolerance with retry/fallback
+- [x] Step-level tracing across agents

@@ -73,9 +73,9 @@ class GuardrailEngine:
 
 ## Acceptance Criteria
 
-- [ ] PII detection and redaction
-- [ ] Prompt injection detection
-- [ ] Tool allowlisting enforcement
-- [ ] Post-LLM output filtering
-- [ ] Guardrail audit logging
-- [ ] Configurable thresholds
+- [x] PII detection and redaction
+- [x] Prompt injection detection
+- [x] Tool allowlisting enforcement
+- [x] Post-LLM output filtering (NLI-based hallucination detection)
+- [x] Guardrail audit logging (via structlog)
+- [x] Configurable thresholds
