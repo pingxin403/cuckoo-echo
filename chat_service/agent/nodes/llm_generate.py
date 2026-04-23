@@ -14,18 +14,22 @@ db_pool = None
 
 
 async def llm_generate_node(state: AgentState) -> AgentState:
-    """Generate LLM response using AI Gateway with tenant config."""
+    """Generate LLM response using AI Gateway with tenant config.
+    
+    Graceful degradation: indicates when RAG context is unavailable (chat-only mode).
+    """
     messages = state.get("messages", [])
     tenant_id = state.get("tenant_id", "")
     rag_context = state.get("rag_context", [])
     tool_calls = state.get("tool_calls", [])
+    chat_only_mode = state.get("chat_only_mode", False)
 
     # Build LLM messages
     llm_messages = []
 
     # System prompt (from tenant config or default)
-    llm_messages.append({"role": "system", "content": "You are a helpful customer service assistant."})
-
+    system_prompt = "You are a helpful customer service assistant."
+    
     # Add RAG context with citations if available
     sources = state.get("sources", [])
     if rag_context:
@@ -35,6 +39,13 @@ async def llm_generate_node(state: AgentState) -> AgentState:
         if citation_text:
             context_with_citation += f"\n\nSources: {citation_text}"
         llm_messages.append({"role": "system", "content": context_with_citation})
+    elif chat_only_mode:
+        llm_messages.append({
+            "role": "system", 
+            "content": "You are a helpful customer service assistant. Note: Knowledge base is currently unavailable (chat-only mode)."
+        })
+    else:
+        llm_messages.append({"role": "system", "content": system_prompt})
 
     # Add tool results if available
     if tool_calls:
@@ -113,6 +124,7 @@ async def llm_generate_node(state: AgentState) -> AgentState:
         }
     except Exception as e:
         log.error("llm_generate_failed", error=str(e))
+        context_note = " (chat-only mode)" if chat_only_mode else ""
         return {
             **state,
             "llm_response": "抱歉，系统暂时无法处理您的请求，请稍后重试。",
