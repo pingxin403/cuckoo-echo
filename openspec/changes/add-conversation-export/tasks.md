@@ -1,21 +1,29 @@
-# Tasks
+# Tasks / 任务清单
 
-## Phase 1: Export Service
-- [ ] 1.1 Create chat_service/services/export.py
-- [ ] 1.2 Implement JSON export
-- [ ] 1.3 Implement Markdown export
+## Phase 1: Core Implementation
 
-## Phase 2: PDF Export
-- [ ] 2.1 Add PDF generation library
-- [ ] 2.2 Create PDF template
-- [ ] 2.3 Generate PDF on demand
+- [ ] Add export endpoint to admin_service/routes/conversations.py
+- [ ] Create export job model in database
+- [ ] Implement JSON export formatter
+- [ ] Implement CSV export formatter
+- [ ] Implement Markdown export formatter
 
-## Phase 3: API
-- [ ] 3.1 Add GET /export/conversation endpoint
-- [ ] 3.2 Add format query parameter
-- [ ] 3.3 Add date range filter
+## Phase 2: Async Export
 
-## Phase 4: Delivery
-- [ ] 4.1 Implement download endpoint
-- [ ] 4.2 Add email delivery option
-- [ ] 4.3 Add async export for large exports
+- [ ] Create background worker for large exports
+- [ ] Add job status endpoint
+- [ ] Add download endpoint
+- [ ] Implement pagination
+
+## Phase 3: Filtering
+
+- [ ] Add date range filtering
+- [ ] Add status filtering
+- [ ] Add message count filtering
+- [ ] Add export audit logging
+
+## Phase 4: Testing
+
+- [ ] Unit tests for formatters
+- [ ] Integration tests for export API
+- [ ] Test large export async job flow
