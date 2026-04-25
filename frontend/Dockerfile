@@ -3,7 +3,7 @@ WORKDIR /app
 RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install
-RUN npm install typescript vite @vitejs/plugin-react --save-dev
+RUN pnpm add -D typescript vite @vitejs/plugin-react
 COPY . .
 RUN node_modules/.bin/tsc -b && node_modules/.bin/vite build
 
