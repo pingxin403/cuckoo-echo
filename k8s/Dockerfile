@@ -3,7 +3,7 @@ RUN pip install --no-cache-dir uv -i https://pypi.tuna.tsinghua.edu.cn/simple
 RUN apt-get update && apt-get install -y --no-install-recommends gcc libc6-dev zlib1g-dev && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
-RUN uv pip install --system --no-cache -r pyproject.toml -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN UV_HTTP_TIMEOUT=300 uv pip install --system --no-cache -r pyproject.toml -i https://pypi.tuna.tsinghua.edu.cn/simple
 COPY . .
 
 FROM python:3.12-slim
