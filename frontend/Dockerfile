@@ -2,10 +2,9 @@ FROM node:20-alpine AS build
 WORKDIR /app
 RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install
-RUN pnpm add -D typescript vite @vitejs/plugin-react
+RUN pnpm install --frozen-lockfile
 COPY . .
-RUN node_modules/.bin/tsc -b && node_modules/.bin/vite build
+RUN pnpm exec vite build
 
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
