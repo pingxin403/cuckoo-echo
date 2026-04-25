@@ -99,8 +99,8 @@ async def llm_generate_node(state: AgentState) -> AgentState:
                         if token_queue:
                             try:
                                 token_queue.put_nowait(content)
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                log.warning("token_queue_full", error=str(e))
             if hasattr(chunk, "usage") and chunk.usage:
                 tokens_used = getattr(chunk.usage, "total_tokens", 0)
 

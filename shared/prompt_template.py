@@ -108,7 +108,10 @@ class TemplateEngine:
                     right = parts[1].strip().strip('"\'')
                     try:
                         return op_func(left, right)
-                    except Exception:
+                    except (ValueError, KeyError, TypeError):
+                        return False
+                    except Exception as e:
+                        log.warning("template_eval_error", error=str(e))
                         return False
         return bool(context.get(condition.strip()))
 
