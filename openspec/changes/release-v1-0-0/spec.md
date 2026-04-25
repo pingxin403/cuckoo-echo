@@ -36,9 +36,9 @@ MVP (0.1.0) complete:
 - [ ] Health checks deep
 
 ### 4. Reliability
-- [ ] Graceful shutdown working
-- [ ] Startup validation complete
-- [ ] Circuit breakers configured
+- [x] Graceful shutdown working
+- [x] Startup validation complete
+- [x] Circuit breakers configured
 - [ ] Rate limiting tested
 
 ### 5. Security
