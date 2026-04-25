@@ -2,6 +2,10 @@ from typing import Any, Callable
 from pydantic import BaseModel
 from datetime import datetime
 import re
+import structlog
+
+log = structlog.get_logger()
+import structlog
 
 
 class PromptTemplate(BaseModel):
@@ -64,8 +68,12 @@ class TemplateEngine:
                     result = result.replace(f"{{% if {condition} %}}{content}{{% endif %}}", content)
                 else:
                     result = result.replace(f"{{% if {condition} %}}{content}{{% endif %}}", "")
-            except Exception:
-                pass
+            except (ValueError, KeyError, TypeError) as e:
+                log.warning("template_condition_error", error=str(e))
+                result = result.replace(f"{{% if {condition} %}}{content}{{% endif %}}", "")
+            except Exception as e:
+                log.error("template_unexpected_error", error=str(e))
+                result = result.replace(f"{{% if {condition} %}}{content}{{% endif %}}", "")
         
         for_loop_pattern = r"\{% for ([^%]+) in ([^%]+) %\}(.*?)\{% endfor %}"
         for_match = re.search(for_loop_pattern, template)
