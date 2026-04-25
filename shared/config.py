@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from functools import lru_cache
 
+import structlog
 from pydantic_settings import BaseSettings
+
+log = structlog.get_logger()
 
 
 class Settings(BaseSettings):
@@ -79,3 +82,27 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """Return a cached Settings instance."""
     return Settings()
+
+
+def validate_startup() -> list[str]:
+    """Validate settings at startup. Returns list of warnings."""
+    settings = get_settings()
+    warnings = []
+
+    if not settings.database_url:
+        warnings.append("DATABASE_URL not configured")
+    elif not settings.database_url.startswith("postgresql"):
+        warnings.append(f"Invalid DATABASE_URL format: {settings.database_url[:30]}...")
+
+    if not settings.redis_url:
+        warnings.append("REDIS_URL not configured")
+    elif not settings.redis_url.startswith("redis"):
+        warnings.append(f"Invalid REDIS_URL format: {settings.redis_url[:30]}...")
+
+    if settings.environment == "production":
+        try:
+            settings.validate_jwt_secret()
+        except ValueError as e:
+            warnings.append(str(e))
+
+    return warnings
