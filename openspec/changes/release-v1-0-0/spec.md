@@ -19,8 +19,8 @@ MVP (0.1.0) complete:
 ## Requirements / 需求
 
 ### 1. Feature Completeness
-- [ ] Stub implementations wired (circuit breaker, cache backend)
-- [ ] Error handling complete
+- [x] Stub implementations wired (circuit breaker, cache backend)
+- [x] Error handling complete
 - [ ] All APIs functional
 
 ### 2. Testing

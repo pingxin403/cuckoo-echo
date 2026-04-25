@@ -2,10 +2,10 @@
 
 ## Phase 1: Bug Fixes & Wiring
 
-- [ ] Wire circuit_breaker.py to ai_gateway client
-- [ ] Implement CacheBackend in shared/redis_client.py
-- [ ] Fix bare exception handlers in shared/prompt_template.py
-- [ ] Fix bare exception handlers in chat_service/agent/nodes/llm_generate.py
+- [x] Wire circuit_breaker.py to ai_gateway client
+- [x] Implement CacheBackend in shared/cache_backend.py
+- [x] Fix bare exception handlers in shared/prompt_template.py
+- [x] Fix bare exception handlers in chat_service/agent/nodes/llm_generate.py
 
 ## Phase 2: Testing & Observability
 
