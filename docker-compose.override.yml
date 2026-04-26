@@ -3,12 +3,11 @@ version: "3.8"
 services:
   migrate:
     image: cuckoo-echo-migrate:latest
-    command: ["sh", "-c", "/bin/bash /app/scripts/docker-entrypoint.sh alembic upgrade head"]
+    deploy:
+      replicas: 0
 
   api-gateway:
     image: cuckoo-echo-api-gateway:latest
-    deploy:
-      replicas: 0
 
   admin-service:
     image: cuckoo-echo-admin-service:latest

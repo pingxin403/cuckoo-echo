@@ -36,7 +36,6 @@ def _get_database_url() -> str:
     elif "postgresql+asyncpg" in url:
         url = url.replace("postgresql+asyncpg", "postgresql+psycopg2")
     return url
-        return config.get_main_option("sqlalchemy.url", "")
 
 
 def run_migrations_offline() -> None:
