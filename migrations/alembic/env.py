@@ -28,16 +28,14 @@ target_metadata = None
 
 
 def _get_database_url() -> str:
-    """Resolve the database URL from pydantic-settings, falling back to alembic.ini."""
-    try:
-        from shared.config import get_settings
-
-        return get_settings().database_url
-    except Exception:
-        # Fallback: use the value from alembic.ini or DATABASE_URL env var
-        url = os.environ.get("DATABASE_URL")
-        if url:
-            return url
+    url = os.environ.get("DATABASE_URL", "")
+    if not url:
+        url = "postgresql://postgres:postgres@postgres:5432/cuckoo"
+    if "asyncpg" in url:
+        url = url.replace("asyncpg", "psycopg2")
+    elif "postgresql+asyncpg" in url:
+        url = url.replace("postgresql+asyncpg", "postgresql+psycopg2")
+    return url
         return config.get_main_option("sqlalchemy.url", "")
 
 
