@@ -1,9 +1,15 @@
-FROM node:20-alpine AS build
+# Frontend - uses BuildKit cache for pnpm
+FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=cache,target=/root/.cache/pnpm \
+    npm install -g pnpm && pnpm install --frozen-lockfile
+
+FROM node:20-alpine AS build
+WORKDIR /app
 RUN npm install -g pnpm
-RUN --mount=type=cache,target=/root/.pnpm-cache \
-    pnpm install --frozen-lockfile
+COPY --from=deps /app/node_modules /app/node_modules
+COPY package.json pnpm-lock.yaml ./
 COPY . .
 RUN pnpm run build
 
